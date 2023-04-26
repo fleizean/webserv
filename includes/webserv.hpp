@@ -3,6 +3,7 @@
 #include <signal.h>
 #include <iostream>
 #include <fstream>
+#include <vector>
 
 class Webserv
 {
