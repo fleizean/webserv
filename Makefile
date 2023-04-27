@@ -1,16 +1,3 @@
-
-# **************************************************************************** #
-#                                                                              #
-#                                                         :::      ::::::::    #
-#    Makefile                                           :+:      :+:    :+:    #
-#                                                     +:+ +:+         +:+      #
-#    By: hthomas <hthomas@student.42.fr>            +#+  +:+       +#+         #
-#                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2021/09/08 14:55:13 by edal--ce          #+#    #+#              #
-#    Updated: 2021/10/27 12:54:48 by hthomas          ###   ########.fr        #
-#                                                                              #
-# **************************************************************************** #
-
 NAME		=	webserv
 
 DIRSRC		=	sources
@@ -18,11 +5,13 @@ OBJD		=	obj
 INCLUDE		=	includes
 
 INCLUDEF	=	$(INCLUDE)/color.hpp		\
-				$(INCLUDE)/error.hpp		\
-				$(INCLUDE)/webserv.hpp
+				$(INCLUDE)/Error.hpp		\
+				$(INCLUDE)/WebServer.hpp
 
 SRC			=	main.cpp			\
-				error.cpp
+				Error.cpp			\
+				WebServer.cpp		\
+				utils_parse.cpp
 
 OBJ			=	$(SRC:.cpp=.o)
 OBJS		=	$(OBJ:%=$(OBJD)/%)
@@ -41,7 +30,7 @@ $(OBJD)		:
 				@mkdir $(OBJD)
 
 $(OBJD)/%.o	:	$(DIRSRC)/%.cpp $(INCLUDEF)
-				$(CC) -I ./$(INCLUDE) $(CFLAGS) -D DEBUG_ACTIVE=$(DEBUG) -o $@ -c $<
+				$(CC) -I ./$(INCLUDE) $(CFLAGS) -o $@ -c $<
 
 all			:	$(NAME)
 

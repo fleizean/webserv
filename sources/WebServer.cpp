@@ -1,21 +1,28 @@
 #include "../includes/WebServer.hpp"
 
-WebServer::WebServer() : _conf_path() {}
+WebServer::WebServer() : _configContent() {}
 
-WebServer::WebServer(WebServer const &rhs) : _conf_path(rhs._conf_path) {}
+WebServer::WebServer(WebServer const &rhs) : _configContent(rhs._configContent) {}
 
 WebServer::~WebServer() {}
 
 WebServer &WebServer::operator=(WebServer const &rhs)
 {
-    _conf_path = rhs._conf_path;
+    _configContent = rhs._configContent;
     return *this;
 }
 
 
-void WebServer::FileChecker(const std::string &conf_path)
+void WebServer::FileChecker(const string &conf_path)
 {
-	std::string contentsConfig;
+    Error err(0);
+	string contentsConfig;
+    std::ifstream conf(conf_path);
+    if(!conf){
+        err.setAndPrint(1);
+        exit(1);
+    }
+    conf.close();
     if (!conf_path.length()){
         err.setAndPrint(5);
         exit(1);
@@ -29,8 +36,8 @@ void WebServer::FileChecker(const std::string &conf_path)
     else
         err.setAndPrint(2);
     if(!isBracketBalanced(contentsConfig))
-        err.setAndPrint(5); // düzenlenecek error
-    
+        err.setAndPrint(7);
+    this->_configContent = contentsConfig;
 }
 
 
@@ -40,8 +47,8 @@ void WebServer::FileChecker(const std::string &conf_path)
 
 /* void WebServer::BracketChecker()
 {
-    std::string line;
-    std::vector<std::string> myVec;
+    string line;
+    vector<string> myVec;
     
     ifstream file(get_conf_path());
     while(getline(file, line){

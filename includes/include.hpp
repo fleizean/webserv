@@ -7,15 +7,17 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include <stack>
 #include <string>
 #include <map>
+
+using namespace std;
+
+#include "Error.hpp"
 #include "color.hpp"
-#include "error.hpp"
 #include "WebServer.hpp"
 
-Error err(0);
-
-bool isComment(const std::string& line, const std::set<std::string>& commentPrefixes, int& multi);
-std::string removeComments(const std::string& str);
-int fileToString(const std::string& filename, std::string& fileContents);
-bool isBracketBalanced(std::string fileContent);
+bool isComment(const string& line, const set<string>& commentPrefixes, int& multi);
+string removeComments(const string& str);
+int fileToString(const string& filename, string& fileContents);
+bool isBracketBalanced(string fileContent);

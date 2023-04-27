@@ -1,19 +1,19 @@
 #include "../includes/include.hpp"
 
-int fileToString(const std::string& filename, std::string& fileContents)
+int fileToString(const string& filename, string& fileContents)
 {
-		std::ifstream input(filename.c_str());
+		ifstream input(filename.c_str());
 		if (!input) {
 			return (-1);
 		}
-		std::stringstream buffer;
+		stringstream buffer;
 		buffer << input.rdbuf();
 		fileContents = buffer.str();
 		return (1);
 }
-bool isComment(const std::string& line, const std::set<std::string>& commentPrefixes, int& multi)
+bool isComment(const string& line, const set<string>& commentPrefixes, int& multi)
 {
-	std::set<std::string>::const_iterator it;
+	set<string>::const_iterator it;
 	for (it = commentPrefixes.begin(); it != commentPrefixes.end(); ++it) {
 		if (line.find(*it) == 0) {
 			if (*it == "/*")
@@ -28,17 +28,17 @@ bool isComment(const std::string& line, const std::set<std::string>& commentPref
 	return false;
 }
 
-std::string removeComments(const std::string& str)
+string removeComments(const string& str)
 {
 		const char* comment_prefixes[] = {"//", "/*", "*/", "#", "<!--"};
 		const int comment_prefixes_size = sizeof(comment_prefixes) / sizeof(comment_prefixes[0]);
-		std::set<std::string>	commentPrefixes(comment_prefixes, comment_prefixes + comment_prefixes_size);
-		std::istringstream		input(str);
-		std::string				result;
-		std::string				line;
+		set<string>	commentPrefixes(comment_prefixes, comment_prefixes + comment_prefixes_size);
+		istringstream		input(str);
+		string				result;
+		string				line;
 		int						multi = 0;
 
-		while (std::getline(input, line)) {
+		while (getline(input, line)) {
 			if (!isComment(line, commentPrefixes, multi)) {
 				if (result.length() > 0) {
 					result += "\n";
@@ -49,7 +49,21 @@ std::string removeComments(const std::string& str)
 		return result;
 }
 
-bool isBracketBalanced(std::string fileContent)
+bool isBracketBalanced(string fileContent)
 {
 	// Bracketlar açılıp kapanmış mı bakılacak
+    stack<char> s; // örn: push -> { if top -> { and current fileconten[i] == } so pop your { 
+    for (size_t i = 0; i < fileContent.length(); ++i) {
+    	char c = fileContent[i];
+        if (c == '{') {
+            s.push(c);
+        }
+        else if (c == '}') {
+            if (s.empty() || s.top() != '{') {
+                return false;
+            }
+            s.pop();
+        }
+    }
+    return s.empty();
 }

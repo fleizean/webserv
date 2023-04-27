@@ -5,7 +5,7 @@
 class WebServer
 {
 private:
-    std::string _conf_path;
+    string _configContent;
 public:
     /* default constructor */
     WebServer();
@@ -17,7 +17,7 @@ public:
     WebServer &operator=(WebServer const &rhs);
 
     /* methods */
-    void FileChecker(const std::string &conf_path);
+    void FileChecker(const string &conf_path);
     
    // void BracketChecker();
 };
