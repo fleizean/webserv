@@ -15,6 +15,7 @@ WebServer &WebServer::operator=(WebServer const &rhs)
 
 void WebServer::FileChecker(const std::string &conf_path)
 {
+	std::string contentsConfig;
     if (!conf_path.length()){
         err.setAndPrint(5);
         exit(1);
@@ -23,8 +24,12 @@ void WebServer::FileChecker(const std::string &conf_path)
         err.setAndPrint(4);
         exit(1);
     }
-    const std::vector<std::string> conf = ft_split(get_content_file(conf_path), "\n");
-        
+    if (fileToString(conf_path, contentsConfig) != -1)
+		contentsConfig = removeComments(contentsConfig);
+    else
+        err.setAndPrint(2);
+    if(!isBracketBalanced(contentsConfig))
+        err.setAndPrint(5); // düzenlenecek error
     
 }
 
