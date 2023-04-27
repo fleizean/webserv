@@ -6,6 +6,9 @@ Error::Error(const int& err_code) : err_code(err_code)
     error_list[1] = "Config file argument not found.";
     error_list[2] = "Could not open config file.";
     error_list[3] = "Invalid argument.";
+    error_list[4] = "Invalid file extension.";
+    error_list[5] = "Please provide a config file.";
+    error_list[6] = "Config file is empty";
 }
 
 Error::~Error() { }

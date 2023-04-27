@@ -1,9 +1,6 @@
 #pragma once
 
-#include <string>
-#include <map>
-#include <iostream>
-#include "../includes/color.hpp"
+#include "include.hpp"
 
 class Error
 {
