@@ -67,3 +67,40 @@ bool isBracketBalanced(string fileContent)
     }
     return s.empty();
 }
+
+
+std::vector<int> findServerLoc(std::string _configContent)
+{
+	std::string str;
+	std::vector<std::string> server_block;
+	int scops = 0;
+	bool isOn = false, checkScop = false;
+
+	for (char c : _configContent)
+	{
+		if (c == "{" && checkScop == false)
+		{
+			isOn = true;
+			locations.push_back(i);
+		}
+		else if(c == "{")
+		{
+			scops++;
+		}
+		else if(c == "}" && scops > 0)
+		{
+			scops--;
+		}
+		else if(c == "}" && scops == 0)
+		{
+			isOn = false;
+			server_block
+		}
+
+	}
+}
+
+std::vector<std::string> parse_server(std::string _configContent) // burda kaç adet server varsa her bir serverı 2 boyutlu bir dizeye aktarıyoruz
+{
+	std::vector<int> serverLocations = findServerLoc(_configContent);
+}
