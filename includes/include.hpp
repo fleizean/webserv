@@ -21,3 +21,4 @@ bool isComment(const string& line, const set<string>& commentPrefixes, int& mult
 string removeComments(const string& str);
 int fileToString(const string& filename, string& fileContents);
 bool isBracketBalanced(string fileContent);
+void parse_server(std::string _configContent);

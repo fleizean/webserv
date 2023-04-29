@@ -18,4 +18,6 @@ public:
 
     /* methods */
     void FileChecker(const string &conf_path);
+    std::vector<std::string> split_server(std::string _configContent);
+    void parse_server();
 };

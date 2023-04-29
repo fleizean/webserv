@@ -38,9 +38,54 @@ void WebServer::FileChecker(const string &conf_path)
     if(!isBracketBalanced(contentsConfig))
         err.setAndPrint(7);
     this->_configContent = contentsConfig;
+    parse_server();
 }
 
 
+std::vector<std::string> WebServer::split_server(std::string configContent) // bu fonksiyon config dosyasındaki server scoplarının içeriğini 
+{																  // iki boyutlu bir dizeye sırasıyla aktarıyor 
+	std::string str = "";										  // yalnız şöyle bir şey var tüm scopları alıyor sadece server diye değil
+	std::vector<std::string> server_blocks;						  // şuan şart mı bilmediğim için eklemedim ama yaparız onu önemli değil
+	int scops = 0;
+	bool isOn = false;
+
+    for (string::const_iterator it = configContent.begin(); it != configContent.end(); ++it)
+    {
+    	char c = *it;
+    	if (c == '{' && isOn == false)
+    	{
+    		isOn = true;
+    	}
+    	else if(c == '{')
+    	{
+    		scops++;
+    	}
+    	else if(c == '}' && scops > 0)
+    	{
+    		scops--;
+    	}
+    	else if(c == '}' && scops == 0)
+    	{
+    		str += c;
+    		isOn = false;
+    		cout << str << endl;
+    		server_blocks.push_back(str);
+    		str = "";
+    	}
+    	if(isOn)
+    		str += c;
+    }
+    return server_blocks;
+}
+
+
+void WebServer::parse_server()
+{
+	std::vector<std::string> server_blocks = split_server(this->_configContent);
+	
+	// burda aldığımız içerikleri bir server structının içine parçalarız diye düşündüm 
+	// ama neler gerekiyor hatta bu struct gerekiyor mu bilmediğim için dokunmadım
+}
 
 
 
