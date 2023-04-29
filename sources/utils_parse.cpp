@@ -68,39 +68,43 @@ bool isBracketBalanced(string fileContent)
     return s.empty();
 }
 
-
-std::vector<int> findServerLoc(std::string _configContent)
-{
-	std::string str;
-	std::vector<std::string> server_block;
+std::vector<std::string> split_server(std::string _configContent) // bu fonksiyon config dosyasındaki server scoplarının içeriğini 
+{																  // iki boyutlu bir dizeye sırasıyla aktarıyor 
+	std::string str = "";										  // yalnız şöyle bir şey var tüm scopları alıyor sadece server diye değil
+	std::vector<std::string> server_blocks;						  // şuan şart mı bilmediğim için eklemedim ama yaparız onu önemli değil
 	int scops = 0;
-	bool isOn = false, checkScop = false;
+	bool isOn = false;
 
 	for (char c : _configContent)
 	{
-		if (c == "{" && checkScop == false)
+		if (c == '{' && isOn == false)
 		{
 			isOn = true;
-			locations.push_back(i);
 		}
-		else if(c == "{")
+		else if(c == '{')
 		{
 			scops++;
 		}
-		else if(c == "}" && scops > 0)
+		else if(c == '}' && scops > 0)
 		{
 			scops--;
 		}
-		else if(c == "}" && scops == 0)
+		else if(c == '}' && scops == 0)
 		{
+			str += c;
 			isOn = false;
-			server_block
+			server_blocks.push_back(str);
+			str = "";
 		}
-
+		if(isOn)
+			str += c;
 	}
+	return server_blocks;
 }
 
-std::vector<std::string> parse_server(std::string _configContent) // burda kaç adet server varsa her bir serverı 2 boyutlu bir dizeye aktarıyoruz
-{
-	std::vector<int> serverLocations = findServerLoc(_configContent);
+
+void parse_server(std::string _configContent) 			{
+	std::vector<std::string> server_blocks = split_server(_configContent);
+	// burda aldığımız içerikleri bir server structının içine parçalarız diye düşündüm 
+	// ama neler gerekiyor hatta bu struct gerekiyor mu bilmediğim için dokunmadım
 }

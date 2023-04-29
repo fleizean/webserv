@@ -18,6 +18,4 @@ public:
 
     /* methods */
     void FileChecker(const string &conf_path);
-    
-   // void BracketChecker();
 };
