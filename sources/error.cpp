@@ -10,6 +10,7 @@ Error::Error(const int& err_code) : err_code(err_code)
     error_list[5] = "Invalid argument.";
     error_list[6] = "Please provide a config file.";
     error_list[7] = "Parenthesis is unbalanced.";
+    error_list[8] = "Expected 'server {'";
 }
 
 Error::~Error() { }

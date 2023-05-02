@@ -6,6 +6,10 @@ class WebServer
 {
 private:
     string _configContent;
+
+    bool serverBlock;
+    bool mainBlock;
+    bool locationBlock;
 public:
     /* default constructor */
     WebServer();
@@ -18,6 +22,13 @@ public:
 
     /* methods */
     void FileChecker(const string &conf_path);
-    std::vector<std::string> split_server(std::string _configContent);
+    void split_server(std::string _configContent);
     void parse_server();
+
+    void endScopeConf();
+
+
+    void parseMainArea(std::string& line);
+    void parseServerArea(std::string& line);
+    void parseLocationArea(std::string& line);
 };

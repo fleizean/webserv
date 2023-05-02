@@ -1,14 +1,17 @@
 #include "../includes/WebServer.hpp"
 
-WebServer::WebServer() : _configContent() {}
+WebServer::WebServer() : _configContent(), serverBlock(false), mainBlock(true), locationBlock(false) {}
 
-WebServer::WebServer(WebServer const &rhs) : _configContent(rhs._configContent) {}
+WebServer::WebServer(WebServer const &rhs) : _configContent(rhs._configContent), serverBlock(rhs.serverBlock), mainBlock(rhs.mainBlock), locationBlock(rhs.locationBlock) {}
 
 WebServer::~WebServer() {}
 
 WebServer &WebServer::operator=(WebServer const &rhs)
 {
     _configContent = rhs._configContent;
+    serverBlock = rhs.serverBlock;
+    mainBlock = rhs.mainBlock;
+    locationBlock = rhs.locationBlock;
     return *this;
 }
 
@@ -38,50 +41,93 @@ void WebServer::FileChecker(const string &conf_path)
     if(!isBracketBalanced(contentsConfig))
         err.setAndPrint(7);
     this->_configContent = contentsConfig;
-    cout << _configContent << endl;
     parse_server();
 }
 
 
-std::vector<std::string> WebServer::split_server(std::string configContent) // bu fonksiyon config dosyasındaki server scoplarının içeriğini 
-{																  // iki boyutlu bir dizeye sırasıyla aktarıyor 
-	std::string str = "";										  // yalnız şöyle bir şey var tüm scopları alıyor sadece server diye değil
-	std::vector<std::string> server_blocks;						  // şuan şart mı bilmediğim için eklemedim ama yaparız onu önemli değil
-	int scops = 0;
-	bool isOn = false;
+void WebServer::split_server(std::string configContent)
+{
+    Error err(0);
+	std::string str = "";
+    int m_curr_line = 0;
+    std::string     line;
+    std::istringstream istreamfs(configContent);
 
-    for (string::const_iterator it = configContent.begin(); it != configContent.end(); ++it)
+    while (std::getline(istreamfs, line))
     {
-    	char c = *it;
-    	if (c == '{' && isOn == false)
-    	{
-    		isOn = true;
-    	}
-    	else if(c == '{')
-    	{
-    		scops++;
-    	}
-    	else if(c == '}' && scops > 0)
-    	{
-    		scops--;
-    	}
-    	else if(c == '}' && scops == 0)
-    	{
-    		str += c;
-    		isOn = false;
-    		server_blocks.push_back(str);
-    		str = "";
-    	}
-    	if(isOn)
-    		str += c;
-    }
-    return server_blocks;
+        std::cout << "mcurrent: " << m_curr_line << ". " << line << " \nmxtx : " << this->mainBlock << " " << this->serverBlock << " " << this->locationBlock << std::endl;
+        m_curr_line++;
+        line = trim(line, " \t");
+        if(line == "")
+            continue;
+        else if (line == "}")
+            endScopeConf();
+        else if (this->mainBlock == true)
+            parseMainArea(line);
+        else if (this->serverBlock == true)
+            parseServerArea(line);
+        else if (this->locationBlock == true)
+            parseLocationArea(line);
+    } 
 }
 
+void WebServer::endScopeConf()
+{
+    if (this->serverBlock == true)
+    {
+        this->mainBlock = true;
+        this->locationBlock = false;
+    }
+    else if (this->locationBlock == true){
+        this->serverBlock = true;
+        this->locationBlock = false;
+    }
+}
+
+void WebServer::parseServerArea(std::string& line)
+{
+    Error err(0);
+    if (line.back() != ';' && line.substr(0, 8) != "location")
+    {
+		err.setAndPrint(1);
+        exit(1);
+    }
+	if (line.back() == ';')
+		line.pop_back();
+
+	std::string			word;
+	std::stringstream	ss(line);
+
+    ss >> word;
+    if (word == "location") {
+        this->locationBlock = true;
+        this->mainBlock = false;
+        this->serverBlock = false;
+    }
+}
+
+void WebServer::parseLocationArea(std::string& line)
+{
+    (void)line;
+}
+
+void WebServer::parseMainArea(std::string& line)
+{
+    Error err(0);
+    if (line != "server {")
+    {
+        std::cout << line << std::endl;
+        err.setAndPrint(8);
+        exit(1);
+    }
+    this->serverBlock = true;
+    this->mainBlock = false;
+
+}
 
 void WebServer::parse_server()
 {
-	std::vector<std::string> server_blocks = split_server(this->_configContent);
+	split_server(this->_configContent);
 	
 	// burda aldığımız içerikleri bir server structının içine parçalarız diye düşündüm 
 	// ama neler gerekiyor hatta bu struct gerekiyor mu bilmediğim için dokunmadım
@@ -89,20 +135,3 @@ void WebServer::parse_server()
 
 
 
-
-/* void WebServer::BracketChecker()
-{
-    string line;
-    vector<string> myVec;
-    
-    ifstream file(get_conf_path());
-    while(getline(file, line){
-        myVec.push_back(line);
-    }
-    file.close();
-
-    for(int i = 0; i < myVec.size(); i++;)
-    {
-        
-    }
-} */
