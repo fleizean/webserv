@@ -14,7 +14,7 @@
 using namespace std;
 
 #include "Error.hpp"
-#include "color.hpp"
+#include "Color.hpp"
 #include "WebServer.hpp"
 #include "Server.hpp"
 

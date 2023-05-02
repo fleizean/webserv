@@ -34,4 +34,10 @@ public:
 
     void parseLocation(std::stringstream& ss);
     void parseListen(std::stringstream& ss);
+    void parseServerName(std::stringstream& ss);
+    void parseRoot(std::stringstream& ss);
+    void parseIndex(std::stringstream& ss);
+    void parseCgi(std::stringstream& ss);
+    void parseErrorPage(std::stringstream& ss);
+    void parseMaxClientBodySize(std::stringstream& ss);
 };

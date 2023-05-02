@@ -44,19 +44,20 @@ void WebServer::FileChecker(const string &conf_path)
     parse_server();
 }
 
+/* <---------------> Before Parsing Area <---------------> */
 
 void WebServer::split_server(std::string configContent)
 {
     Error err(0);
 	std::string str = "";
-    int m_curr_line = 0;
+    // int m_curr_line = 0;
     std::string     line;
     std::istringstream istreamfs(configContent);
 
     while (std::getline(istreamfs, line))
     {
         //std::cout << "mcurrent: " << m_curr_line << ". " << line << " \nmxtx : " << this->mainBlock << " " << this->serverBlock << " " << this->locationBlock << std::endl;
-        m_curr_line++;
+        // m_curr_line++;
         line = trim(line, " \t");
         if(line == "")
             continue;
@@ -89,7 +90,7 @@ void WebServer::parseServerArea(std::string& line)
     Error err(0);
     if (line.back() != ';' && line.substr(0, 8) != "location")
     {
-		err.setAndPrint(1);
+		err.setAndPrint(9);
         exit(1);
     }
 	if (line.back() == ';')
@@ -101,14 +102,27 @@ void WebServer::parseServerArea(std::string& line)
     ss >> word;
     if (word == "listen")
         parseListen(ss);
+    else if (word == "server_name")
+        parseServerName(ss);
+    else if (word == "cgi")
+        parseCgi(ss);
+    else if (word == "root")
+        parseRoot(ss);
+    else if (word == "index")
+        parseIndex(ss);
+    else if (word == "error_page")
+        parseErrorPage(ss);
+    else if (word == "max_client_body_size")
+        parseMaxClientBodySize(ss);
     else if (word == "location")
         parseLocation(ss);
-
+    
+    
 }
 
 void WebServer::parseLocationArea(std::string& line)
 {
-    std::cout << line << std::endl;
+    std::cout << "location: " << line << std::endl;
 }
 
 void WebServer::parseMainArea(std::string& line)
@@ -132,6 +146,8 @@ void WebServer::parse_server()
 	// ama neler gerekiyor hatta bu struct gerekiyor mu bilmediğim için dokunmadım
 }
 
+/* <-----------------------------------------------------> */
+
 
 
 /* <---------------> Parsing Area <---------------> */
@@ -144,6 +160,56 @@ void WebServer::parseListen(std::stringstream& ss)
     std::cout << "listen: " << word << std::endl;
 }
 
+void WebServer::parseServerName(std::stringstream& ss)
+{
+    std::string word;
+
+    ss >> word; // eğer >> işaretiyle ilerletirsen boşluktan sonraki diğer kısma geçer
+    std::cout << "server_name: " << word << std::endl;
+    ss >> word;
+    std::cout << "server_name: " << word << std::endl; // örnek
+}
+
+void WebServer::parseCgi(std::stringstream& ss)
+{
+    std::string word;
+
+    ss >> word;
+    std::cout << "cgi: " << word << std::endl;
+}
+
+void WebServer::parseRoot(std::stringstream& ss)
+{
+    std::string word;
+
+    ss >> word;
+    std::cout << "root: " << word << std::endl;
+}
+
+void WebServer::parseIndex(std::stringstream& ss)
+{
+    std::string word;
+
+    ss >> word;
+    std::cout << "index: " << word << std::endl;
+}
+
+void WebServer::parseErrorPage(std::stringstream& ss)
+{
+    std::string word;
+
+    ss >> word;
+    std::cout << "error_page: " << word << std::endl;
+}
+
+void WebServer::parseMaxClientBodySize(std::stringstream& ss)
+{
+    std::string word;
+
+    ss >> word;
+    std::cout << "max_client_body_size: " << word << std::endl;
+}
+
 void WebServer::parseLocation(std::stringstream& ss)
 {
     std::string		word;
@@ -154,6 +220,7 @@ void WebServer::parseLocation(std::stringstream& ss)
     ss >> word;
     std::cout << "location: " << word << std::endl;
 }
+
 
 /* <----------------------------------------------> */
 
