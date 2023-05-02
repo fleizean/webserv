@@ -50,14 +50,14 @@ void WebServer::split_server(std::string configContent)
 {
     Error err(0);
 	std::string str = "";
-    // int m_curr_line = 0;
+    //int m_curr_line = 0;
     std::string     line;
     std::istringstream istreamfs(configContent);
 
     while (std::getline(istreamfs, line))
     {
         //std::cout << "mcurrent: " << m_curr_line << ". " << line << " \nmxtx : " << this->mainBlock << " " << this->serverBlock << " " << this->locationBlock << std::endl;
-        // m_curr_line++;
+        //m_curr_line++;
         line = trim(line, " \t");
         if(line == "")
             continue;
@@ -90,6 +90,7 @@ void WebServer::parseServerArea(std::string& line)
     Error err(0);
     if (line.back() != ';' && line.substr(0, 8) != "location")
     {
+        std::cout << line << std::endl;
 		err.setAndPrint(9);
         exit(1);
     }
@@ -116,8 +117,6 @@ void WebServer::parseServerArea(std::string& line)
         parseMaxClientBodySize(ss);
     else if (word == "location")
         parseLocation(ss);
-    
-    
 }
 
 void WebServer::parseLocationArea(std::string& line)
@@ -135,7 +134,6 @@ void WebServer::parseMainArea(std::string& line)
     }
     this->serverBlock = true;
     this->mainBlock = false;
-
 }
 
 void WebServer::parse_server()
@@ -218,9 +216,8 @@ void WebServer::parseLocation(std::stringstream& ss)
     this->serverBlock = false;
     
     ss >> word;
-    std::cout << "location: " << word << std::endl;
+    std::cout << "location name: " << word << std::endl;
 }
-
 
 /* <----------------------------------------------> */
 

@@ -11,7 +11,7 @@ Error::Error(const int& err_code) : err_code(err_code)
     error_list[6] = "Please provide a config file.";
     error_list[7] = "Parenthesis is unbalanced.";
     error_list[8] = "Expected 'server {'";
-    error_list[9] = "Expected 'location'";
+    error_list[9] = "Shouldn't be 'location'";
 }
 
 Error::~Error() { }
