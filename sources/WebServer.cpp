@@ -55,7 +55,7 @@ void WebServer::split_server(std::string configContent)
 
     while (std::getline(istreamfs, line))
     {
-        std::cout << "mcurrent: " << m_curr_line << ". " << line << " \nmxtx : " << this->mainBlock << " " << this->serverBlock << " " << this->locationBlock << std::endl;
+        //std::cout << "mcurrent: " << m_curr_line << ". " << line << " \nmxtx : " << this->mainBlock << " " << this->serverBlock << " " << this->locationBlock << std::endl;
         m_curr_line++;
         line = trim(line, " \t");
         if(line == "")
@@ -99,16 +99,16 @@ void WebServer::parseServerArea(std::string& line)
 	std::stringstream	ss(line);
 
     ss >> word;
-    if (word == "location") {
-        this->locationBlock = true;
-        this->mainBlock = false;
-        this->serverBlock = false;
-    }
+    if (word == "listen")
+        parseListen(ss);
+    else if (word == "location")
+        parseLocation(ss);
+
 }
 
 void WebServer::parseLocationArea(std::string& line)
 {
-    (void)line;
+    std::cout << line << std::endl;
 }
 
 void WebServer::parseMainArea(std::string& line)
@@ -116,7 +116,6 @@ void WebServer::parseMainArea(std::string& line)
     Error err(0);
     if (line != "server {")
     {
-        std::cout << line << std::endl;
         err.setAndPrint(8);
         exit(1);
     }
@@ -134,4 +133,27 @@ void WebServer::parse_server()
 }
 
 
+
+/* <---------------> Parsing Area <---------------> */
+
+void WebServer::parseListen(std::stringstream& ss)
+{
+    std::string		word;
+
+    ss >> word;
+    std::cout << "listen: " << word << std::endl;
+}
+
+void WebServer::parseLocation(std::stringstream& ss)
+{
+    std::string		word;
+    this->locationBlock = true;
+    this->mainBlock = false;
+    this->serverBlock = false;
+    
+    ss >> word;
+    std::cout << "location: " << word << std::endl;
+}
+
+/* <----------------------------------------------> */
 

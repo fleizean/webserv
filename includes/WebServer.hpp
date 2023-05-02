@@ -31,4 +31,7 @@ public:
     void parseMainArea(std::string& line);
     void parseServerArea(std::string& line);
     void parseLocationArea(std::string& line);
+
+    void parseLocation(std::stringstream& ss);
+    void parseListen(std::stringstream& ss);
 };
