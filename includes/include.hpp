@@ -16,6 +16,7 @@ using namespace std;
 #include "Error.hpp"
 #include "color.hpp"
 #include "WebServer.hpp"
+#include "Server.hpp"
 
 bool isComment(const string& line, const set<string>& commentPrefixes, int& multi);
 string removeComments(const string& str);

@@ -11,15 +11,12 @@ int fileToString(const string& filename, string& fileContents)
 		fileContents = buffer.str();
 		return (1);
 }
+
 bool isComment(const string& line, const set<string>& commentPrefixes, int& multi)
 {
 	set<string>::const_iterator it;
 	for (it = commentPrefixes.begin(); it != commentPrefixes.end(); ++it) {
 		if (line.find(*it) == 0) {
-			if (*it == "/*")
-				multi = 1;
-			else if (*it == "*/")
-				multi = 0;
 			return true;
 		}
 	}
@@ -30,7 +27,7 @@ bool isComment(const string& line, const set<string>& commentPrefixes, int& mult
 
 string removeComments(const string& str)
 {
-		const char* comment_prefixes[] = {"//", "/*", "*/", "#", "<!--"};
+		const char* comment_prefixes[] = {"#"};
 		const int comment_prefixes_size = sizeof(comment_prefixes) / sizeof(comment_prefixes[0]);
 		set<string>	commentPrefixes(comment_prefixes, comment_prefixes + comment_prefixes_size);
 		istringstream		input(str);

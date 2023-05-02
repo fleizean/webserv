@@ -38,6 +38,7 @@ void WebServer::FileChecker(const string &conf_path)
     if(!isBracketBalanced(contentsConfig))
         err.setAndPrint(7);
     this->_configContent = contentsConfig;
+    cout << _configContent << endl;
     parse_server();
 }
 
@@ -68,7 +69,6 @@ std::vector<std::string> WebServer::split_server(std::string configContent) // b
     	{
     		str += c;
     		isOn = false;
-    		cout << str << endl;
     		server_blocks.push_back(str);
     		str = "";
     	}
