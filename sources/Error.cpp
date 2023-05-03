@@ -12,6 +12,9 @@ Error::Error(const int& err_code) : err_code(err_code)
     error_list[7] = "Parenthesis is unbalanced.";
     error_list[8] = "Expected 'server {'";
     error_list[9] = "Shouldn't be 'location'";
+    error_list[10] = "Location must be end with ';'";
+    error_list[11] = "Expected listen argument";
+    error_list[12] = "Expected server argument";
 }
 
 Error::~Error() { }

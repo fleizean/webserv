@@ -121,7 +121,18 @@ void WebServer::parseServerArea(std::string& line)
 
 void WebServer::parseLocationArea(std::string& line)
 {
+    Error err(0);
+    if (line.back() != ';')
+    {
+        err.setAndPrint(10);
+    }
+    line.pop_back();
+
+
     std::cout << "location: " << line << std::endl;
+
+    // bak burası locationın içini parse ettiğimiz yer
+    // bak locationın içindekiler geliyor altta terminalde belli isimleri
 }
 
 void WebServer::parseMainArea(std::string& line)
@@ -152,20 +163,38 @@ void WebServer::parse_server()
 
 void WebServer::parseListen(std::stringstream& ss)
 {
+    Error err(0);
     std::string		word;
+    size_t          founded_indx;
 
-    ss >> word;
-    std::cout << "listen: " << word << std::endl;
+    if (!(ss >> word))
+        err.setAndPrint(11);
+    founded_indx = word.find(":");
+    if (founded_indx != std::string::npos)
+	{
+		std::cout << word.substr(0, founded_indx) << endl;
+		word = word.substr(founded_indx + 1, word.size());
+	}
+    
 }
 
 void WebServer::parseServerName(std::stringstream& ss)
 {
+    Error err(0);
     std::string word;
+    size_t founded = 0;
 
-    ss >> word; // eğer >> işaretiyle ilerletirsen boşluktan sonraki diğer kısma geçer
-    std::cout << "server_name: " << word << std::endl;
-    ss >> word;
-    std::cout << "server_name: " << word << std::endl; // örnek
+    while (ss >> word)
+    {
+        if(word == "localhost")
+            std::cout << word << ": 127.0.0.1" << endl;
+        else
+            std::cout << word << endl;
+        founded += 1;
+    }
+    std::cout << "founded: " << founded << endl;
+    if(founded == 0)
+        err.setAndPrint(12);
 }
 
 void WebServer::parseCgi(std::stringstream& ss)
@@ -216,7 +245,12 @@ void WebServer::parseLocation(std::stringstream& ss)
     this->serverBlock = false;
     
     ss >> word;
+    ss >> word;
     std::cout << "location name: " << word << std::endl;
+    // burasıda dinleyeceğimiz adresin adı oluyor atıyorum /furkan
+    // bundan gelen istekleri get set gibi şeyler olarak dinleyebiliyoruz
+    // get yaparsak oradan gelecek bir request isteğini dinlemeye başlayacağız
+    // request ile adam sana bir video uploadlayabilir veya fotoğraf yükleyebilir örnek olarak
 }
 
 /* <----------------------------------------------> */
