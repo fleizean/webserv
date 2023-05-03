@@ -15,6 +15,8 @@ Error::Error(const int& err_code) : err_code(err_code)
     error_list[10] = "Location must be end with ';'";
     error_list[11] = "Expected listen argument";
     error_list[12] = "Expected server argument";
+    error_list[13] = "Expected root argument";
+    error_list[14] = "Root requires only 1 argument";
 }
 
 Error::~Error() { }

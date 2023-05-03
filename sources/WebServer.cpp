@@ -207,10 +207,14 @@ void WebServer::parseCgi(std::stringstream& ss)
 
 void WebServer::parseRoot(std::stringstream& ss)
 {
+    Error err(0);
     std::string word;
 
-    ss >> word;
+    if(ss >> word)
+        err.setAndPrint(13);
     std::cout << "root: " << word << std::endl;
+    if(ss >> word)
+        err.setAndPrint(14);
 }
 
 void WebServer::parseIndex(std::stringstream& ss)
