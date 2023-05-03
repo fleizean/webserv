@@ -205,15 +205,16 @@ void WebServer::parseCgi(std::stringstream& ss)
     std::cout << "cgi: " << word << std::endl;
 }
 
-void WebServer::parseRoot(std::stringstream& ss)
+void WebServer::parseRoot(std::stringstream& ss) // 2 tane commit attım bura için dediğini tam anlayamamıştım bi bak ikisine düzeltmem gereken bir yer varsa haber ver bakıyım bi
 {
     Error err(0);
     std::string word;
-
-    if(ss >> word)
+    ss >> word;
+    if(word == "")
         err.setAndPrint(13);
     std::cout << "root: " << word << std::endl;
-    if(ss >> word)
+    ss >> word;
+    if(word != "")
         err.setAndPrint(14);
 }
 
