@@ -17,6 +17,8 @@ Error::Error(const int& err_code) : err_code(err_code)
     error_list[12] = "Expected server argument";
     error_list[13] = "Expected root argument";
     error_list[14] = "Root requires only 1 argument";
+    error_list[15] = "Expected index argument";
+    error_list[16] = "index requires only 1 argument"
 }
 
 Error::~Error() { }

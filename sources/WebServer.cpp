@@ -219,10 +219,14 @@ void WebServer::parseRoot(std::stringstream& ss)
 
 void WebServer::parseIndex(std::stringstream& ss)
 {
+    Error err(0);
     std::string word;
 
-    ss >> word;
+    if(ss >> word)
+        err.setAndPrint(15);
     std::cout << "index: " << word << std::endl;
+    if(ss >> word)
+        err.setAndPrint(16);
 }
 
 void WebServer::parseErrorPage(std::stringstream& ss)
