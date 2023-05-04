@@ -21,25 +21,19 @@ void WebServer::FileChecker(const string &conf_path)
     Error err(0);
 	string contentsConfig;
     std::ifstream conf(conf_path);
-    if(!conf){
-        err.setAndPrint(1);
-        exit(1);
-    }
+    if(!conf)
+        err.setAndPrint(1, "NULL");
     conf.close();
-    if (!conf_path.length()){
-        err.setAndPrint(5);
-        exit(1);
-    }
-    if (conf_path.size() < 6 || conf_path.substr(conf_path.size() - 5) != ".conf"){
-        err.setAndPrint(4);
-        exit(1);
-    }
+    if (!conf_path.length())
+        err.setAndPrint(5, "NULL");
+    if (conf_path.size() < 6 || conf_path.substr(conf_path.size() - 5) != ".conf")
+        err.setAndPrint(4, "NULL");
     if (fileToString(conf_path, contentsConfig) != -1)
 		contentsConfig = removeComments(contentsConfig);
     else
-        err.setAndPrint(2);
+        err.setAndPrint(2, "NULL");
     if(!isBracketBalanced(contentsConfig))
-        err.setAndPrint(7);
+        err.setAndPrint(7, "NULL");
     this->_configContent = contentsConfig;
     parse_server();
 }
@@ -69,7 +63,7 @@ void WebServer::split_server(std::string configContent)
             parseServerArea(line);
         else if (this->locationBlock == true)
             parseLocationArea(line);
-    } 
+    }
 }
 
 void WebServer::endScopeConf()
@@ -89,11 +83,7 @@ void WebServer::parseServerArea(std::string& line)
 {
     Error err(0);
     if (line.back() != ';' && line.substr(0, 8) != "location")
-    {
-        std::cout << line << std::endl;
-		err.setAndPrint(9);
-        exit(1);
-    }
+		err.setAndPrint(9, "NULL");
 	if (line.back() == ';')
 		line.pop_back();
 
@@ -124,7 +114,7 @@ void WebServer::parseLocationArea(std::string& line)
     Error err(0);
     if (line.back() != ';')
     {
-        err.setAndPrint(10);
+        err.setAndPrint(10, "Location area");
     }
     line.pop_back();
 
@@ -139,10 +129,7 @@ void WebServer::parseMainArea(std::string& line)
 {
     Error err(0);
     if (line != "server {")
-    {
-        err.setAndPrint(8);
-        exit(1);
-    }
+        err.setAndPrint(8, "NULL");
     this->serverBlock = true;
     this->mainBlock = false;
 }
@@ -161,24 +148,33 @@ void WebServer::parse_server()
 
 /* <---------------> Parsing Area <---------------> */
 
-void WebServer::parseListen(std::stringstream& ss)
+void WebServer::parseListen(std::stringstream& ss) // bitti
 {
     Error err(0);
     std::string		word;
     size_t          founded_indx;
+    int             num = 0;
 
     if (!(ss >> word))
-        err.setAndPrint(11);
+        err.setAndPrint(11, "listen");
     founded_indx = word.find(":");
     if (founded_indx != std::string::npos)
 	{
-		std::cout << word.substr(0, founded_indx) << endl;
+		cout << word.substr(0, founded_indx) << endl;
 		word = word.substr(founded_indx + 1, word.size());
 	}
-    
+    try
+    {
+        num = std::stoi(word);
+        cout << "listen: " << num << endl;
+    }
+    catch (std::exception& e)
+    {
+        err.setAndPrint(21, "listen");
+    }
 }
 
-void WebServer::parseServerName(std::stringstream& ss)
+void WebServer::parseServerName(std::stringstream& ss) // bitti
 {
     Error err(0);
     std::string word;
@@ -194,56 +190,89 @@ void WebServer::parseServerName(std::stringstream& ss)
     }
     std::cout << "founded: " << founded << endl;
     if(founded == 0)
-        err.setAndPrint(12);
+        err.setAndPrint(12, "Server name");
 }
 
-void WebServer::parseCgi(std::stringstream& ss)
-{
-    std::string word;
-
-    ss >> word;
-    std::cout << "cgi: " << word << std::endl;
-}
-
-void WebServer::parseRoot(std::stringstream& ss) // 2 tane commit attım bura için dediğini tam anlayamamıştım bi bak ikisine düzeltmem gereken bir yer varsa haber ver bakıyım bi
+void WebServer::parseCgi(std::stringstream& ss) // bitti gibi
 {
     Error err(0);
     std::string word;
-    ss >> word;
-    if(word == "")
-        err.setAndPrint(13);
+    std::string file;
+
+    if (!(ss >> word) || !(ss >> file))
+        err.setAndPrint(18, "Cgi");
+    std::cout << "cgi: " << file << std::endl;
+    if (ss >> word)
+        err.setAndPrint(19, "Cgi");
+}
+
+void WebServer::parseRoot(std::stringstream& ss) // bitti
+{
+    Error err(0);
+    std::string word;
+    
+    if (!(ss >> word))
+        err.setAndPrint(13, "Root");
+    
     std::cout << "root: " << word << std::endl;
-    ss >> word;
-    if(word != "")
-        err.setAndPrint(14);
+    if (ss >> word)
+        err.setAndPrint(14, "Root");
 }
 
-void WebServer::parseIndex(std::stringstream& ss)
+void WebServer::parseIndex(std::stringstream& ss) // bitti
 {
     Error err(0);
     std::string word;
+    size_t  founded = 0;
 
-    if(ss >> word)
-        err.setAndPrint(15);
-    std::cout << "index: " << word << std::endl;
-    if(ss >> word)
-        err.setAndPrint(16);
+    while(ss >> word){
+        std::cout << "index: " << word << std::endl;
+        founded++; // şimdilik founded++ ile yapıyoruz fakat ileride değişecek
+    }   
+    if(founded == 0)
+        err.setAndPrint(16, "Index");
 }
 
-void WebServer::parseErrorPage(std::stringstream& ss)
+void WebServer::parseErrorPage(std::stringstream& ss) // bakılıyor
 {
+    Error err(0);
     std::string word;
+    size_t      error;
 
-    ss >> word;
-    std::cout << "error_page: " << word << std::endl;
+    if (!(ss >> word))
+        err.setAndPrint(17, "Error page");
+    try
+    {
+        error = std::stoi(word);
+    }
+    catch (std::exception& e)
+    {
+        err.setAndPrint(21, "Error page");;
+    }
+    if (!(ss >> word))
+        err.setAndPrint(22, "Error page");
+    cout << "error_page: " << word << endl;
+    if (ss >> word)
+        err.setAndPrint(23, "Error page"); 
 }
 
 void WebServer::parseMaxClientBodySize(std::stringstream& ss)
 {
+    Error err(0);
     std::string word;
+    int     num = 0;
 
-    ss >> word;
-    std::cout << "max_client_body_size: " << word << std::endl;
+    if (!(ss >> word))
+        err.setAndPrint(20, "Max client body size");
+
+    try{
+        num = std::stoi(word);
+        cout << "max_client_body_size: " << num << endl;
+    }
+    catch (std::exception& e)
+    {
+        err.setAndPrint(21, "Max client body size");    
+    }
 }
 
 void WebServer::parseLocation(std::stringstream& ss)

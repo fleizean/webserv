@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fleizean <fleizean@student.42.fr>          +#+  +:+       +#+        */
+/*   By: eyagiz <eyagiz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/24 10:21:15 by eyagiz            #+#    #+#             */
-/*   Updated: 2023/04/29 13:04:42 by fleizean         ###   ########.fr       */
+/*   Updated: 2023/05/04 14:57:28 by eyagiz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,12 +18,9 @@ int main(int ac, char **av)
 {
 	Error err(0);
 	if(ac != 2)
-	{
-		err.setAndPrint(1);
-		exit(1);
-	}
+		err.setAndPrint(1, "NULL");
 	else
 	{
 		webserv.FileChecker(av[1]);
-	}	
+	}
 }
