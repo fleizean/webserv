@@ -2,7 +2,7 @@
 
 Location::Location() :  _root(), _allow(), _return(), _errorPage(), _maxClientBodySize(), _index() {}
 
-Location::Location(Location const &rhs): _root(rhs._root), _allow(rhs._allow), _return(rhs._return), _index(rhs._index), {}
+Location::Location(Location const &rhs): _root(rhs._root), _allow(rhs._allow), _return(rhs._return), _errorPage(rhs._errorPage), _maxClientBodySize(rhs._maxClientBodySize), _index(rhs._index) {}
 
 Location &Location::operator=(Location const &rhs)
 {
