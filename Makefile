@@ -4,7 +4,7 @@ DIRSRC		=	sources
 OBJD		=	obj
 INCLUDE		=	includes
 
-INCLUDEF	=	$(INCLUDE)/color.hpp		\
+INCLUDEF	=	$(INCLUDE)/Color.hpp		\
 				$(INCLUDE)/Error.hpp		\
 				$(INCLUDE)/WebServer.hpp
 

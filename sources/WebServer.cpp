@@ -121,8 +121,6 @@ void WebServer::parseLocationArea(std::string& line)
 
     std::cout << "location: " << line << std::endl;
 
-    // bak burası locationın içini parse ettiğimiz yer
-    // bak locationın içindekiler geliyor altta terminalde belli isimleri
 }
 
 void WebServer::parseMainArea(std::string& line)
@@ -138,8 +136,6 @@ void WebServer::parse_server()
 {
 	split_server(this->_configContent);
 	
-	// burda aldığımız içerikleri bir server structının içine parçalarız diye düşündüm 
-	// ama neler gerekiyor hatta bu struct gerekiyor mu bilmediğim için dokunmadım
 }
 
 /* <-----------------------------------------------------> */
@@ -282,7 +278,6 @@ void WebServer::parseLocation(std::stringstream& ss)
     this->mainBlock = false;
     this->serverBlock = false;
     
-    ss >> word;
     ss >> word;
     std::cout << "location name: " << word << std::endl;
     // burasıda dinleyeceğimiz adresin adı oluyor atıyorum /furkan
