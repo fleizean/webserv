@@ -6,12 +6,16 @@ INCLUDE		=	includes
 
 INCLUDEF	=	$(INCLUDE)/Color.hpp		\
 				$(INCLUDE)/Error.hpp		\
-				$(INCLUDE)/WebServer.hpp
+				$(INCLUDE)/WebServer.hpp	\
+				$(INCLUDE)/Server.hpp		\
+				$(INCLUDE)/Location.hpp
 
 SRC			=	main.cpp			\
 				Error.cpp			\
 				WebServer.cpp		\
-				utils_parse.cpp
+				utils_parse.cpp		\
+				Location.cpp	\
+				Server.cpp
 
 OBJ			=	$(SRC:.cpp=.o)
 OBJS		=	$(OBJ:%=$(OBJD)/%)

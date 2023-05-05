@@ -12,6 +12,8 @@ Location &Location::operator=(Location const &rhs)
     this->_errorPage = rhs._errorPage;
     this->_maxClientBodySize = rhs._maxClientBodySize;
     this->_index = rhs._index;
+
+    return (*this);
 }
 
 Location::~Location() {}
@@ -33,7 +35,7 @@ void Location::setReturn(std::string const &returnValue)
     this->_return = returnValue;
 }
 
-void Location::setErrorPage(std::string const &errorPage)
+void Location::setErrorPage(int const &errorPage)
 {
     this->_errorPage = errorPage;
 }
@@ -67,7 +69,7 @@ std::string const &Location::getReturn() const
     return this->_return;
 }
 
-std::string const &Location::getErrorPage() const
+int const &Location::getErrorPage() const
 {
     return this->_errorPage;
 }
