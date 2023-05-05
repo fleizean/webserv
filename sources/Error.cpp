@@ -26,6 +26,8 @@ Error::Error(const int& err_code) : err_code(err_code)
     error_list[21] = "Unexpected argument that cannot be converted to a number.";
     error_list[22] = "Expected file name on line";
     error_list[23] = "Unexpected argument on line";
+    error_list[24] = "Unexpected allow method [GET / POST / HEAD / PUT / DELETE / TRACE / OPTIONS] on line";
+    error_list[25] = "Expected methods argument on line";
 }
 
 Error::~Error() { }

@@ -118,9 +118,24 @@ void WebServer::parseLocationArea(std::string& line)
     }
     line.pop_back();
 
+	std::string			word;
+	std::stringstream	ss(line);
 
-    std::cout << "location: " << line << std::endl;
-
+    ss >> word;
+    if (word == "root")
+        parseRoot(ss);
+    else if (word == "allow")
+        parseAllowedMethods(ss);
+    else if (word == "return")
+        parseReturn(ss);
+    else if (word == "error_page")
+        parseErrorPage(ss);
+    else if (word == "max_client_body_size")
+        parseMaxClientBodySize(ss);
+    else if (word == "index")
+        parseIndex(ss);
+    else
+        err.setAndPrint(23, "Parse Location");
 }
 
 void WebServer::parseMainArea(std::string& line)
@@ -184,7 +199,6 @@ void WebServer::parseServerName(std::stringstream& ss) // bitti
             std::cout << word << endl;
         founded += 1;
     }
-    std::cout << "founded: " << founded << endl;
     if(founded == 0)
         err.setAndPrint(12, "Server name");
 }
@@ -284,6 +298,45 @@ void WebServer::parseLocation(std::stringstream& ss)
     // bundan gelen istekleri get set gibi şeyler olarak dinleyebiliyoruz
     // get yaparsak oradan gelecek bir request isteğini dinlemeye başlayacağız
     // request ile adam sana bir video uploadlayabilir veya fotoğraf yükleyebilir örnek olarak
+}
+
+void WebServer::parseAllowedMethods(std::stringstream& ss)
+{
+    Error err(0);
+    std::string word;
+    int founded = 0;
+
+    while (ss >> word)
+    {
+        if (!isValidMethod(word))
+            err.setAndPrint(24, "null");
+        cout << word << std::endl;
+        founded++;
+    }
+    if (founded == 0)
+        err.setAndPrint(25, "Allowed Methods");
+}
+
+void WebServer::parseReturn(std::stringstream& ss)
+{
+    Error err(0);
+    std::string word;
+    int founded = 0;
+
+    while (ss >> word)
+    {
+        if(founded == 0)
+        {
+            cout << "return ilk eleman: " << word << std::endl;
+        }
+        else if(founded == 1)
+        {
+            cout << "return ikinci eleman: " << word << std::endl;
+        }
+        else
+            err.setAndPrint(23, "Return");
+        founded++;
+    }
 }
 
 /* <----------------------------------------------> */
