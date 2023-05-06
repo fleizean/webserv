@@ -30,6 +30,7 @@ Error::Error(const int& err_code) : err_code(err_code)
     error_list[25] = "Expected methods argument on line";
     error_list[26] = "Expected  '}' on line";
     error_list[27] = "File is empty";
+    error_list[28] = "Expected autoindex argument on line";
 }
 
 Error::~Error() { }

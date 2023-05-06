@@ -44,15 +44,16 @@ public:
     void parseServerArea(std::string& line);
     void parseLocationArea(std::string& line);
 
-    /* Server Parse */
-    void parseLocation(std::stringstream& ss, Server &srvr);
+    /* Server and Location Parsing */
     void parseListen(std::stringstream& ss, Server &srvr);
+    void parseRoot(std::stringstream& ss, ConfigMembers &cm);
     void parseServerName(std::stringstream& ss, Server &srvr);
-    void parseRoot(std::stringstream& ss, Server &srvr);
-    void parseIndex(std::stringstream& ss, Server &srvr);
-    void parseCgi(std::stringstream& ss, Server &srvr);
-    void parseErrorPage(std::stringstream& ss, Server &srvr);
-    void parseMaxClientBodySize(std::stringstream& ss, Server &srvr);
+    void parseMaxClientBodySize(std::stringstream& ss, ConfigMembers& cm);
+    void parseErrorPage(std::stringstream& ss, ConfigMembers& cm);
+    void parseLocation(std::stringstream& ss, Server &srvr);
+    void parseIndex(std::stringstream& ss, ConfigMembers& cm);
+    void parseAutoIndex(std::stringstream& ss, ConfigMembers& cm);
+    void parseCgi(std::stringstream& ss, ConfigMembers &cm);
 
     /* Location Parse */
     void parseAllowedMethods(std::stringstream& ss, Location &lctn);

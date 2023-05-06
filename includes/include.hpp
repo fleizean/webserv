@@ -18,6 +18,7 @@ using namespace std;
 #include "WebServer.hpp"
 #include "Server.hpp"
 #include "Location.hpp"
+#include "ConfigMembers.hpp"
 
 bool			isComment(const string& line, const set<string>& commentPrefixes, int& multi);
 string			removeComments(const string& str);
