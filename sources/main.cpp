@@ -6,7 +6,7 @@
 /*   By: fleizean <fleizean@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/24 10:21:15 by eyagiz            #+#    #+#             */
-/*   Updated: 2023/05/07 14:53:16 by fleizean         ###   ########.fr       */
+/*   Updated: 2023/05/07 16:26:54 by fleizean         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,5 +23,6 @@ int main(int ac, char **av)
 	else
 	{
 		webserv.FileChecker(av[1]);
+		webserv.printAll();
 	}
 }

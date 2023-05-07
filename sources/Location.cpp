@@ -21,6 +21,7 @@ std::set<std::string> &Location::getAllowedMethods() { return this->_allowedMeth
 
 ConfigMembers& Location::getConfigMembers() { return this->_members; }
 
+std::map <int, std::string> Location::getReturns() { return this->_returns; }
 /* <------------------------------------------> */
 
 

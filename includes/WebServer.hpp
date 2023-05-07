@@ -29,6 +29,7 @@ public:
     ~WebServer();
     /* operator */
     WebServer &operator=(WebServer const &rhs);
+    std::vector<Server>& getConfig(void);
 
     /* methods */
     void FileChecker(const string &conf_path);
@@ -57,6 +58,8 @@ public:
     void parseLocation(std::stringstream& ss, Server &srvr);
     /* Location Parse */
     void parseAllowedMethods(std::stringstream& ss, Location &lctn);
-    
-    /* void parseReturn(std::stringstream& ss, Location &lctn); */
+    void parseReturn(std::stringstream& ss, Location &lctn);
+
+    /* Print All */
+    void printAll();
 };

@@ -9,9 +9,9 @@ class Server
 private:
 	std::string							_host; // host
 	int									_port; // port
-	vector<Location>				_locations;
-	vector<std::string>			_serverName;
-	map<std::string, std::string>	_cgiPaths;
+	vector<Location>					_locations;
+	vector<std::string>					_serverName;
+	map<std::string, std::string>		_cgiPaths;
 	ConfigMembers						_members;
 public:
 	/* default constructor */

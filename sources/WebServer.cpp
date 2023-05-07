@@ -8,13 +8,14 @@ WebServer::~WebServer() {}
 
 WebServer &WebServer::operator=(WebServer const &rhs)
 {
-	_configContent = rhs._configContent;
-	serverBlock = rhs.serverBlock;
-	mainBlock = rhs.mainBlock;
-	locationBlock = rhs.locationBlock;
+	_configContent	= rhs._configContent;
+	serverBlock		= rhs.serverBlock;
+	mainBlock		= rhs.mainBlock;
+	locationBlock	= rhs.locationBlock;
 	return *this;
 }
 
+std::vector<Server>& WebServer::getConfig() { return this->_parsedServers; }
 
 void WebServer::FileChecker(const string &conf_path)
 {
@@ -149,8 +150,8 @@ void WebServer::parseLocationArea(std::string& line)
 		parseRoot(ss, lctn.getConfigMembers());
 	else if (word == "allow")
 		parseAllowedMethods(ss, lctn);
-	/*else if (word == "return") yapılacak
-		parseReturn(ss, lctn);*/
+	else if (word == "return")
+		parseReturn(ss, lctn);
 	else if (word == "error_page")
 		parseErrorPage(ss, lctn.getConfigMembers());
 	else if (word == "autoindex")
@@ -160,7 +161,7 @@ void WebServer::parseLocationArea(std::string& line)
 	else if (word == "index")
 		parseIndex(ss, lctn.getConfigMembers());
 	else
-		err.setAndPrint(23, "Parse Location");
+		err.setAndPrint(19, "Parse Location");
 }
 
 void WebServer::parse_server()
@@ -187,13 +188,11 @@ void WebServer::parseListen(std::stringstream& ss, Server &srvr) // bitti
 	if (founded_indx != std::string::npos)
 	{
 		srvr.setHost(word.substr(0, founded_indx));
-		cout << "host: " << srvr.getHost() << endl;
 		word = word.substr(founded_indx + 1, word.size());
 	}
 	try
 	{
 		srvr.setPort(std::stoi(word));
-		cout << "port(listen): " << srvr.getPort() << endl;
 
 	}
 	catch (std::exception& e)
@@ -211,9 +210,6 @@ void WebServer::parseServerName(std::stringstream& ss, Server &srvr) // bitti
 	while (ss >> word) // birden fazla gelmesi gereksiz olabilir örn: localhost deneme.com...
 	{
 		srvr.getServerName().push_back(word); // 2130706433 localhost unsigned int değeri atama yapmak için kullanmak zorundayız
-		for (std::vector<std::string>::iterator it = srvr.getServerName().begin(); it != srvr.getServerName().end(); ++it) {
-    		std::cout << *it << std::endl;
-		}
 	}
 	if(srvr.getServerName().empty())
 		err.setAndPrint(12, "Server name");
@@ -242,7 +238,6 @@ void WebServer::parseRoot(std::stringstream& ss, ConfigMembers &cm) // bitti
 		err.setAndPrint(13, "Root");
 	
 	cm.setRoot(word);
-	cout << "Root: " << cm.getRoot() << endl;
 	if (ss >> word)
 		err.setAndPrint(14, "Root");
 }
@@ -269,7 +264,6 @@ void WebServer::parseMaxClientBodySize(std::stringstream& ss, ConfigMembers& cm)
 
 	try{
 		cm.setMaxClientBodySize(std::stoi(word));
-		cout << "max_client_body : " << cm.getMaxClientBodySize() << endl;
 	}
 	catch (std::exception& e)
 	{
@@ -316,7 +310,7 @@ void WebServer::parseErrorPage(std::stringstream& ss, ConfigMembers& cm) // bak�
 		err.setAndPrint(22, "Error page");
 	cm.getErrorPage()[error] = word;
 	if (ss >> word)
-		err.setAndPrint(23, "Error page"); 
+		err.setAndPrint(19, "Error page"); 
 }
 
 
@@ -328,7 +322,6 @@ void WebServer::parseLocation(std::stringstream& ss, Server &srvr)
 	this->serverBlock = false;
 	(void)srvr;
 	ss >> word;
-	std::cout << "location name: " << word << std::endl;
 	
 	// burasıda dinleyeceğimiz adresin adı oluyor atıyorum /furkan
 	// bundan gelen istekleri get set gibi şeyler olarak dinleyebiliyoruz
@@ -354,5 +347,39 @@ void WebServer::parseAllowedMethods(std::stringstream& ss, Location &lctn)
 }
 
 
+void WebServer::parseReturn(std::stringstream& ss, Location &lctn)
+{
+	Error err(0);
+	std::string word;
+	size_t		returnVal;
+
+	if (!(ss >> word))
+		err.setAndPrint(23, "Return");
+	try
+	{
+		returnVal = std::stoi(word);
+	}
+	catch (std::exception& e)
+	{
+		err.setAndPrint(21, "Return");;
+	}
+	if (!(ss >> word))
+		err.setAndPrint(22, "Return");
+	lctn.getReturns()[returnVal] = word;
+	if (ss >> word)
+		err.setAndPrint(19, "Return"); 
+}
+
 /* <----------------------------------------------> */
 
+void WebServer::printAll()
+{
+	std::vector<Server>::iterator ite = getConfig().end();
+	std::vector<Server>::iterator it = getConfig().begin();
+
+	for (int i = 1; it != ite; ++it, ++i)
+	{
+		std::cout << "Server " << "-> "<< i << " <-" << " : \n\n";
+		std::cout << "Listen : on host '" << it->getHost() << "', port '" << it->getPort() << "'" << std::endl;
+	}
+}
