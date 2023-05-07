@@ -1,4 +1,4 @@
-#include "Server.hpp"
+#include "../includes/Server.hpp"
 
 Server::Server() : _host("0.0.0.0"), _port(80) {}
 
@@ -21,6 +21,7 @@ int const &Server::getPort() const { return this->_port; }
 std::vector<Location>& Server::getLocations() { return _locations; }
 std::vector<std::string>& Server::getServerName() { return _serverName; }
 std::map<std::string, std::string>& Server::getCgiPaths() { return _cgiPaths; }
+ConfigMembers& Server::getConfigMembers() { return this->_members; }
 
 /* <------------------------------------------> */
 

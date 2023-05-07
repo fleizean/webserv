@@ -113,17 +113,17 @@ void WebServer::parseServerArea(std::string& line)
 	else if (word == "server_name")
 		parseServerName(ss, srvr);
 	else if (word == "cgi")
-		parseCgi(ss, srvr);
+		parseCgi(ss, srvr.getConfigMembers());
 	else if (word == "root")
-		parseRoot(ss, srvr);
+		parseRoot(ss, srvr.getConfigMembers());
 	else if (word == "index")
-		parseIndex(ss, srvr);
+		parseIndex(ss, srvr.getConfigMembers());
 	else if (word == "autoindex")
-		parseAutoIndex(ss, srvr);
+		parseAutoIndex(ss, srvr.getConfigMembers());
 	else if (word == "error_page")
-		parseErrorPage(ss, srvr);
+		parseErrorPage(ss, srvr.getConfigMembers());
 	else if (word == "max_client_body_size")
-		parseMaxClientBodySize(ss, srvr);
+		parseMaxClientBodySize(ss, srvr.getConfigMembers());
 	else if (word == "location")
 		parseLocation(ss, srvr);
 }
@@ -146,19 +146,19 @@ void WebServer::parseLocationArea(std::string& line)
 
 	ss >> word;
 	if (word == "root")
-		parseRoot(ss, lctn);
+		parseRoot(ss, lctn.getConfigMembers());
 	else if (word == "allow")
 		parseAllowedMethods(ss, lctn);
-	else if (word == "return")
-		parseReturn(ss, lctn);
+	/*else if (word == "return") yapılacak
+		parseReturn(ss, lctn);*/
 	else if (word == "error_page")
-		parseErrorPage(ss, lctn);
+		parseErrorPage(ss, lctn.getConfigMembers());
 	else if (word == "autoindex")
-		parseAutoIndex(ss, lctn);
+		parseAutoIndex(ss, lctn.getConfigMembers());
 	else if (word == "max_client_body_size")
-		parseMaxClientBodySize(ss, lctn);
+		parseMaxClientBodySize(ss, lctn.getConfigMembers());
 	else if (word == "index")
-		parseIndex(ss, lctn);
+		parseIndex(ss, lctn.getConfigMembers());
 	else
 		err.setAndPrint(23, "Parse Location");
 }
@@ -211,8 +211,6 @@ void WebServer::parseServerName(std::stringstream& ss, Server &srvr) // bitti
 	while (ss >> word) // birden fazla gelmesi gereksiz olabilir örn: localhost deneme.com...
 	{
 		srvr.getServerName().push_back(word); // 2130706433 localhost unsigned int değeri atama yapmak için kullanmak zorundayız
-		std::vector<std::string>::iterator ite = srvr.getServerName().end();
-		std::vector<std::string>::iterator it = srvr.getServerName().begin();
 		for (std::vector<std::string>::iterator it = srvr.getServerName().begin(); it != srvr.getServerName().end(); ++it) {
     		std::cout << *it << std::endl;
 		}
@@ -279,7 +277,7 @@ void WebServer::parseMaxClientBodySize(std::stringstream& ss, ConfigMembers& cm)
 	}
 }
 
-void parseAutoIndex(std::stringstream& ss, ConfigMembers& cm)
+void WebServer::parseAutoIndex(std::stringstream& ss, ConfigMembers& cm)
 {
 	Error err(0);
 	std::string		word;
@@ -288,7 +286,7 @@ void parseAutoIndex(std::stringstream& ss, ConfigMembers& cm)
 		err.setAndPrint(28, "Auto Index");
 	if (word == "on")
 		cm.setAutoIndex(true);
-	else if (word == "of")
+	else if (word == "off")
 		cm.setAutoIndex(false);
 	else
 		err.setAndPrint(28, "Auto Index");
@@ -339,6 +337,21 @@ void WebServer::parseLocation(std::stringstream& ss, Server &srvr)
 }
 
 /* <---------------> Parse Location { } Area <---------------> */
+
+void WebServer::parseAllowedMethods(std::stringstream& ss, Location &lctn)
+{
+	Error err(0);
+	std::string word;
+
+	while(ss >> word)
+	{
+		if (!isValidMethod(word))
+			err.setAndPrint(24, "null");
+		lctn.getAllowedMethods().insert(word);
+	}
+	if(lctn.getAllowedMethods().empty())
+		err.setAndPrint(25, "Allowed Methods");
+}
 
 
 /* <----------------------------------------------> */

@@ -1,10 +1,9 @@
 #pragma once
 
 #include "include.hpp"
-
-class Server;
-class Location;
-
+#include "Server.hpp"
+#include "Location.hpp"
+#include "ConfigMembers.hpp"
 
 class WebServer
 {
@@ -18,8 +17,8 @@ private:
 
     std::vector<Server> _parsedServers;
 
-    std::map<long, Server> _servers;
-    std::map<long, Server *>	_sockets;
+    /*std::map<long, Server> _servers;
+    std::map<long, Server *>	_sockets;*/
 
 public:
     /* default constructor */
@@ -44,22 +43,20 @@ public:
     void parseServerArea(std::string& line);
     void parseLocationArea(std::string& line);
 
-    /* Server and Location Parsing */
-    void parseListen(std::stringstream& ss, Server &srvr);
+    /* ConfigMembers Parse */
     void parseRoot(std::stringstream& ss, ConfigMembers &cm);
-    void parseServerName(std::stringstream& ss, Server &srvr);
     void parseMaxClientBodySize(std::stringstream& ss, ConfigMembers& cm);
     void parseErrorPage(std::stringstream& ss, ConfigMembers& cm);
-    void parseLocation(std::stringstream& ss, Server &srvr);
     void parseIndex(std::stringstream& ss, ConfigMembers& cm);
     void parseAutoIndex(std::stringstream& ss, ConfigMembers& cm);
     void parseCgi(std::stringstream& ss, ConfigMembers &cm);
 
+    /* Server Parse */
+    void parseListen(std::stringstream& ss, Server &srvr);
+    void parseServerName(std::stringstream& ss, Server &srvr);
+    void parseLocation(std::stringstream& ss, Server &srvr);
     /* Location Parse */
     void parseAllowedMethods(std::stringstream& ss, Location &lctn);
-    void parseRoot(std::stringstream& ss, Location &lctn);
-    void parseErrorPage(std::stringstream& ss, Location &lctn);
-    void parseMaxClientBodySize(std::stringstream& ss, Location &lctn);
-    void parseIndex(std::stringstream& ss, Location &lctn);
-    void parseReturn(std::stringstream& ss, Location &lctn);
+    
+    /* void parseReturn(std::stringstream& ss, Location &lctn); */
 };

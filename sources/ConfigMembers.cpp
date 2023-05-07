@@ -1,4 +1,4 @@
-#include "ConfigMembers.hpp"
+#include "../includes/ConfigMembers.hpp"
 
 ConfigMembers::ConfigMembers() : _root(""), _maxClientBodySize(1000000000), _autoIndex(false) {}
 
@@ -28,6 +28,8 @@ bool const &ConfigMembers::getAutoIndex() const { return this->_autoIndex; }
 std::vector<std::string>& ConfigMembers::getIndex() { return _index; }
 
 std::map<std::string, std::string>& ConfigMembers::getCgis() { return _cgis; }
+
+
 
 /* <------------------------------------------> */
 

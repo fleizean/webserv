@@ -1,4 +1,4 @@
-#include "Location.hpp"
+#include "../includes/Location.hpp"
 
 Location::Location() :  _uri() {}
 
@@ -18,6 +18,8 @@ Location::~Location() {}
 std::string const &Location::getUri() const { return this->_uri; }
 
 std::set<std::string> &Location::getAllowedMethods() { return this->_allowedMethods; }
+
+ConfigMembers& Location::getConfigMembers() { return this->_members; }
 
 /* <------------------------------------------> */
 

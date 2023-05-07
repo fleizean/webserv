@@ -3,14 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: eyagiz <eyagiz@student.42.fr>              +#+  +:+       +#+        */
+/*   By: fleizean <fleizean@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/24 10:21:15 by eyagiz            #+#    #+#             */
-/*   Updated: 2023/05/04 14:57:28 by eyagiz           ###   ########.fr       */
+/*   Updated: 2023/05/07 14:53:16 by fleizean         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/include.hpp"
+#include "../includes/WebServer.hpp"
 
 WebServer webserv;
 

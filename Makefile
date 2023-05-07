@@ -8,6 +8,7 @@ INCLUDEF	=	$(INCLUDE)/Color.hpp		\
 				$(INCLUDE)/Error.hpp		\
 				$(INCLUDE)/WebServer.hpp	\
 				$(INCLUDE)/Server.hpp		\
+				$(INCLUDE)/ConfigMembers.hpp \
 				$(INCLUDE)/Location.hpp
 
 SRC			=	main.cpp			\
@@ -15,6 +16,7 @@ SRC			=	main.cpp			\
 				WebServer.cpp		\
 				utils_parse.cpp		\
 				Location.cpp	\
+				ConfigMembers.cpp \
 				Server.cpp
 
 OBJ			=	$(SRC:.cpp=.o)
