@@ -106,7 +106,7 @@ void WebServer::parseServerArea(std::string& line)
 
 	std::string			word;
 	std::stringstream	ss(line);
-	Server *srvr = _parsedServers.back();
+	Server *srvr =		_parsedServers.back();
 	
 	ss >> word;
 	if (word == "listen")
@@ -183,7 +183,7 @@ void WebServer::parseListen(std::stringstream& ss, Server &srvr) // bitti
 	size_t          founded_indx;
 
 	if (!(ss >> word))
-		err.setAndPrint(11, "listen");
+		err.setAndPrint(11, "parseListen");
 	founded_indx = word.find(":");
 	if (founded_indx != std::string::npos)
 	{
@@ -197,7 +197,7 @@ void WebServer::parseListen(std::stringstream& ss, Server &srvr) // bitti
 	}
 	catch (std::exception& e)
 	{
-		err.setAndPrint(21, "listen");
+		err.setAndPrint(21, "parseListen");
 	}
 	
 }
@@ -210,11 +210,9 @@ void WebServer::parseServerName(std::stringstream& ss, Server &srvr) // bitti
 	while (ss >> word) // birden fazla gelmesi gereksiz olabilir örn: localhost deneme.com...
 	{
 		srvr.setServerName(word); // 2130706433 localhost unsigned int değeri atama yapmak için kullanmak zorundayız
-	
 	}
 	if(srvr.getServerName().empty())
-		err.setAndPrint(12, "Server name");
-	std::cout << "------>size: " << srvr.getServerName().size() << std::endl;
+		err.setAndPrint(12, "parseServerName");
 }
 
 void WebServer::parseCgi(std::stringstream& ss, ConfigMembers &cm) // bitti gibi
@@ -224,11 +222,10 @@ void WebServer::parseCgi(std::stringstream& ss, ConfigMembers &cm) // bitti gibi
 	std::string file;
 
 	if (!(ss >> ext) || !(ss >> file))
-		err.setAndPrint(18, "Cgi");
-	
-	cm.getCgis()[ext] = file;
+		err.setAndPrint(18, "parseCgi");
+	cm.getCgis().insert(std::make_pair(ext, file));
 	if (ss >> ext)
-		err.setAndPrint(19, "Cgi");
+		err.setAndPrint(19, "parseCgi");
 }
 
 void WebServer::parseRoot(std::stringstream& ss, ConfigMembers &cm) // bitti
@@ -253,7 +250,7 @@ void WebServer::parseIndex(std::stringstream& ss, ConfigMembers& cm) // bitti
 		cm.getIndex().push_back(word);
 	}   
 	if(cm.getIndex().empty())
-		err.setAndPrint(16, "Index");
+		err.setAndPrint(16, "parseIndex");
 }
 
 void WebServer::parseMaxClientBodySize(std::stringstream& ss, ConfigMembers& cm)
@@ -262,14 +259,14 @@ void WebServer::parseMaxClientBodySize(std::stringstream& ss, ConfigMembers& cm)
 	std::string word;
 
 	if (!(ss >> word))
-		err.setAndPrint(20, "Max client body size");
+		err.setAndPrint(20, "parseMaxClientBodySize");
 
 	try{
 		cm.setMaxClientBodySize(std::stoi(word));
 	}
 	catch (std::exception& e)
 	{
-		err.setAndPrint(21, "Max client body size");    
+		err.setAndPrint(21, "parseMaxClientBodySize");    
 	}
 }
 
@@ -279,16 +276,16 @@ void WebServer::parseAutoIndex(std::stringstream& ss, ConfigMembers& cm)
 	std::string		word;
 
 	if(!(ss >> word))
-		err.setAndPrint(28, "Auto Index");
+		err.setAndPrint(28, "parseAutoIndex");
 	if (word == "on")
 		cm.setAutoIndex(true);
 	else if (word == "off")
 		cm.setAutoIndex(false);
 	else
-		err.setAndPrint(28, "Auto Index");
+		err.setAndPrint(28, "parseAutoIndex");
 	
 	if (ss >> word)
-		err.setAndPrint(28, "Auto Index");
+		err.setAndPrint(28, "parseAutoIndex");
 }
 
 
@@ -299,36 +296,43 @@ void WebServer::parseErrorPage(std::stringstream& ss, ConfigMembers& cm) // bak�
 	size_t		error;
 
 	if (!(ss >> word))
-		err.setAndPrint(17, "Error page");
+		err.setAndPrint(17, "parseErrorPage");
 	try
 	{
 		error = std::stoi(word);
 	}
 	catch (std::exception& e)
 	{
-		err.setAndPrint(21, "Error page");;
+		err.setAndPrint(21, "parseErrorPage");;
 	}
 	if (!(ss >> word))
-		err.setAndPrint(22, "Error page");
-	cm.getErrorPage()[error] = word;
+		err.setAndPrint(22, "parseErrorPage");
+	cm.getErrorPage().insert(std::make_pair(error, word));
 	if (ss >> word)
-		err.setAndPrint(19, "Error page"); 
+		err.setAndPrint(19, "parseErrorPage"); 
 }
 
 
-void WebServer::parseLocation(std::stringstream& ss, Server &srvr)
+void WebServer::parseLocation(std::stringstream& ss, Server &srvr)// dinleyeceğimiz uri geliyor
 {
+	Error err(0);
 	std::string		word;
+	
+
+	if (!(ss >> word))
+		err.setAndPrint(26, "parseLocation");
+	if (word != "{")
+	{
+		srvr.setLocationUri(word);
+		ss >> word;
+		if (word != "{")
+			err.setAndPrint(26, "parseLocation");
+	}
+	if (ss >> word)
+		err.setAndPrint(19, "parseLocation");
 	this->locationBlock = true;
 	this->mainBlock = false;
 	this->serverBlock = false;
-	(void)srvr;
-	ss >> word;
-	
-	// burasıda dinleyeceğimiz adresin adı oluyor atıyorum /furkan
-	// bundan gelen istekleri get set gibi şeyler olarak dinleyebiliyoruz
-	// get yaparsak oradan gelecek bir request isteğini dinlemeye başlayacağız
-	// request ile adam sana bir video uploadlayabilir veya fotoğraf yükleyebilir örnek olarak
 }
 
 /* <---------------> Parse Location { } Area <---------------> */
@@ -356,20 +360,20 @@ void WebServer::parseReturn(std::stringstream& ss, Location &lctn)
 	size_t		returnVal;
 
 	if (!(ss >> word))
-		err.setAndPrint(23, "Return");
+		err.setAndPrint(23, "parseReturn");
 	try
 	{
 		returnVal = std::stoi(word);
 	}
 	catch (std::exception& e)
 	{
-		err.setAndPrint(21, "Return");;
+		err.setAndPrint(21, "parseReturn");;
 	}
 	if (!(ss >> word))
-		err.setAndPrint(22, "Return");
-	lctn.getReturns()[returnVal] = word;
+		err.setAndPrint(22, "parseReturn");
+	lctn.getReturns().insert(std::make_pair(returnVal, word));
 	if (ss >> word)
-		err.setAndPrint(19, "Return"); 
+		err.setAndPrint(19, "parseReturn"); 
 }
 
 /* <----------------------------------------------> */
@@ -385,9 +389,26 @@ void WebServer::printAll()
 		std::cout << "Listen : on host '" << (*it)->getHost() << "', port '" << (*it)->getPort() << "'" << std::endl;
 		for (std::vector<std::string>::const_iterator namesIt = (*it)->getServerName().begin(); namesIt != (*it)->getServerName().end(); ++namesIt)
 			std::cout << "serverName: " << *namesIt << std::endl;
+		for (std::map<std::string, std::string>::iterator namesIt = (*it)->getConfigMembers().getCgis().begin(); namesIt != (*it)->getConfigMembers().getCgis().end(); ++namesIt)
+			std::cout << "cgi: " << namesIt->first << " " << namesIt->second << std::endl;
 		std::cout << "root: " << (*it)->getConfigMembers().getRoot() << std::endl;
 		for (std::vector<std::string>::const_iterator namesIt = (*it)->getConfigMembers().getIndex().begin(); namesIt != (*it)->getConfigMembers().getIndex().end(); ++namesIt)
 			std::cout << "index: " << *namesIt << std::endl;
-		std::cout << endl;
+		std::cout << "max_client_body_size: " << (*it)->getConfigMembers().getMaxClientBodySize() << std::endl;
+		for (std::map<int, std::string>::iterator namesIt = (*it)->getConfigMembers().getErrorPage().begin(); namesIt != (*it)->getConfigMembers().getErrorPage().end(); ++namesIt)
+			std::cout << "error_page: " << namesIt->first << " " << namesIt->second << std::endl;
+		if((*it)->getConfigMembers().getAutoIndex() == 1)
+			std::cout << "auto_index: " << "on" << std::endl;
+		else
+			std::cout << "auto_index: " << "off" << std::endl;
+		std::cout << "location uri: " << (*it)->getLocationUri() << " {"<< std::endl; // Location'ın içine uri eklemek gerekebilir kafa yormadım
+		for (std::vector<Location>::iterator namesIt = (*it)->getLocations().begin(); namesIt != (*it)->getLocations().end(); ++namesIt){
+			for(std::set<std::string>::iterator allowedIt = namesIt->getAllowedMethods().begin(); allowedIt != namesIt->getAllowedMethods().end(); ++allowedIt)
+			{
+				std::cout << "allowed_methods: " << *allowedIt << " " << std::endl;
+			}
+		}
+		std::cout << "	}" << endl;
 	}
 }
+

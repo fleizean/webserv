@@ -1,13 +1,13 @@
 #include "../includes/Location.hpp"
 
-Location::Location() :  _uri() {}
+Location::Location() {}
 
-Location::Location(Location const &rhs): _uri(rhs._uri) {}
+Location::Location(Location const &rhs) : _uri(rhs._uri) {}
+
 
 Location &Location::operator=(Location const &rhs)
 {
     this->_uri = rhs._uri;
-
     return (*this);
 }
 
