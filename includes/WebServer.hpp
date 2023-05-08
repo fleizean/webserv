@@ -15,7 +15,7 @@ private:
     bool mainBlock;
     bool locationBlock;
 
-    std::vector<Server> _parsedServers;
+    std::vector<Server*> _parsedServers;
 
     /*std::map<long, Server> _servers;
     std::map<long, Server *>	_sockets;*/
@@ -29,7 +29,7 @@ public:
     ~WebServer();
     /* operator */
     WebServer &operator=(WebServer const &rhs);
-    std::vector<Server>& getConfig(void);
+    std::vector<Server*> getConfig(void);
 
     /* methods */
     void FileChecker(const string &conf_path);

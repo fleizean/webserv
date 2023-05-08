@@ -15,7 +15,7 @@ WebServer &WebServer::operator=(WebServer const &rhs)
 	return *this;
 }
 
-std::vector<Server>& WebServer::getConfig() { return this->_parsedServers; }
+std::vector<Server*> WebServer::getConfig() { return this->_parsedServers; }
 
 void WebServer::FileChecker(const string &conf_path)
 {
@@ -87,11 +87,11 @@ void WebServer::endScopeConf()
 
 void WebServer::parseMainArea(std::string& line)
 {
-	Server new_server;
+	// Server new_server;
 	Error err(0);
 	if (line != "server {")
 		err.setAndPrint(8, "NULL");
-	_parsedServers.push_back(new_server);
+	_parsedServers.push_back(new Server());
 	this->serverBlock = true;
 	this->mainBlock = false;
 }
@@ -106,27 +106,27 @@ void WebServer::parseServerArea(std::string& line)
 
 	std::string			word;
 	std::stringstream	ss(line);
-	Server &srvr = _parsedServers.back();
+	Server *srvr = _parsedServers.back();
 	
 	ss >> word;
 	if (word == "listen")
-		parseListen(ss, srvr);
+		parseListen(ss, *srvr);
 	else if (word == "server_name")
-		parseServerName(ss, srvr);
+		parseServerName(ss, *srvr);
 	else if (word == "cgi")
-		parseCgi(ss, srvr.getConfigMembers());
+		parseCgi(ss, srvr->getConfigMembers());
 	else if (word == "root")
-		parseRoot(ss, srvr.getConfigMembers());
+		parseRoot(ss, srvr->getConfigMembers());
 	else if (word == "index")
-		parseIndex(ss, srvr.getConfigMembers());
+		parseIndex(ss, srvr->getConfigMembers());
 	else if (word == "autoindex")
-		parseAutoIndex(ss, srvr.getConfigMembers());
+		parseAutoIndex(ss, srvr->getConfigMembers());
 	else if (word == "error_page")
-		parseErrorPage(ss, srvr.getConfigMembers());
+		parseErrorPage(ss, srvr->getConfigMembers());
 	else if (word == "max_client_body_size")
-		parseMaxClientBodySize(ss, srvr.getConfigMembers());
+		parseMaxClientBodySize(ss, srvr->getConfigMembers());
 	else if (word == "location")
-		parseLocation(ss, srvr);
+		parseLocation(ss, *srvr);
 }
 
 void WebServer::parseLocationArea(std::string& line)
@@ -142,8 +142,8 @@ void WebServer::parseLocationArea(std::string& line)
 	std::stringstream	ss(line);
 	Location new_lctn;
 
-	_parsedServers.back().getLocations().push_back(new_lctn);
-	Location &lctn = _parsedServers.back().getLocations().back();
+	_parsedServers.back()->getLocations().push_back(new_lctn);
+	Location &lctn = _parsedServers.back()->getLocations().back();
 
 	ss >> word;
 	if (word == "root")
@@ -209,10 +209,12 @@ void WebServer::parseServerName(std::stringstream& ss, Server &srvr) // bitti
 
 	while (ss >> word) // birden fazla gelmesi gereksiz olabilir örn: localhost deneme.com...
 	{
-		srvr.getServerName().push_back(word); // 2130706433 localhost unsigned int değeri atama yapmak için kullanmak zorundayız
+		srvr.setServerName(word); // 2130706433 localhost unsigned int değeri atama yapmak için kullanmak zorundayız
+	
 	}
 	if(srvr.getServerName().empty())
 		err.setAndPrint(12, "Server name");
+	std::cout << "------>size: " << srvr.getServerName().size() << std::endl;
 }
 
 void WebServer::parseCgi(std::stringstream& ss, ConfigMembers &cm) // bitti gibi
@@ -374,12 +376,18 @@ void WebServer::parseReturn(std::stringstream& ss, Location &lctn)
 
 void WebServer::printAll()
 {
-	std::vector<Server>::iterator ite = getConfig().end();
-	std::vector<Server>::iterator it = getConfig().begin();
+	std::vector<Server*>::iterator ite = _parsedServers.end();
+	std::vector<Server*>::iterator it = _parsedServers.begin();
 
 	for (int i = 1; it != ite; ++it, ++i)
 	{
-		std::cout << "Server " << "-> "<< i << " <-" << " : \n\n";
-		std::cout << "Listen : on host '" << it->getHost() << "', port '" << it->getPort() << "'" << std::endl;
+		std::cout << "Server " << "-> "<< i << " <-" << " : \n";
+		std::cout << "Listen : on host '" << (*it)->getHost() << "', port '" << (*it)->getPort() << "'" << std::endl;
+		for (std::vector<std::string>::const_iterator namesIt = (*it)->getServerName().begin(); namesIt != (*it)->getServerName().end(); ++namesIt)
+			std::cout << "serverName: " << *namesIt << std::endl;
+		std::cout << "root: " << (*it)->getConfigMembers().getRoot() << std::endl;
+		for (std::vector<std::string>::const_iterator namesIt = (*it)->getConfigMembers().getIndex().begin(); namesIt != (*it)->getConfigMembers().getIndex().end(); ++namesIt)
+			std::cout << "index: " << *namesIt << std::endl;
+		std::cout << endl;
 	}
 }

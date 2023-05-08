@@ -28,7 +28,8 @@ public:
 	std::string const &getHost() const;
 	int const &getPort() const;
 	std::vector<Location>& getLocations();
-	std::vector<std::string>& getServerName(); // & eklendi bakılacak
+	const std::vector<std::string>& getServerName(); // & eklendi bakılacak
+	void	setServerName(const std::string& name);
 	std::map<std::string, std::string>& getCgiPaths(); // & eklendi bakılacak
 	ConfigMembers& getConfigMembers();
 	/* Set area */
