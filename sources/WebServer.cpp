@@ -140,12 +140,12 @@ void WebServer::parseLocationArea(std::string& line)
 
 	std::string			word;
 	std::stringstream	ss(line);
-	Location new_lctn;
 
-	_parsedServers.back()->getLocations().push_back(new_lctn);
-	Location &lctn = _parsedServers.back()->getLocations().back();
-
+	Location& lctn = _parsedServers.back()->getLocations().back();
+	if(!this->_tmpLocationUri.empty())
+		lctn.setUri(this->_tmpLocationUri);
 	ss >> word;
+	
 	if (word == "root")
 		parseRoot(ss, lctn.getConfigMembers());
 	else if (word == "allow")
@@ -317,19 +317,24 @@ void WebServer::parseLocation(std::stringstream& ss, Server &srvr)// dinleyeceğ
 {
 	Error err(0);
 	std::string		word;
-	
+	Location nLocation;
 
+	std::cout << "1\n";
+
+	(void)srvr;
 	if (!(ss >> word))
 		err.setAndPrint(26, "parseLocation");
 	if (word != "{")
 	{
-		srvr.setLocationUri(word);
+		this->_tmpLocationUri = word;
 		ss >> word;
 		if (word != "{")
 			err.setAndPrint(26, "parseLocation");
 	}
 	if (ss >> word)
 		err.setAndPrint(19, "parseLocation");
+	setNewLocation(nLocation);
+	_parsedServers.back()->getLocations().push_back(newLocation);
 	this->locationBlock = true;
 	this->mainBlock = false;
 	this->serverBlock = false;
@@ -346,7 +351,7 @@ void WebServer::parseAllowedMethods(std::stringstream& ss, Location &lctn)
 	{
 		if (!isValidMethod(word))
 			err.setAndPrint(24, "null");
-		lctn.getAllowedMethods().insert(word);
+		lctn.getAllowedMethods().push_back(word);
 	}
 	if(lctn.getAllowedMethods().empty())
 		err.setAndPrint(25, "Allowed Methods");
@@ -386,7 +391,7 @@ void WebServer::printAll()
 	for (int i = 1; it != ite; ++it, ++i)
 	{
 		std::cout << "Server " << "-> "<< i << " <-" << " : \n";
-		std::cout << "Listen : on host '" << (*it)->getHost() << "', port '" << (*it)->getPort() << "'" << std::endl;
+		std::cout << "listen : on host '" << (*it)->getHost() << "', port '" << (*it)->getPort() << "'" << std::endl;
 		for (std::vector<std::string>::const_iterator namesIt = (*it)->getServerName().begin(); namesIt != (*it)->getServerName().end(); ++namesIt)
 			std::cout << "serverName: " << *namesIt << std::endl;
 		for (std::map<std::string, std::string>::iterator namesIt = (*it)->getConfigMembers().getCgis().begin(); namesIt != (*it)->getConfigMembers().getCgis().end(); ++namesIt)
@@ -401,14 +406,21 @@ void WebServer::printAll()
 			std::cout << "auto_index: " << "on" << std::endl;
 		else
 			std::cout << "auto_index: " << "off" << std::endl;
-		std::cout << "location uri: " << (*it)->getLocationUri() << " {"<< std::endl; // Location'ın içine uri eklemek gerekebilir kafa yormadım
 		for (std::vector<Location>::iterator namesIt = (*it)->getLocations().begin(); namesIt != (*it)->getLocations().end(); ++namesIt){
-			for(std::set<std::string>::iterator allowedIt = namesIt->getAllowedMethods().begin(); allowedIt != namesIt->getAllowedMethods().end(); ++allowedIt)
+			std::cout << "location uri: " << namesIt->getUri() << std::endl;
+			std::cout << "\n\n count: " << namesIt->getAllowedMethods().size() << "\n\n";
+			std::cout << "\n\n\n" << std::endl;
+ 			for(std::vector<std::string>::iterator allowedIt = namesIt->getAllowedMethods().begin(); allowedIt != namesIt->getAllowedMethods().end(); ++allowedIt)
 			{
 				std::cout << "allowed_methods: " << *allowedIt << " " << std::endl;
 			}
+			std::cout << "\n\n\n" << std::endl;
 		}
-		std::cout << "	}" << endl;
 	}
+}
+
+void WebServer::setNewLocation(Location const &lctn)
+{
+	this->newLocation = lctn;
 }
 

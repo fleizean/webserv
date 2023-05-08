@@ -9,6 +9,7 @@ class WebServer
 {
 private:
     string _configContent;
+    string _tmpLocationUri;
 
     /* for control */
     bool serverBlock;
@@ -17,6 +18,7 @@ private:
 
     std::vector<Server*> _parsedServers;
 
+    Location newLocation;
     /*std::map<long, Server> _servers;
     std::map<long, Server *>	_sockets;*/
 
@@ -60,6 +62,8 @@ public:
     void parseAllowedMethods(std::stringstream& ss, Location &lctn);
     void parseReturn(std::stringstream& ss, Location &lctn);
 
+    /* Set Location */
+    void setNewLocation(Location const &lctn);
     /* Print All */
     void printAll();
 };
