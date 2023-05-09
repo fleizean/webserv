@@ -319,8 +319,6 @@ void WebServer::parseLocation(std::stringstream& ss, Server &srvr)// dinleyeceğ
 	std::string		word;
 	Location nLocation;
 
-	std::cout << "1\n";
-
 	(void)srvr;
 	if (!(ss >> word))
 		err.setAndPrint(26, "parseLocation");
@@ -407,7 +405,7 @@ void WebServer::printAll()
 		else
 			std::cout << "auto_index: " << "off" << std::endl;
 		for (std::vector<Location>::iterator namesIt = (*it)->getLocations().begin(); namesIt != (*it)->getLocations().end(); ++namesIt){
-			std::cout << "location uri: " << namesIt->getUri() << std::endl;
+			std::cout << "location uri: " << namesIt->getUri() << std::endl;//***********************
 			std::cout << "\n\n count: " << namesIt->getAllowedMethods().size() << "\n\n";
 			std::cout << "\n\n\n" << std::endl;
  			for(std::vector<std::string>::iterator allowedIt = namesIt->getAllowedMethods().begin(); allowedIt != namesIt->getAllowedMethods().end(); ++allowedIt)
