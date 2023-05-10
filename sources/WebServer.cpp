@@ -385,8 +385,9 @@ void WebServer::printAll()
 
 	for (int i = 1; it != ite; ++it, ++i)
 	{
+		
+		std::cout << BOLD_YELLOW << "Server " << "-> "<< i << " <-" << " : \n" << RESET;
 		std::cout << GREEN;
-		std::cout << "Server " << "-> "<< i << " <-" << " : \n";
 		std::cout << "listen : on host '" << (*it)->getHost() << "', port '" << (*it)->getPort() << "'" << std::endl;
 		for (std::vector<std::string>::const_iterator namesIt = (*it)->getServerName().begin(); namesIt != (*it)->getServerName().end(); ++namesIt)
 			std::cout << "serverName: " << *namesIt << std::endl;
@@ -405,7 +406,7 @@ void WebServer::printAll()
 		const std::vector<Location *> &locations = (*it)->getLocations();
 		std::cout << RESET;
 		for (std::vector<Location *>::const_iterator lit = locations.cbegin(); lit != locations.cend(); ++lit){
-			std::cout << RED << "location uri: " << (*lit)->getUri() << RESET << std::endl;//***********************
+			std::cout << BOLD_RED << "location uri: " << (*lit)->getUri() << RESET << std::endl;//***********************
 			std::cout << BLUE;
  			for(std::vector<std::string>::iterator allowedIt = (*lit)->getAllowedMethods().begin(); allowedIt != (*lit)->getAllowedMethods().end(); ++allowedIt)
 			{
@@ -417,9 +418,17 @@ void WebServer::printAll()
 			    std::cout << "returns: " << rit->first << " " << rit->second << '\n';
 			}
 			std::cout << "root:" << (*lit)->getConfigMembers().getRoot() << std::endl;
-			std::cout << "max client body size: " << (*lit)->getConfigMembers().getMaxClientBodySize() << std::endl;
+			std::cout << "max_client_body_size: " << (*lit)->getConfigMembers().getMaxClientBodySize() << std::endl;
 			for (std::map<int, std::string>::iterator namesIt = (*lit)->getConfigMembers().getErrorPage().begin(); namesIt != (*lit)->getConfigMembers().getErrorPage().end(); ++namesIt)
 				std::cout << "error_page: " << namesIt->first << " " << namesIt->second << std::endl;
+			for (std::map<std::string, std::string>::iterator namesIt = (*lit)->getConfigMembers().getCgis().begin(); namesIt != (*lit)->getConfigMembers().getCgis().end(); ++namesIt)
+				std::cout << "cgi: " << namesIt->first << " " << namesIt->second << std::endl;
+			if((*lit)->getConfigMembers().getAutoIndex() == 1)
+				std::cout << "auto_index: " << "on" << std::endl;
+			else
+				std::cout << "auto_index: " << "off" << std::endl;
+			for (std::vector<std::string>::const_iterator namesIt = (*lit)->getConfigMembers().getIndex().begin(); namesIt != (*lit)->getConfigMembers().getIndex().end(); ++namesIt)
+				std::cout << "index: " << *namesIt << std::endl;
 		}
 		std::cout << RESET;
 	}
