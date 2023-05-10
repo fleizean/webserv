@@ -385,6 +385,7 @@ void WebServer::printAll()
 
 	for (int i = 1; it != ite; ++it, ++i)
 	{
+		std::cout << GREEN;
 		std::cout << "Server " << "-> "<< i << " <-" << " : \n";
 		std::cout << "listen : on host '" << (*it)->getHost() << "', port '" << (*it)->getPort() << "'" << std::endl;
 		for (std::vector<std::string>::const_iterator namesIt = (*it)->getServerName().begin(); namesIt != (*it)->getServerName().end(); ++namesIt)
@@ -402,13 +403,25 @@ void WebServer::printAll()
 		else
 			std::cout << "auto_index: " << "off" << std::endl;
 		const std::vector<Location *> &locations = (*it)->getLocations();
+		std::cout << RESET;
 		for (std::vector<Location *>::const_iterator lit = locations.cbegin(); lit != locations.cend(); ++lit){
-			std::cout << "location uri: " << (*lit)->getUri() << std::endl;//***********************
+			std::cout << RED << "location uri: " << (*lit)->getUri() << RESET << std::endl;//***********************
+			std::cout << BLUE;
  			for(std::vector<std::string>::iterator allowedIt = (*lit)->getAllowedMethods().begin(); allowedIt != (*lit)->getAllowedMethods().end(); ++allowedIt)
 			{
 				std::cout << "allowed_methods: " << *allowedIt << " " << std::endl;
 			}
+			const std::map<int, std::string> &returnType = (*lit)->getReturns();
+			for (std::map<int, std::string>::const_iterator rit = returnType.cbegin(); rit != returnType.cend(); ++rit)
+			{
+			    std::cout << "returns: " << rit->first << " " << rit->second << '\n';
+			}
+			std::cout << "root:" << (*lit)->getConfigMembers().getRoot() << std::endl;
+			std::cout << "max client body size: " << (*lit)->getConfigMembers().getMaxClientBodySize() << std::endl;
+			for (std::map<int, std::string>::iterator namesIt = (*lit)->getConfigMembers().getErrorPage().begin(); namesIt != (*lit)->getConfigMembers().getErrorPage().end(); ++namesIt)
+				std::cout << "error_page: " << namesIt->first << " " << namesIt->second << std::endl;
 		}
+		std::cout << RESET;
 	}
 }
 

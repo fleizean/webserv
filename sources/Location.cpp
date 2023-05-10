@@ -20,7 +20,7 @@ std::vector<std::string> &Location::getAllowedMethods() { return _allowedMethods
 
 ConfigMembers& Location::getConfigMembers() { return this->_members; }
 
-std::map <int, std::string> Location::getReturns() { return this->_returns; }
+std::map <int, std::string>& Location::getReturns() { return this->_returns; }
 /* <------------------------------------------> */
 
 

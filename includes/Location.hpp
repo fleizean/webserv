@@ -20,7 +20,7 @@ public:
 	std::string const &getUri() const;
 	std::vector<std::string> &getAllowedMethods();
 	ConfigMembers& getConfigMembers();
-	std::map <int, std::string> getReturns();
+	std::map <int, std::string>& getReturns();
 	/* set Area */
 	void setUri(std::string const &uri);
 };
