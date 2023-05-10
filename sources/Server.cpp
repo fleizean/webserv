@@ -19,7 +19,7 @@ Server::~Server() { }
 std::string const &Server::getHost() const { return this->_host; }
 std::string const &Server::getLocationUri() const { return this->_locationUri; }
 int const &Server::getPort() const { return this->_port; }
-std::vector<Location>& Server::getLocations() { return _locations; }
+std::vector<Location *>& Server::getLocations() { return _locations; }
 const std::vector<std::string>& Server::getServerName() { return _serverName; }
 std::map<std::string, std::string>& Server::getCgiPaths() { return _cgiPaths; }
 ConfigMembers& Server::getConfigMembers() { return this->_members; }

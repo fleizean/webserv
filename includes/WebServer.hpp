@@ -62,8 +62,7 @@ public:
     void parseAllowedMethods(std::stringstream& ss, Location &lctn);
     void parseReturn(std::stringstream& ss, Location &lctn);
 
-    /* Set Location */
-    void setNewLocation(Location const &lctn);
+
     /* Print All */
     void printAll();
 };

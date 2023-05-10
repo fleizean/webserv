@@ -140,26 +140,24 @@ void WebServer::parseLocationArea(std::string& line)
 
 	std::string			word;
 	std::stringstream	ss(line);
-
-	Location& lctn = _parsedServers.back()->getLocations().back();
+	Location* lctn = _parsedServers.back()->getLocations().back();
 	if(!this->_tmpLocationUri.empty())
-		lctn.setUri(this->_tmpLocationUri);
+		lctn->setUri(this->_tmpLocationUri);
 	ss >> word;
-	
 	if (word == "root")
-		parseRoot(ss, lctn.getConfigMembers());
+		parseRoot(ss, lctn->getConfigMembers());
 	else if (word == "allow")
-		parseAllowedMethods(ss, lctn);
+		parseAllowedMethods(ss, *lctn);
 	else if (word == "return")
-		parseReturn(ss, lctn);
+		parseReturn(ss, *lctn);
 	else if (word == "error_page")
-		parseErrorPage(ss, lctn.getConfigMembers());
+		parseErrorPage(ss, lctn->getConfigMembers());
 	else if (word == "autoindex")
-		parseAutoIndex(ss, lctn.getConfigMembers());
+		parseAutoIndex(ss, lctn->getConfigMembers());
 	else if (word == "max_client_body_size")
-		parseMaxClientBodySize(ss, lctn.getConfigMembers());
+		parseMaxClientBodySize(ss, lctn->getConfigMembers());
 	else if (word == "index")
-		parseIndex(ss, lctn.getConfigMembers());
+		parseIndex(ss, lctn->getConfigMembers());
 	else
 		err.setAndPrint(19, "Parse Location");
 }
@@ -248,7 +246,7 @@ void WebServer::parseIndex(std::stringstream& ss, ConfigMembers& cm) // bitti
 
 	while(ss >> word){ // 1 tane olması gerek yine üstteki gibi birden fazla saçma oluyor olabilir
 		cm.getIndex().push_back(word);
-	}   
+	}
 	if(cm.getIndex().empty())
 		err.setAndPrint(16, "parseIndex");
 }
@@ -317,7 +315,6 @@ void WebServer::parseLocation(std::stringstream& ss, Server &srvr)// dinleyeceğ
 {
 	Error err(0);
 	std::string		word;
-	Location nLocation;
 
 	(void)srvr;
 	if (!(ss >> word))
@@ -331,8 +328,7 @@ void WebServer::parseLocation(std::stringstream& ss, Server &srvr)// dinleyeceğ
 	}
 	if (ss >> word)
 		err.setAndPrint(19, "parseLocation");
-	setNewLocation(nLocation);
-	_parsedServers.back()->getLocations().push_back(newLocation);
+	_parsedServers.back()->getLocations().push_back(new Location);
 	this->locationBlock = true;
 	this->mainBlock = false;
 	this->serverBlock = false;
@@ -350,6 +346,7 @@ void WebServer::parseAllowedMethods(std::stringstream& ss, Location &lctn)
 		if (!isValidMethod(word))
 			err.setAndPrint(24, "null");
 		lctn.getAllowedMethods().push_back(word);
+
 	}
 	if(lctn.getAllowedMethods().empty())
 		err.setAndPrint(25, "Allowed Methods");
@@ -404,21 +401,15 @@ void WebServer::printAll()
 			std::cout << "auto_index: " << "on" << std::endl;
 		else
 			std::cout << "auto_index: " << "off" << std::endl;
-		for (std::vector<Location>::iterator namesIt = (*it)->getLocations().begin(); namesIt != (*it)->getLocations().end(); ++namesIt){
-			std::cout << "location uri: " << namesIt->getUri() << std::endl;//***********************
-			std::cout << "\n\n count: " << namesIt->getAllowedMethods().size() << "\n\n";
-			std::cout << "\n\n\n" << std::endl;
- 			for(std::vector<std::string>::iterator allowedIt = namesIt->getAllowedMethods().begin(); allowedIt != namesIt->getAllowedMethods().end(); ++allowedIt)
+		const std::vector<Location *> &locations = (*it)->getLocations();
+		for (std::vector<Location *>::const_iterator lit = locations.cbegin(); lit != locations.cend(); ++lit){
+			std::cout << "location uri: " << (*lit)->getUri() << std::endl;//***********************
+ 			for(std::vector<std::string>::iterator allowedIt = (*lit)->getAllowedMethods().begin(); allowedIt != (*lit)->getAllowedMethods().end(); ++allowedIt)
 			{
 				std::cout << "allowed_methods: " << *allowedIt << " " << std::endl;
 			}
-			std::cout << "\n\n\n" << std::endl;
 		}
 	}
 }
 
-void WebServer::setNewLocation(Location const &lctn)
-{
-	this->newLocation = lctn;
-}
 
