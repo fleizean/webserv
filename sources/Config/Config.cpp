@@ -1,12 +1,12 @@
-#include "../includes/WebServer.hpp"
+#include "../includes/Config.hpp"
 
-WebServer::WebServer() : _configContent(), serverBlock(false), mainBlock(true), locationBlock(false) {}
+Config::Config() : _configContent(), serverBlock(false), mainBlock(true), locationBlock(false) {}
 
-WebServer::WebServer(WebServer const &rhs) : _configContent(rhs._configContent), serverBlock(rhs.serverBlock), mainBlock(rhs.mainBlock), locationBlock(rhs.locationBlock) {}
+Config::Config(Config const &rhs) : _configContent(rhs._configContent), serverBlock(rhs.serverBlock), mainBlock(rhs.mainBlock), locationBlock(rhs.locationBlock) {}
 
-WebServer::~WebServer() {}
+Config::~Config() {}
 
-WebServer &WebServer::operator=(WebServer const &rhs)
+Config &Config::operator=(Config const &rhs)
 {
 	_configContent	= rhs._configContent;
 	serverBlock		= rhs.serverBlock;
@@ -15,9 +15,9 @@ WebServer &WebServer::operator=(WebServer const &rhs)
 	return *this;
 }
 
-std::vector<Server*> WebServer::getConfig() { return this->_parsedServers; }
+std::vector<Server*> Config::getConfig() { return this->_parsedServers; }
 
-void WebServer::FileChecker(const string &conf_path)
+void Config::FileChecker(const string &conf_path)
 {
 	Error err(0);
 	string contentsConfig;
@@ -41,7 +41,7 @@ void WebServer::FileChecker(const string &conf_path)
 
 /* <---------------> Before Parsing Area <---------------> */
 
-void WebServer::split_server(std::string configContent)
+void Config::split_server(std::string configContent)
 {
 	Error err(0);
 	std::string str = "";
@@ -71,7 +71,7 @@ void WebServer::split_server(std::string configContent)
 		err.setAndPrint(27, "split server");
 }
 
-void WebServer::endScopeConf()
+void Config::endScopeConf()
 {
 	if (this->serverBlock == true)
 	{
@@ -85,7 +85,7 @@ void WebServer::endScopeConf()
 }
 
 
-void WebServer::parseMainArea(std::string& line)
+void Config::parseMainArea(std::string& line)
 {
 	// Server new_server;
 	Error err(0);
@@ -96,7 +96,7 @@ void WebServer::parseMainArea(std::string& line)
 	this->mainBlock = false;
 }
 
-void WebServer::parseServerArea(std::string& line)
+void Config::parseServerArea(std::string& line)
 {
 	Error err(0);
 	if (line.back() != ';' && line.substr(0, 8) != "location")
@@ -129,7 +129,7 @@ void WebServer::parseServerArea(std::string& line)
 		parseLocation(ss, *srvr);
 }
 
-void WebServer::parseLocationArea(std::string& line)
+void Config::parseLocationArea(std::string& line)
 {
 	Error err(0);
 	if (line.back() != ';')
@@ -162,7 +162,7 @@ void WebServer::parseLocationArea(std::string& line)
 		err.setAndPrint(19, "Parse Location");
 }
 
-void WebServer::parse_server()
+void Config::parse_server()
 {
 	split_server(this->_configContent);
 	
@@ -174,7 +174,7 @@ void WebServer::parse_server()
 
 /* <---------------> Parsing Area <---------------> */
 
-void WebServer::parseListen(std::stringstream& ss, Server &srvr) // bitti
+void Config::parseListen(std::stringstream& ss, Server &srvr) // bitti
 {
 	Error err(0);
 	std::string		word;
@@ -200,7 +200,7 @@ void WebServer::parseListen(std::stringstream& ss, Server &srvr) // bitti
 	
 }
 
-void WebServer::parseServerName(std::stringstream& ss, Server &srvr) // bitti
+void Config::parseServerName(std::stringstream& ss, Server &srvr) // bitti
 {
 	Error err(0);
 	std::string word;
@@ -213,7 +213,7 @@ void WebServer::parseServerName(std::stringstream& ss, Server &srvr) // bitti
 		err.setAndPrint(12, "parseServerName");
 }
 
-void WebServer::parseCgi(std::stringstream& ss, ConfigMembers &cm) // bitti gibi
+void Config::parseCgi(std::stringstream& ss, ConfigMembers &cm) // bitti gibi
 {
 	Error err(0);
 	std::string ext;
@@ -226,7 +226,7 @@ void WebServer::parseCgi(std::stringstream& ss, ConfigMembers &cm) // bitti gibi
 		err.setAndPrint(19, "parseCgi");
 }
 
-void WebServer::parseRoot(std::stringstream& ss, ConfigMembers &cm) // bitti
+void Config::parseRoot(std::stringstream& ss, ConfigMembers &cm) // bitti
 {
 	Error err(0);
 	std::string word;
@@ -239,7 +239,7 @@ void WebServer::parseRoot(std::stringstream& ss, ConfigMembers &cm) // bitti
 		err.setAndPrint(14, "Root");
 }
 
-void WebServer::parseIndex(std::stringstream& ss, ConfigMembers& cm) // bitti
+void Config::parseIndex(std::stringstream& ss, ConfigMembers& cm) // bitti
 {
 	Error err(0);
 	std::string word;
@@ -251,7 +251,7 @@ void WebServer::parseIndex(std::stringstream& ss, ConfigMembers& cm) // bitti
 		err.setAndPrint(16, "parseIndex");
 }
 
-void WebServer::parseMaxClientBodySize(std::stringstream& ss, ConfigMembers& cm)
+void Config::parseMaxClientBodySize(std::stringstream& ss, ConfigMembers& cm)
 {
 	Error err(0);
 	std::string word;
@@ -268,7 +268,7 @@ void WebServer::parseMaxClientBodySize(std::stringstream& ss, ConfigMembers& cm)
 	}
 }
 
-void WebServer::parseAutoIndex(std::stringstream& ss, ConfigMembers& cm)
+void Config::parseAutoIndex(std::stringstream& ss, ConfigMembers& cm)
 {
 	Error err(0);
 	std::string		word;
@@ -287,7 +287,7 @@ void WebServer::parseAutoIndex(std::stringstream& ss, ConfigMembers& cm)
 }
 
 
-void WebServer::parseErrorPage(std::stringstream& ss, ConfigMembers& cm) // bakılıyor
+void Config::parseErrorPage(std::stringstream& ss, ConfigMembers& cm) // bakılıyor
 {
 	Error err(0);
 	std::string word;
@@ -311,7 +311,7 @@ void WebServer::parseErrorPage(std::stringstream& ss, ConfigMembers& cm) // bak�
 }
 
 
-void WebServer::parseLocation(std::stringstream& ss, Server &srvr)// dinleyeceğimiz uri geliyor
+void Config::parseLocation(std::stringstream& ss, Server &srvr)// dinleyeceğimiz uri geliyor
 {
 	Error err(0);
 	std::string		word;
@@ -336,7 +336,7 @@ void WebServer::parseLocation(std::stringstream& ss, Server &srvr)// dinleyeceğ
 
 /* <---------------> Parse Location { } Area <---------------> */
 
-void WebServer::parseAllowedMethods(std::stringstream& ss, Location &lctn)
+void Config::parseAllowedMethods(std::stringstream& ss, Location &lctn)
 {
 	Error err(0);
 	std::string word;
@@ -353,7 +353,7 @@ void WebServer::parseAllowedMethods(std::stringstream& ss, Location &lctn)
 }
 
 
-void WebServer::parseReturn(std::stringstream& ss, Location &lctn)
+void Config::parseReturn(std::stringstream& ss, Location &lctn)
 {
 	Error err(0);
 	std::string word;
@@ -378,14 +378,15 @@ void WebServer::parseReturn(std::stringstream& ss, Location &lctn)
 
 /* <----------------------------------------------> */
 
-void WebServer::printAll()
+void Config::printAll()
 {
 	std::vector<Server*>::iterator ite = _parsedServers.end();
 	std::vector<Server*>::iterator it = _parsedServers.begin();
 
 	for (int i = 1; it != ite; ++it, ++i)
 	{
-		
+		if(i != 1)
+			std::cout << std::endl;
 		std::cout << BOLD_YELLOW << "Server " << "-> "<< i << " <-" << " : \n" << RESET;
 		std::cout << GREEN;
 		std::cout << "listen : on host '" << (*it)->getHost() << "', port '" << (*it)->getPort() << "'" << std::endl;
@@ -406,7 +407,7 @@ void WebServer::printAll()
 		const std::vector<Location *> &locations = (*it)->getLocations();
 		std::cout << RESET;
 		for (std::vector<Location *>::const_iterator lit = locations.cbegin(); lit != locations.cend(); ++lit){
-			std::cout << BOLD_RED << "location uri: " << (*lit)->getUri() << RESET << std::endl;//***********************
+			std::cout << BOLD_RED << "location uri: " << (*lit)->getUri() << RESET << std::endl;
 			std::cout << BLUE;
  			for(std::vector<std::string>::iterator allowedIt = (*lit)->getAllowedMethods().begin(); allowedIt != (*lit)->getAllowedMethods().end(); ++allowedIt)
 			{

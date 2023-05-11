@@ -1,57 +1,67 @@
-NAME		=	webserv
+# COMMON =======================================================================
+NAME = webserv
+#===============================================================================
 
-DIRSRC		=	sources
-OBJD		=	obj
-INCLUDE		=	includes
+# SOURCES ======================================================================
+SOURCES_FOLDER = sources/
+SOURCES =	main.cpp \
+			Error.cpp \
+			Config.cpp \
+			UtilsParse.cpp \
+			Location.cpp \
+			ConfigMembers.cpp \
+			Server.cpp
+#===============================================================================
 
-INCLUDEF	=	$(INCLUDE)/Color.hpp		\
-				$(INCLUDE)/Error.hpp		\
-				$(INCLUDE)/WebServer.hpp	\
-				$(INCLUDE)/Server.hpp		\
-				$(INCLUDE)/ConfigMembers.hpp \
-				$(INCLUDE)/Location.hpp
+# INCLUDES =====================================================================
+INCLUDES_FOLDER = includes/
+INCLUDES = 	Error.hpp \
+			Config.hpp \
+			Server.hpp \
+			ConfigMembers.hpp \
+			Location.hpp
 
-SRC			=	main.cpp			\
-				Error.cpp			\
-				WebServer.cpp		\
-				utils_parse.cpp		\
-				Location.cpp	\
-				ConfigMembers.cpp \
-				Server.cpp
+INCLUDES_PREFIXED = $(addprefix $(INCLUDES_FOLDER), $(INCLUDES))
+#===============================================================================
 
-OBJ			=	$(SRC:.cpp=.o)
-OBJS		=	$(OBJ:%=$(OBJD)/%)
+# OBJECTS ======================================================================
+OBJECTS_FOLDER = objects/
 
-CFLAGS		=	-Wall -Wextra -Werror -std=c++98 # -g3 -fsanitize=address -Ofast
-CC			=	clang++
-RM			=	rm -rf
+OBJECT = $(SOURCES:.cpp=.o)
+OBJECTS = $(addprefix $(OBJECTS_FOLDER), $(OBJECT))
+#===============================================================================
 
-DEBUG		=	0
+# FLAGS ========================================================================
+FLAGS = -Wall -Wextra -Werror -std=c++98# -g3 -fsanitize=address
+#===============================================================================
 
+DEBUG_VALUE = 0
 
-$(NAME)		:	$(OBJD) $(OBJS) $(INCLUDEF)
-				$(CC) -I ./$(INCLUDE) $(CFLAGS) $(OBJS) -o $(NAME)
+$(OBJECTS_FOLDER)%.o :	$(SOURCES_FOLDER)%.cpp $(INCLUDES_PREFIXED)
+	@mkdir -p $(OBJECTS_FOLDER)
+	@echo "Compiling : $<"
+	@clang++ $(FLAGS) -D DEBUG_ACTIVE=$(DEBUG_VALUE) -c $< -o $@
 
-$(OBJD)		:
-				@mkdir $(OBJD)
+$(NAME): $(OBJECTS)
+	@echo "Create    : $(NAME)"
+	@clang++ $(FLAGS) $(OBJECTS) -o $(NAME)
 
-$(OBJD)/%.o	:	$(DIRSRC)/%.cpp $(INCLUDEF)
-				$(CC) -I ./$(INCLUDE) $(CFLAGS) -o $@ -c $<
+OBJECTS_FOLDER            =   .cache_exists
 
-all			:	$(NAME)
+all: $(NAME)
+$(OBJECTS_FOLDER):
+            @mkdir -p $(OBJECTS_FOLDER)
+            @mkdir -p $(OBJECTS_FOLDER)$(SRC_ENTITY)
+            @mkdir -p $(OBJECTS_FOLDER)$(SRC_PARSER)
+            @mkdir -p $(OBJECTS_FOLDER)$(SRC_FILE)
+            @mkdir -p $(OBJECTS_FOLDER)$(SRC_SERVER)
+            @mkdir -p $(OBJECTS_FOLDER)$(SRC_REQUEST)
+            @mkdir -p $(OBJECTS_FOLDER)$(SRC_RESPONSE)
+            @mkdir -p $(OBJECTS_FOLDER)$(SRC_CGI)
+clean:
+	@rm -rf $(OBJECTS_FOLDER)
 
-clean		:
-				$(RM) $(OBJS)
-				$(RM) $(OBJS) $(INCLUDE)/*.gch
-				$(RM) $(OBJD)
+fclean: clean
+	@rm -rf $(NAME)
 
-fclean		:	clean
-
-				$(RM) $(NAME)
-
-%:
-	@:
-
-re			:	fclean all
-
-.PHONY		:	all clean re fclean
+re: fclean all

@@ -5,7 +5,7 @@
 #include "Location.hpp"
 #include "ConfigMembers.hpp"
 
-class WebServer
+class Config
 {
 private:
     string _configContent;
@@ -18,19 +18,18 @@ private:
 
     std::vector<Server*> _parsedServers;
 
-    Location newLocation;
     /*std::map<long, Server> _servers;
     std::map<long, Server *>	_sockets;*/
 
 public:
     /* default constructor */
-    WebServer();
+    Config();
     /* copy constructor */
-    WebServer(WebServer const &rhs);
+    Config(Config const &rhs);
     /* destructor */
-    ~WebServer();
+    ~Config();
     /* operator */
-    WebServer &operator=(WebServer const &rhs);
+    Config &operator=(Config const &rhs);
     std::vector<Server*> getConfig(void);
 
     /* methods */
@@ -58,6 +57,7 @@ public:
     void parseListen(std::stringstream& ss, Server &srvr);
     void parseServerName(std::stringstream& ss, Server &srvr);
     void parseLocation(std::stringstream& ss, Server &srvr);
+
     /* Location Parse */
     void parseAllowedMethods(std::stringstream& ss, Location &lctn);
     void parseReturn(std::stringstream& ss, Location &lctn);
