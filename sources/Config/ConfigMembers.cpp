@@ -1,4 +1,4 @@
-#include "../includes/ConfigMembers.hpp"
+#include "../../includes/ConfigMembers.hpp"
 
 ConfigMembers::ConfigMembers() : _root(""), _maxClientBodySize(1000000000), _autoIndex(false) {}
 

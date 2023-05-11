@@ -1,4 +1,4 @@
-#include "../includes/Config.hpp"
+#include "../../includes/Config.hpp"
 
 Config::Config() : _configContent(), serverBlock(false), mainBlock(true), locationBlock(false) {}
 
@@ -15,7 +15,7 @@ Config &Config::operator=(Config const &rhs)
 	return *this;
 }
 
-std::vector<Server*> Config::getConfig() { return this->_parsedServers; }
+std::vector<Server*>& Config::getConfig() { return this->_parsedServers; }
 
 void Config::FileChecker(const string &conf_path)
 {
@@ -185,7 +185,7 @@ void Config::parseListen(std::stringstream& ss, Server &srvr) // bitti
 	founded_indx = word.find(":");
 	if (founded_indx != std::string::npos)
 	{
-		srvr.setHost(word.substr(0, founded_indx));
+		srvr.setHost(strToIp(word.substr(0, founded_indx)));
 		word = word.substr(founded_indx + 1, word.size());
 	}
 	try
@@ -434,5 +434,3 @@ void Config::printAll()
 		std::cout << RESET;
 	}
 }
-
-

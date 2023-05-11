@@ -1,6 +1,6 @@
-#include "../includes/Server.hpp"
+#include "../../includes/Server.hpp"
 
-Server::Server() : _host("0.0.0.0"), _port(80) {}
+Server::Server() : _host(0), _port(80) {}
 
 Server::Server(Server const &rhs) : _host(rhs._host), _port(rhs._port) {}
 
@@ -16,7 +16,7 @@ Server::~Server() { }
 
 /* <---------------> Get Area <---------------> */
 
-std::string const &Server::getHost() const { return this->_host; }
+unsigned int const &Server::getHost() const { return this->_host; }
 std::string const &Server::getLocationUri() const { return this->_locationUri; }
 int const &Server::getPort() const { return this->_port; }
 std::vector<Location *>& Server::getLocations() { return _locations; }
@@ -28,7 +28,7 @@ ConfigMembers& Server::getConfigMembers() { return this->_members; }
 
 /* <---------------> Set Area <---------------> */
 
-void Server::setHost(std::string const &host) { this->_host = host; }
+void Server::setHost(unsigned int const &host) { this->_host = host; }
 
 void Server::setPort(int const &port) { this->_port = port; }
 

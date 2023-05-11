@@ -1,4 +1,4 @@
-#include "../includes/include.hpp"
+#include "../../includes/include.hpp"
 
 int fileToString(const string& filename, string& fileContents)
 {
@@ -81,4 +81,49 @@ bool	isValidMethod(const std::string& word)
 			|| word == "DELETE" || word == "OPTIONS" || word == "TRACE")
 		return true;
 	return false;
+}
+
+static void	ft_skip_spacenl(const char *str, int *i)
+{
+	while ((str[*i] == ' ' || str[*i] == '\t' || str[*i] == '\n')
+	|| (str[*i] == '\r' || str[*i] == '\v' || str[*i] == '\f'))
+		(*i)++;
+}
+
+static int	ft_atoi(const char *str)
+{
+	int	i;
+	int	sign;
+	int	num;
+
+	i = 0;
+	sign = 1;
+	num = 0;
+	ft_skip_spacenl(str, &i);
+	if (str[i] == '-')
+		sign = -1;
+	if (str[i] == '-' || str[i] == '+')
+		i++;
+	while (str[i] >= '0' && str[i] <= '9')
+		num = num * 10 + (str[i++] - '0');
+	return (num * sign);
+}
+
+unsigned int	strToIp(std::string strIp) {
+	size_t  sep = 0;
+	unsigned int   n;
+	unsigned char  m[4];
+	size_t  start = 0;
+	if (strIp == "localhost")
+		strIp = "127.0.0.1";
+	for (unsigned int i = 3 ; i != std::numeric_limits<uint32_t>::max(); i--) {
+		sep = strIp.find_first_of('.', sep);
+		std::string str = strIp.substr(start, sep);
+		n = ft_atoi(str.c_str());
+		m[i] = static_cast<unsigned char>(n);
+		sep++;
+		start = sep;
+	}
+	unsigned final = *(reinterpret_cast<unsigned int *>(m));
+	return final;
 }

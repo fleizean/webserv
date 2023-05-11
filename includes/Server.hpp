@@ -7,7 +7,7 @@
 class Server
 {
 private:
-	std::string							_host; // host
+	unsigned int						_host; // host
 	int									_port; // port
 	std::string                         _locationUri; // location URI
 	vector<Location *>					_locations;
@@ -26,7 +26,7 @@ public:
 	~Server();
 	
 	/* Get area */
-	std::string const &getHost() const;
+	unsigned int const &getHost() const;
 	std::string const &getLocationUri() const;
 	int const &getPort() const;
 	std::vector<Location *>& getLocations();
@@ -35,7 +35,7 @@ public:
 	std::map<std::string, std::string>& getCgiPaths(); // & eklendi bakılacak
 	ConfigMembers& getConfigMembers();
 	/* Set area */
-	void setHost(std::string const &host);
+	void setHost(unsigned int const &host);
 	void setPort(int const &port);
 	void setLocationUri(std::string const &uri);
 };

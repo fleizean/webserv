@@ -1,67 +1,44 @@
-# COMMON =======================================================================
-NAME = webserv
-#===============================================================================
+NAME		:= webserv
 
-# SOURCES ======================================================================
-SOURCES_FOLDER = sources/
-SOURCES =	main.cpp \
-			Error.cpp \
-			Config.cpp \
-			UtilsParse.cpp \
-			Location.cpp \
-			ConfigMembers.cpp \
-			Server.cpp
-#===============================================================================
+SRCS_LIST	= \
+			main.cpp \
+			Config/Config.cpp \
+			Config/ConfigMembers.cpp \
+			Config/Location.cpp \
+			Config/Server.cpp \
+			ErrorHandle/Error.cpp \
+			Server/Cluster.cpp \
+			Utils/UtilsParse.cpp
 
-# INCLUDES =====================================================================
-INCLUDES_FOLDER = includes/
-INCLUDES = 	Error.hpp \
-			Config.hpp \
-			Server.hpp \
-			ConfigMembers.hpp \
-			Location.hpp
+SRCS_FOLDER	= sources
 
-INCLUDES_PREFIXED = $(addprefix $(INCLUDES_FOLDER), $(INCLUDES))
-#===============================================================================
+SRCS		= $(addprefix ${SRCS_FOLDER}/, ${SRCS_LIST})
 
-# OBJECTS ======================================================================
-OBJECTS_FOLDER = objects/
+OBJS_FOLDER	= objects
 
-OBJECT = $(SOURCES:.cpp=.o)
-OBJECTS = $(addprefix $(OBJECTS_FOLDER), $(OBJECT))
-#===============================================================================
+OBJS		= $(SRCS:$(SRCS_FOLDER)/%.cpp=$(OBJS_FOLDER)/%.o)
 
-# FLAGS ========================================================================
-FLAGS = -Wall -Wextra -Werror -std=c++98# -g3 -fsanitize=address
-#===============================================================================
+INCLUDES	= -I includes
 
-DEBUG_VALUE = 0
+CC			= clang++
+CFLAGS		= -Wall -Wextra -Werror -std=c++98
+RM			= rm -f
 
-$(OBJECTS_FOLDER)%.o :	$(SOURCES_FOLDER)%.cpp $(INCLUDES_PREFIXED)
-	@mkdir -p $(OBJECTS_FOLDER)
-	@echo "Compiling : $<"
-	@clang++ $(FLAGS) -D DEBUG_ACTIVE=$(DEBUG_VALUE) -c $< -o $@
+all:		$(NAME)
 
-$(NAME): $(OBJECTS)
-	@echo "Create    : $(NAME)"
-	@clang++ $(FLAGS) $(OBJECTS) -o $(NAME)
+$(NAME):	$(OBJS)
+		$(CC) $(CFLAGS) $(INCLUDES) $(OBJS) -o $(NAME)
 
-OBJECTS_FOLDER            =   .cache_exists
+$(OBJS_FOLDER)/%.o: $(SRCS_FOLDER)/%.cpp
+		@mkdir -p $(dir $@)
+		$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
-all: $(NAME)
-$(OBJECTS_FOLDER):
-            @mkdir -p $(OBJECTS_FOLDER)
-            @mkdir -p $(OBJECTS_FOLDER)$(SRC_ENTITY)
-            @mkdir -p $(OBJECTS_FOLDER)$(SRC_PARSER)
-            @mkdir -p $(OBJECTS_FOLDER)$(SRC_FILE)
-            @mkdir -p $(OBJECTS_FOLDER)$(SRC_SERVER)
-            @mkdir -p $(OBJECTS_FOLDER)$(SRC_REQUEST)
-            @mkdir -p $(OBJECTS_FOLDER)$(SRC_RESPONSE)
-            @mkdir -p $(OBJECTS_FOLDER)$(SRC_CGI)
 clean:
-	@rm -rf $(OBJECTS_FOLDER)
+		${RM} -rf $(OBJS_FOLDER)
 
-fclean: clean
-	@rm -rf $(NAME)
+fclean:		clean
+		${RM} ${NAME}
 
-re: fclean all
+re:			fclean all
+
+.PHONY:		all fclean clean re

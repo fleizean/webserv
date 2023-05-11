@@ -72,6 +72,7 @@
         "iterator": "cpp",
         "__functional_base": "cpp",
         "functional": "cpp",
-        "utility": "cpp"
+        "utility": "cpp",
+        "filesystem": "cpp"
     }
 }

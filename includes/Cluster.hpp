@@ -3,17 +3,24 @@
 #include "include.hpp"
 #include "Config.hpp"
 
+typedef struct	s_listen {
+	unsigned int	host;
+	int			    port;
+}				t_listen;
+
 class Cluster
 {
 public:
-    Cluster(Server* server);
+    Cluster(std::vector<Server*> server);
     Cluster(const Cluster &rhs);
     ~Cluster();
 
-    Cluster &operator=(const Cluster &rhs);
+    int		setup();
+    std::vector<t_listen>	getAllListens() const;
+    // Cluster &operator=(const Cluster &rhs);
 
 private:
     Cluster();
-    Server* server;
+    std::vector<Server*> server;
     std::map<long, Server>  _servers;
 };
