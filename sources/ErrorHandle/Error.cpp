@@ -32,6 +32,11 @@ Error::Error(const int& err_code) : err_code(err_code)
     error_list[27] = "File is empty";
     error_list[28] = "Expected autoindex argument on line";
     error_list[26] = "Expected  '{' on line";
+    error_list[29] = "Could not setup cluster";
+    error_list[30] = "Could not create server";
+    error_list[31] = "Could not bind port";
+    error_list[32] = "Could not listen";
+    error_list[33] = "Could not create socket";
 }
 
 Error::~Error() { }

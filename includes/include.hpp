@@ -8,6 +8,10 @@
 #include <sstream>
 #include <vector>
 #include <stack>
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
 #include <string>
 #include <map>
 using namespace std;
