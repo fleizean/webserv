@@ -23,11 +23,9 @@ ClusterServer &ClusterServer::operator=(const ClusterServer &rhs)
 ClusterServer::~ClusterServer() { }
 
 /* get area */
-
 int ClusterServer::getFD() { return _fd; } // int yapmak zorunda kaldık bakılacak
 
 /* func */
-
 int ClusterServer::setup()
 {
 	Error err(0);
@@ -36,7 +34,7 @@ int ClusterServer::setup()
 	if (_fd == -1)
 		err.setAndPrint(30, "ClusterServer::setup");
 	this->setAddr();
-	if (bind (_fd, (sockaddr *) &_addr, sizeof(_addr)) == -1) // hata bulunamadı
+	if (::bind(_fd, (struct sockaddr *) &_addr, sizeof(_addr)) == -1) // hata bulunamadı
 		err.setAndPrint(31, "ClusterServer::setup");
 	if (listen(_fd, 1000) == -1)
 		err.setAndPrint(32, "ClusterServer::setup");
@@ -67,7 +65,10 @@ long ClusterServer::accept()
 	return (socket);
 }
 
+/* void ClusterServer::process(long socket, Config &conf)
+{
 
+} */
 
 void		ClusterServer::close(int socket)
 {

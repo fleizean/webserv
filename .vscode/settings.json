@@ -10,6 +10,8 @@
         "__tree": "cpp",
         "deque": "cpp",
         "set": "cpp",
-        "unordered_map": "cpp"
+        "unordered_map": "cpp",
+        "functional": "cpp",
+        "__config": "cpp"
     }
 }

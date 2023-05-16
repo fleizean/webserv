@@ -6,12 +6,12 @@
 #include <set>
 #include <fstream>
 #include <sstream>
+#include <fcntl.h>
 #include <vector>
 #include <stack>
-#include <fcntl.h>
 #include <unistd.h>
-#include <sys/socket.h>
 #include <netinet/in.h>
+#include <sys/socket.h>
 #include <string>
 #include <map>
 using namespace std;

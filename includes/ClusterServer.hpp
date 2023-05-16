@@ -1,8 +1,8 @@
 #pragma once
 
 #include "include.hpp"
-#include "Config.hpp"
 #include "Cluster.hpp"
+#include "Listen.hpp"
 
 class ClusterServer
 {
@@ -25,7 +25,7 @@ public:
 	int     setup();
 	void    setAddr();
 	long	accept(void);
-	void	process(long socket, Config &conf);
+	// void	process(long socket, Config &conf);
 	void	processChunk(long socket);
 	int		recv(long socket);
 	int		send(long socket);

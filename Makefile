@@ -8,7 +8,9 @@ SRCS_LIST	= \
 			Config/Server.cpp \
 			ErrorHandle/Error.cpp \
 			Server/Cluster.cpp \
+			Server/ClusterServer.cpp \
 			Utils/UtilsParse.cpp
+			
 
 SRCS_FOLDER	= sources
 
