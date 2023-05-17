@@ -37,6 +37,8 @@ Error::Error(const int& err_code) : err_code(err_code)
     error_list[31] = "Could not bind port";
     error_list[32] = "Could not listen";
     error_list[33] = "Could not create socket";
+    error_list[34] = "There is no possible server";
+    error_list[35] = "Parse error from Request";
 }
 
 Error::~Error() { }

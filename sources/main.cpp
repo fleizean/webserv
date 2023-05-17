@@ -6,7 +6,7 @@
 /*   By: eyagiz <eyagiz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/24 10:21:15 by eyagiz            #+#    #+#             */
-/*   Updated: 2023/05/11 18:49:19 by eyagiz           ###   ########.fr       */
+/*   Updated: 2023/05/17 15:14:58 by eyagiz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,8 +24,8 @@ int main(int ac, char **av)
 	else
 	{
 		webserv.FileChecker(av[1]);
-		// webserv.printAll();
-		Cluster cluster(webserv.getConfig());
-		cluster.setup();
+		webserv.printAll();
+		// Cluster cluster(webserv.getConfig());
+		// cluster.setup();
 	}
 }

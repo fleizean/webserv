@@ -23,18 +23,18 @@ void Config::FileChecker(const string &conf_path)
 	string contentsConfig;
 	std::ifstream conf(conf_path);
 	if(!conf)
-		err.setAndPrint(1, "NULL");
+		err.setAndPrint(1, "Config::FileChecker");
 	conf.close();
 	if (!conf_path.length())
-		err.setAndPrint(5, "NULL");
+		err.setAndPrint(5, "Config::FileChecker");
 	if (conf_path.size() < 6 || conf_path.substr(conf_path.size() - 5) != ".conf")
-		err.setAndPrint(4, "NULL");
+		err.setAndPrint(4, "Config::FileChecker");
 	if (fileToString(conf_path, contentsConfig) != -1)
 		contentsConfig = removeComments(contentsConfig);
 	else
-		err.setAndPrint(2, "NULL");
+		err.setAndPrint(2, "Config::FileChecker");
 	if(!isBracketBalanced(contentsConfig))
-		err.setAndPrint(7, "NULL");
+		err.setAndPrint(7, "Config::FileChecker");
 	this->_configContent = contentsConfig;
 	parse_server();
 }
@@ -66,9 +66,9 @@ void Config::split_server(std::string configContent)
 			parseLocationArea(line);
 	}
 	if (this->mainBlock != true)
-		err.setAndPrint(26, "split server");
+		err.setAndPrint(26, "Config::split_server");
 	if (_parsedServers.empty())
-		err.setAndPrint(27, "split server");
+		err.setAndPrint(27, "Config::split_server");
 }
 
 void Config::endScopeConf()
@@ -90,7 +90,7 @@ void Config::parseMainArea(std::string& line)
 	// Server new_server;
 	Error err(0);
 	if (line != "server {")
-		err.setAndPrint(8, "NULL");
+		err.setAndPrint(8, "Config::parseMainArea");
 	_parsedServers.push_back(new Server());
 	this->serverBlock = true;
 	this->mainBlock = false;
@@ -100,7 +100,7 @@ void Config::parseServerArea(std::string& line)
 {
 	Error err(0);
 	if (line.back() != ';' && line.substr(0, 8) != "location")
-		err.setAndPrint(9, "NULL");
+		err.setAndPrint(9, "Config::parseServerArea");
 	if (line.back() == ';')
 		line.pop_back();
 
@@ -109,6 +109,7 @@ void Config::parseServerArea(std::string& line)
 	Server *srvr =		_parsedServers.back();
 	
 	ss >> word;
+
 	if (word == "listen")
 		parseListen(ss, *srvr);
 	else if (word == "server_name")
@@ -134,7 +135,7 @@ void Config::parseLocationArea(std::string& line)
 	Error err(0);
 	if (line.back() != ';')
 	{
-		err.setAndPrint(10, "Location area");
+		err.setAndPrint(10, "Config::parseLocationArea");
 	}
 	line.pop_back();
 
@@ -159,11 +160,12 @@ void Config::parseLocationArea(std::string& line)
 	else if (word == "index")
 		parseIndex(ss, lctn->getConfigMembers());
 	else
-		err.setAndPrint(19, "Parse Location");
+		err.setAndPrint(19, "Config::parseLocationArea");
 }
 
 void Config::parse_server()
 {
+
 	split_server(this->_configContent);
 	
 }
@@ -174,14 +176,14 @@ void Config::parse_server()
 
 /* <---------------> Parsing Area <---------------> */
 
-void Config::parseListen(std::stringstream& ss, Server &srvr) // bitti
+void Config::parseListen(std::stringstream& ss, Server &srvr)
 {
 	Error err(0);
 	std::string		word;
 	size_t          founded_indx;
 
 	if (!(ss >> word))
-		err.setAndPrint(11, "parseListen");
+		err.setAndPrint(11, "Config::parseListen");
 	founded_indx = word.find(":");
 	if (founded_indx != std::string::npos)
 	{
@@ -195,12 +197,12 @@ void Config::parseListen(std::stringstream& ss, Server &srvr) // bitti
 	}
 	catch (std::exception& e)
 	{
-		err.setAndPrint(21, "parseListen");
+		err.setAndPrint(21, "Config::parseListen");
 	}
 	
 }
 
-void Config::parseServerName(std::stringstream& ss, Server &srvr) // bitti
+void Config::parseServerName(std::stringstream& ss, Server &srvr)
 {
 	Error err(0);
 	std::string word;
@@ -210,45 +212,46 @@ void Config::parseServerName(std::stringstream& ss, Server &srvr) // bitti
 		srvr.setServerName(word); // 2130706433 localhost unsigned int değeri atama yapmak için kullanmak zorundayız
 	}
 	if(srvr.getServerName().empty())
-		err.setAndPrint(12, "parseServerName");
+		err.setAndPrint(12, "Config::parseServerName");
 }
 
-void Config::parseCgi(std::stringstream& ss, ConfigMembers &cm) // bitti gibi
+void Config::parseCgi(std::stringstream& ss, ConfigMembers &cm)
 {
 	Error err(0);
 	std::string ext;
 	std::string file;
 
 	if (!(ss >> ext) || !(ss >> file))
-		err.setAndPrint(18, "parseCgi");
+		err.setAndPrint(18, "Config::parseCgi");
 	cm.getCgis().insert(std::make_pair(ext, file));
 	if (ss >> ext)
-		err.setAndPrint(19, "parseCgi");
+		err.setAndPrint(19, "Config::parseCgi");
 }
 
-void Config::parseRoot(std::stringstream& ss, ConfigMembers &cm) // bitti
+void Config::parseRoot(std::stringstream& ss, ConfigMembers &cm)
 {
 	Error err(0);
 	std::string word;
 	
 	if (!(ss >> word))
-		err.setAndPrint(13, "Root");
+		err.setAndPrint(13, "Config::parseRoot");
 	
 	cm.setRoot(word);
 	if (ss >> word)
-		err.setAndPrint(14, "Root");
+		err.setAndPrint(14, "Config::parseRoot");
 }
 
-void Config::parseIndex(std::stringstream& ss, ConfigMembers& cm) // bitti
+void Config::parseIndex(std::stringstream& ss, ConfigMembers& cm)
 {
 	Error err(0);
 	std::string word;
 
-	while(ss >> word){ // 1 tane olması gerek yine üstteki gibi birden fazla saçma oluyor olabilir
+	while(ss >> word)
+	{
 		cm.getIndex().push_back(word);
 	}
-	if(cm.getIndex().empty())
-		err.setAndPrint(16, "parseIndex");
+	if (cm.getIndex().empty())
+		err.setAndPrint(16, "Config::parseIndex");
 }
 
 void Config::parseMaxClientBodySize(std::stringstream& ss, ConfigMembers& cm)
@@ -257,14 +260,14 @@ void Config::parseMaxClientBodySize(std::stringstream& ss, ConfigMembers& cm)
 	std::string word;
 
 	if (!(ss >> word))
-		err.setAndPrint(20, "parseMaxClientBodySize");
-
-	try{
+		err.setAndPrint(20, "Config::parseMaxClientBodySize");
+	try
+	{
 		cm.setMaxClientBodySize(std::stoi(word));
 	}
 	catch (std::exception& e)
 	{
-		err.setAndPrint(21, "parseMaxClientBodySize");    
+		err.setAndPrint(21, "Config::parseMaxClientBodySize");    
 	}
 }
 
@@ -274,44 +277,44 @@ void Config::parseAutoIndex(std::stringstream& ss, ConfigMembers& cm)
 	std::string		word;
 
 	if(!(ss >> word))
-		err.setAndPrint(28, "parseAutoIndex");
+		err.setAndPrint(28, "Config::parseAutoIndex");
 	if (word == "on")
 		cm.setAutoIndex(true);
 	else if (word == "off")
 		cm.setAutoIndex(false);
 	else
-		err.setAndPrint(28, "parseAutoIndex");
+		err.setAndPrint(28, "Config::parseAutoIndex");
 	
 	if (ss >> word)
-		err.setAndPrint(28, "parseAutoIndex");
+		err.setAndPrint(28, "Config::parseAutoIndex");
 }
 
 
-void Config::parseErrorPage(std::stringstream& ss, ConfigMembers& cm) // bakılıyor
+void Config::parseErrorPage(std::stringstream& ss, ConfigMembers& cm)
 {
 	Error err(0);
 	std::string word;
 	size_t		error;
 
 	if (!(ss >> word))
-		err.setAndPrint(17, "parseErrorPage");
+		err.setAndPrint(17, "Config::parseErrorPage");
 	try
 	{
 		error = std::stoi(word);
 	}
 	catch (std::exception& e)
 	{
-		err.setAndPrint(21, "parseErrorPage");;
+		err.setAndPrint(21, "Config::parseErrorPage");;
 	}
 	if (!(ss >> word))
-		err.setAndPrint(22, "parseErrorPage");
+		err.setAndPrint(22, "Config::parseErrorPage");
 	cm.getErrorPage().insert(std::make_pair(error, word));
 	if (ss >> word)
-		err.setAndPrint(19, "parseErrorPage"); 
+		err.setAndPrint(19, "Config::parseErrorPage"); 
 }
 
 
-void Config::parseLocation(std::stringstream& ss, Server &srvr)// dinleyeceğimiz uri geliyor
+void Config::parseLocation(std::stringstream& ss, Server &srvr)
 {
 	Error err(0);
 	std::string		word;
@@ -344,12 +347,12 @@ void Config::parseAllowedMethods(std::stringstream& ss, Location &lctn)
 	while(ss >> word)
 	{
 		if (!isValidMethod(word))
-			err.setAndPrint(24, "null");
+			err.setAndPrint(24, "Config::parseAllowedMethods");
 		lctn.getAllowedMethods().push_back(word);
 
 	}
 	if(lctn.getAllowedMethods().empty())
-		err.setAndPrint(25, "Allowed Methods");
+		err.setAndPrint(25, "Config::parseAllowedMethods");
 }
 
 
@@ -360,20 +363,20 @@ void Config::parseReturn(std::stringstream& ss, Location &lctn)
 	size_t		returnVal;
 
 	if (!(ss >> word))
-		err.setAndPrint(23, "parseReturn");
+		err.setAndPrint(23, "Config::parseReturn");
 	try
 	{
 		returnVal = std::stoi(word);
 	}
 	catch (std::exception& e)
 	{
-		err.setAndPrint(21, "parseReturn");;
+		err.setAndPrint(21, "Config::parseReturn");;
 	}
 	if (!(ss >> word))
-		err.setAndPrint(22, "parseReturn");
+		err.setAndPrint(22, "Config::parseReturn");
 	lctn.getReturns().insert(std::make_pair(returnVal, word));
 	if (ss >> word)
-		err.setAndPrint(19, "parseReturn"); 
+		err.setAndPrint(19, "Config::parseReturn"); 
 }
 
 /* <----------------------------------------------> */
@@ -389,7 +392,7 @@ void Config::printAll()
 			std::cout << std::endl;
 		std::cout << BOLD_YELLOW << "Server " << "-> "<< i << " <-" << " : \n" << RESET;
 		std::cout << GREEN;
-		std::cout << "listen : on host '" << (*it)->getHost() << "', port '" << (*it)->getPort() << "'" << std::endl;
+		std::cout << "listen : on host '" << (*it)->getListen().host << "', port '" << (*it)->getListen().port << "'" << std::endl;
 		for (std::vector<std::string>::const_iterator namesIt = (*it)->getServerName().begin(); namesIt != (*it)->getServerName().end(); ++namesIt)
 			std::cout << "serverName: " << *namesIt << std::endl;
 		for (std::map<std::string, std::string>::iterator namesIt = (*it)->getConfigMembers().getCgis().begin(); namesIt != (*it)->getConfigMembers().getCgis().end(); ++namesIt)

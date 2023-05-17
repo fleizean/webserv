@@ -3,12 +3,12 @@
 #include "include.hpp"
 #include "ConfigMembers.hpp"
 #include "Location.hpp"
+#include "Listen.hpp"
 
 class Server
 {
 private:
-	unsigned int						_host; // host
-	int									_port; // port
+	t_listen							_listen;
 	std::string                         _locationUri; // location URI
 	vector<Location *>					_locations;
 	vector<std::string>					_serverName;
@@ -26,9 +26,8 @@ public:
 	~Server();
 	
 	/* Get area */
-	unsigned int const &getHost() const;
+	t_listen    getListen() const;
 	std::string const &getLocationUri() const;
-	int const &getPort() const;
 	std::vector<Location *>& getLocations();
 	const std::vector<std::string>& getServerName(); // & eklendi bakılacak
 	void	setServerName(const std::string& name);

@@ -5,6 +5,7 @@
 #include <iterator>
 #include <set>
 #include <fstream>
+#include <list>
 #include <sstream>
 #include <fcntl.h>
 #include <vector>

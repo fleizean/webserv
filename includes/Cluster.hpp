@@ -1,5 +1,4 @@
-#ifndef CLUSTER_HPP
-#define CLUSTER_HPP
+#pragma once
 
 #include "include.hpp"
 #include "Listen.hpp"
@@ -22,13 +21,11 @@ public:
 private:
 	Cluster();
 	std::vector<Server*>				_conf; // config
-	// std::map<long, ClusterServer>		_servers;
-	// std::map<long, ClusterServer *>		_sockets;
+	// std::map<long, ClusterServer>		_servers; açılacak
+	// std::map<long, ClusterServer *>		_sockets; açılacak
 	std::vector<int>					_ready;
 	fd_set								_fd_set;
 	unsigned int						_fd_size;
 	long								_max_fd;
 
 };
-
-#endif

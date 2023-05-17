@@ -5,7 +5,6 @@
 #include "Location.hpp"
 #include "ConfigMembers.hpp"
 
-
 class Config
 {
 private:

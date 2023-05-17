@@ -14,7 +14,7 @@ Cluster::Cluster(const Cluster &rhs)
 Cluster &Cluster::operator=(const Cluster& rhs)
 {
     _conf = rhs._conf;
-    //_servers = rhs._servers;
+    //_servers = rhs._servers; açılacak
     _fd_set = rhs._fd_set;
     _fd_size = rhs._fd_size;
     _max_fd = rhs._max_fd;
@@ -32,8 +32,8 @@ std::vector<t_listen> Cluster::getAllListens() const
     for (; it != ite; ++it)
     {
         t_listen tmp;
-        tmp.host = (*it)->getHost();
-        tmp.port = (*it)->getPort();
+        tmp.host = (*it)->getListen().host;
+        tmp.port = (*it)->getListen().port;
         ret.push_back(tmp);
     }
     return (ret);
@@ -44,19 +44,19 @@ int Cluster::setup()
     Error err(0);
     std::vector<t_listen>	vect = getAllListens(); 
 
-    for ( std::vector<t_listen>::const_iterator lstn = vect.begin() ; lstn != vect.end() ; lstn++ )
+    /* for ( std::vector<t_listen>::const_iterator lstn = vect.begin() ; lstn != vect.end() ; lstn++ )
     {
         std::cout << "Setting up " << lstn->host << ":" << lstn->port << "..." << std::endl;
-    }
-    FD_ZERO(&_fd_set);
+    } */
+    /* FD_ZERO(&_fd_set);
     _fd_size = vect.size();
 	_max_fd = 0;
     for ( std::vector<t_listen>::const_iterator lstn = vect.begin() ; lstn != vect.end() ; lstn++ )
 	{
-		// Server		serv(*lstn); bakılacak
-		// long		fd;
+		Server		serv(*lstn); // bakılacak
+		long		fd;
 
-		/* if (serv.setup() != -1)
+		if (serv.setup() != -1)
 		{
 			fd = serv.getFD();
 			FD_SET(fd, &_fd_set);
@@ -64,8 +64,8 @@ int Cluster::setup()
 			if (fd > _max_fd)
 				_max_fd = fd;
 			std::cout << "Setting up " << lstn->host << ":" << lstn->port << "..." << std::endl;
-		} */
-	}
+		}
+	} */
     if (_max_fd == 0)
 		err.setAndPrint(29, "Cluster::setup");
 	else
