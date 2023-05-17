@@ -68,4 +68,12 @@ public:
 	void	displayHeaders() const;
 	
 	static std::vector<std::string>		initMethods();
+	std::string&					pop(std::string& str);
+	std::string						readKey(const std::string& line);
+	std::string						readValue(const std::string& line);
+	std::vector<std::string>		split(const std::string& str, char c);
+	std::string&					strip(std::string& str, char c);
+	std::string&					capitalize(std::string& str);
+
+
 };

@@ -1,4 +1,4 @@
-#include "../../includes/include.hpp"
+#include "../../includes/Include.hpp"
 
 int fileToString(const string& filename, string& fileContents)
 {

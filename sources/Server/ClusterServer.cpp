@@ -67,6 +67,7 @@ long ClusterServer::accept()
 
 /* void ClusterServer::process(long socket, std::vector<Server*> conf)
 {
+	RequestConfig	requestConf;
 	Response response;
 	Server *matchedServer;
 	Location *matchedLocation;
@@ -83,11 +84,10 @@ long ClusterServer::accept()
 	
 	if (_request[socket] != "")
     {
-        Request *request;
-        ParserRequest parserRequest(_request[socket]);// aldığımız isteği parçalamak üzere Request class'a gönderiyoruz.
+        Request request(_request[socket]);
 
-        parserRequest.parse();
-        request = parserRequest.getRequest();
+        if (request.getRet() != 200)
+			request.setMethod("GET");
 
         matchedServer = this->getServerForRequest(this->_listen, request->getIp(), conf);
         matchedLocation = this->getLocationForRequest(matchedServer, request->getPath());
@@ -159,4 +159,3 @@ Location*  ClusterServer::getLocationForRequest(Server *matchedServer, const std
     }
     return (*(matchedServer->getLocations().begin()));
 } 
-

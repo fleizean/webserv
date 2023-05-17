@@ -140,9 +140,72 @@ void	Request::setMethod(const std::string &method)
 /* ------------------------------------------ */
 
 /* utils */
-static std::string&					pop(std::string& str)
+
+std::string&	Request::capitalize(std::string& str)
+{
+	size_t	i = 0;
+
+	std::transform(str.begin(), str.end(),str.begin(), ::tolower);
+	str[i] = std::toupper(str[i]);
+	while((i = str.find_first_of('-', i + 1)) != std::string::npos)
+	{
+		if (i + 1 < str.size())
+		str[i + 1] = std::toupper(str[i + 1]);
+	}
+	return str;
+}
+
+std::string&	Request::pop(std::string& str)
 {
 	if (str.size())
 		str.resize(str.size() - 1);
+	return str;
+}
+
+std::string		Request::readKey(const std::string& line)
+{
+	std::string	ret;
+
+	size_t	i = line.find_first_of(':');
+	ret.append(line, 0 , i);
+	capitalize(ret);
+	return (strip(ret, ' '));
+}
+
+std::string		Request::readValue(const std::string& line)
+{
+	size_t i;
+	std::string	ret;
+
+	i = line.find_first_of(':');
+	i = line.find_first_not_of(' ', i + 1);
+	if (i != std::string::npos)
+		ret.append(line, i, std::string::npos);
+	return (strip(ret, ' '));
+}
+
+std::vector<std::string>	Request::split(const std::string& str, char c)
+{
+	std::vector<std::string> tokens;
+	std::string token;
+	std::istringstream tokenStream(str);
+
+	while (std::getline(tokenStream, token, c))
+		tokens.push_back(token);
+	return tokens;
+}
+
+std::string&		Request::strip(std::string& str, char c)
+{
+	size_t	i;
+
+	if (!str.size())
+		return str;
+	i = str.size();
+	while (i && str[i - 1] == c)
+		i--;
+	str.resize(i);
+	for (i = 0; str[i] == c; i++);
+	str = str.substr(i, std::string::npos);
 	return str;
 }

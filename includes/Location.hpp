@@ -1,6 +1,6 @@
-	#pragma once
+#pragma once
 
-#include "include.hpp"
+#include "Include.hpp"
 #include "ConfigMembers.hpp"
 
 class Location
