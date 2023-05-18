@@ -52,6 +52,7 @@ public:
 	void parseIndex(std::stringstream& ss, ConfigMembers& cm);
 	void parseAutoIndex(std::stringstream& ss, ConfigMembers& cm);
 	void parseCgi(std::stringstream& ss, ConfigMembers &cm);
+	void parseAllowedMethods(std::stringstream& ss, ConfigMembers &cm);
 
 	/* Server Parse */
 	void parseListen(std::stringstream& ss, Server &srvr);
@@ -59,7 +60,7 @@ public:
 	void parseLocation(std::stringstream& ss, Server &srvr);
 
 	/* Location Parse */
-	void parseAllowedMethods(std::stringstream& ss, Location &lctn);
+	
 	void parseReturn(std::stringstream& ss, Location &lctn);
 
 	/* Print All */

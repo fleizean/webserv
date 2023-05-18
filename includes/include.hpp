@@ -4,6 +4,7 @@
 #include <iostream>
 #include <iterator>
 #include <set>
+#include <dirent.h>
 #include <fstream>
 #include <list>
 #include <sstream>
@@ -15,6 +16,9 @@
 #include <sys/socket.h>
 #include <string>
 #include <map>
+#include <dirent.h>
+#include <filesystem>
+
 using namespace std;
 #include "Error.hpp"
 #include "Color.hpp"

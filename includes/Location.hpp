@@ -7,7 +7,6 @@ class Location
 {
 private:
 	std::string						_uri;
-	std::vector<std::string>		_allowedMethods;
 	std::map<int, std::string>		_returns;
 	ConfigMembers					_members;
 public:
@@ -18,7 +17,7 @@ public:
 
 	/* get Area */
 	std::string const &getUri() const;
-	std::vector<std::string> &getAllowedMethods();
+	
 	ConfigMembers& getConfigMembers();
 	std::map <int, std::string>& getReturns();
 	/* set Area */

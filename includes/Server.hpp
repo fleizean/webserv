@@ -8,11 +8,12 @@
 class Server
 {
 private:
+	std::string							_host;
 	t_listen							_listen;
 	std::string                         _locationUri; // location URI
 	vector<Location *>					_locations;
 	vector<std::string>					_serverName;
-	map<std::string, std::string>		_cgiPaths;
+	std::string							_cgiPath;
 	ConfigMembers						_members;
 public:
 	/* default constructor */
@@ -31,10 +32,14 @@ public:
 	std::vector<Location *>& getLocations();
 	const std::vector<std::string>& getServerName(); // & eklendi bakılacak
 	void	setServerName(const std::string& name);
-	std::map<std::string, std::string>& getCgiPaths(); // & eklendi bakılacak
+	std::string const &getCgiPath() const; // & eklendi bakılacak
 	ConfigMembers& getConfigMembers();
+	std::string  const &getHost();
+	
 	/* Set area */
-	void setHost(unsigned int const &host);
-	void setPort(int const &port);
+	void setHost(std::string const &host);
+	void setHost(unsigned int const &host); // listen
+	void setPort(int const &port); // port
 	void setLocationUri(std::string const &uri);
+	void setCgiPath(std::string const &path);
 };

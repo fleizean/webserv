@@ -77,8 +77,7 @@ std::string	trim(std::string& line, const std::string& whitespace)
 
 bool	isValidMethod(const std::string& word)
 {
-	if (word == "GET" || word == "POST" || word == "HEAD" || word == "PUT"
-			|| word == "DELETE" || word == "OPTIONS" || word == "TRACE")
+	if (word == "GET" || word == "POST" || word == "DELETE")
 		return true;
 	return false;
 }

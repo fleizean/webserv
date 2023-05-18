@@ -10,7 +10,9 @@ private:
 	std::map<int, std::string>          _errorPage;
 	bool                                _autoIndex;
 	std::vector<std::string>            _index;
-	std::map<std::string, std::string>  _cgis;
+	std::string							_cgipass;
+	std::vector<std::string>			_allowedMethods;
+
 public:
 	ConfigMembers();
 	ConfigMembers(ConfigMembers const &rhs);
@@ -23,10 +25,12 @@ public:
 	std::map<int, std::string>& getErrorPage();
 	bool const &getAutoIndex() const;
 	std::vector<std::string>& getIndex();
-	std::map<std::string, std::string>& getCgis();
+	std::string const &getCgi() const;
+	std::vector<std::string> &getAllowedMethods();
 	
 	/* set Area */
 	void setRoot(std::string const &root);
 	void setMaxClientBodySize(size_t const &maxClientBodySize);
 	void setAutoIndex(bool const &autoIndex);
+	void setCgi(std::string const &cgi);
 };

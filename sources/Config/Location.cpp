@@ -12,11 +12,9 @@ Location &Location::operator=(Location const &rhs)
 
 Location::~Location() {}
 
-/* <---------------> Set Area <---------------> */
+/* <---------------> Get Area <---------------> */
 
 std::string const &Location::getUri() const { return this->_uri; }
-
-std::vector<std::string> &Location::getAllowedMethods() { return _allowedMethods; }
 
 ConfigMembers& Location::getConfigMembers() { return this->_members; }
 

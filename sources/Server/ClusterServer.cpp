@@ -89,7 +89,7 @@ long ClusterServer::accept()
         if (request.getRet() != 200)
 			request.setMethod("GET");
 
-        matchedServer = this->getServerForRequest(this->_listen, request->getIp(), conf);
+    *    matchedServer = this->getServerForRequest(this->_listen, request->getIp(), conf);
         matchedLocation = this->getLocationForRequest(matchedServer, request->getPath());
 
         response.createResponse(request, matchedServer, matchedLocation);

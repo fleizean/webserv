@@ -99,6 +99,7 @@ void Config::parseMainArea(std::string& line)
 void Config::parseServerArea(std::string& line)
 {
 	Error err(0);
+	
 	if (line.back() != ';' && line.substr(0, 8) != "location")
 		err.setAndPrint(9, "Config::parseServerArea");
 	if (line.back() == ';')
@@ -109,12 +110,12 @@ void Config::parseServerArea(std::string& line)
 	Server *srvr =		_parsedServers.back();
 	
 	ss >> word;
-
+	
 	if (word == "listen")
 		parseListen(ss, *srvr);
 	else if (word == "server_name")
 		parseServerName(ss, *srvr);
-	else if (word == "cgi")
+	else if (word == "cgi_pass")
 		parseCgi(ss, srvr->getConfigMembers());
 	else if (word == "root")
 		parseRoot(ss, srvr->getConfigMembers());
@@ -124,6 +125,8 @@ void Config::parseServerArea(std::string& line)
 		parseAutoIndex(ss, srvr->getConfigMembers());
 	else if (word == "error_page")
 		parseErrorPage(ss, srvr->getConfigMembers());
+	else if (word == "allow_methods")
+		parseAllowedMethods(ss, srvr->getConfigMembers());
 	else if (word == "max_client_body_size")
 		parseMaxClientBodySize(ss, srvr->getConfigMembers());
 	else if (word == "location")
@@ -147,8 +150,8 @@ void Config::parseLocationArea(std::string& line)
 	ss >> word;
 	if (word == "root")
 		parseRoot(ss, lctn->getConfigMembers());
-	else if (word == "allow")
-		parseAllowedMethods(ss, *lctn);
+	else if (word == "allow_methods")
+		parseAllowedMethods(ss, lctn->getConfigMembers());
 	else if (word == "return")
 		parseReturn(ss, *lctn);
 	else if (word == "error_page")
@@ -159,6 +162,8 @@ void Config::parseLocationArea(std::string& line)
 		parseMaxClientBodySize(ss, lctn->getConfigMembers());
 	else if (word == "index")
 		parseIndex(ss, lctn->getConfigMembers());
+	else if (word == "cgi_pass")
+		parseCgi(ss, lctn->getConfigMembers());
 	else
 		err.setAndPrint(19, "Config::parseLocationArea");
 }
@@ -187,6 +192,7 @@ void Config::parseListen(std::stringstream& ss, Server &srvr)
 	founded_indx = word.find(":");
 	if (founded_indx != std::string::npos)
 	{
+		srvr.setHost(word.substr(0, founded_indx));
 		srvr.setHost(strToIp(word.substr(0, founded_indx)));
 		word = word.substr(founded_indx + 1, word.size());
 	}
@@ -218,13 +224,12 @@ void Config::parseServerName(std::stringstream& ss, Server &srvr)
 void Config::parseCgi(std::stringstream& ss, ConfigMembers &cm)
 {
 	Error err(0);
-	std::string ext;
-	std::string file;
+	std::string word;
 
-	if (!(ss >> ext) || !(ss >> file))
+	if (!(ss >> word))
 		err.setAndPrint(18, "Config::parseCgi");
-	cm.getCgis().insert(std::make_pair(ext, file));
-	if (ss >> ext)
+	cm.setCgi(word);
+	if (ss >> word)
 		err.setAndPrint(19, "Config::parseCgi");
 }
 
@@ -339,7 +344,7 @@ void Config::parseLocation(std::stringstream& ss, Server &srvr)
 
 /* <---------------> Parse Location { } Area <---------------> */
 
-void Config::parseAllowedMethods(std::stringstream& ss, Location &lctn)
+void Config::parseAllowedMethods(std::stringstream& ss, ConfigMembers &cm)
 {
 	Error err(0);
 	std::string word;
@@ -348,10 +353,10 @@ void Config::parseAllowedMethods(std::stringstream& ss, Location &lctn)
 	{
 		if (!isValidMethod(word))
 			err.setAndPrint(24, "Config::parseAllowedMethods");
-		lctn.getAllowedMethods().push_back(word);
+		cm.getAllowedMethods().push_back(word);
 
 	}
-	if(lctn.getAllowedMethods().empty())
+	if(cm.getAllowedMethods().empty())
 		err.setAndPrint(25, "Config::parseAllowedMethods");
 }
 
@@ -392,14 +397,17 @@ void Config::printAll()
 			std::cout << std::endl;
 		std::cout << BOLD_YELLOW << "Server " << "-> "<< i << " <-" << " : \n" << RESET;
 		std::cout << GREEN;
-		std::cout << "listen : on host '" << (*it)->getListen().host << "', port '" << (*it)->getListen().port << "'" << std::endl;
+		std::cout << "listen : on host '" << (*it)->getListen().host << " & " << (*it)->getHost() << "', port '" << (*it)->getListen().port << "'" << std::endl;
 		for (std::vector<std::string>::const_iterator namesIt = (*it)->getServerName().begin(); namesIt != (*it)->getServerName().end(); ++namesIt)
 			std::cout << "serverName: " << *namesIt << std::endl;
-		for (std::map<std::string, std::string>::iterator namesIt = (*it)->getConfigMembers().getCgis().begin(); namesIt != (*it)->getConfigMembers().getCgis().end(); ++namesIt)
-			std::cout << "cgi: " << namesIt->first << " " << namesIt->second << std::endl;
-		std::cout << "root: " << (*it)->getConfigMembers().getRoot() << std::endl;
+		if(!(*it)->getConfigMembers().getCgi().empty())
+			std::cout << "cgi_pass: " << (*it)->getConfigMembers().getCgi() << std::endl;
+		if(!(*it)->getConfigMembers().getRoot().empty())
+			std::cout << "root: " << (*it)->getConfigMembers().getRoot() << std::endl;
 		for (std::vector<std::string>::const_iterator namesIt = (*it)->getConfigMembers().getIndex().begin(); namesIt != (*it)->getConfigMembers().getIndex().end(); ++namesIt)
 			std::cout << "index: " << *namesIt << std::endl;
+		for(std::vector<std::string>::iterator allowedIt = (*it)->getConfigMembers().getAllowedMethods().begin(); allowedIt != (*it)->getConfigMembers().getAllowedMethods().end(); ++allowedIt)
+			std::cout << "allowed_methods: " << *allowedIt << " " << std::endl;
 		std::cout << "max_client_body_size: " << (*it)->getConfigMembers().getMaxClientBodySize() << std::endl;
 		for (std::map<int, std::string>::iterator namesIt = (*it)->getConfigMembers().getErrorPage().begin(); namesIt != (*it)->getConfigMembers().getErrorPage().end(); ++namesIt)
 			std::cout << "error_page: " << namesIt->first << " " << namesIt->second << std::endl;
@@ -412,7 +420,7 @@ void Config::printAll()
 		for (std::vector<Location *>::const_iterator lit = locations.cbegin(); lit != locations.cend(); ++lit){
 			std::cout << BOLD_RED << "location uri: " << (*lit)->getUri() << RESET << std::endl;
 			std::cout << BLUE;
- 			for(std::vector<std::string>::iterator allowedIt = (*lit)->getAllowedMethods().begin(); allowedIt != (*lit)->getAllowedMethods().end(); ++allowedIt)
+ 			for(std::vector<std::string>::iterator allowedIt = (*lit)->getConfigMembers().getAllowedMethods().begin(); allowedIt != (*lit)->getConfigMembers().getAllowedMethods().end(); ++allowedIt)
 			{
 				std::cout << "allowed_methods: " << *allowedIt << " " << std::endl;
 			}
@@ -421,12 +429,13 @@ void Config::printAll()
 			{
 			    std::cout << "returns: " << rit->first << " " << rit->second << '\n';
 			}
-			std::cout << "root:" << (*lit)->getConfigMembers().getRoot() << std::endl;
+			if(!(*lit)->getConfigMembers().getRoot().empty())
+				std::cout << "root:" << (*lit)->getConfigMembers().getRoot() << std::endl;
 			std::cout << "max_client_body_size: " << (*lit)->getConfigMembers().getMaxClientBodySize() << std::endl;
 			for (std::map<int, std::string>::iterator namesIt = (*lit)->getConfigMembers().getErrorPage().begin(); namesIt != (*lit)->getConfigMembers().getErrorPage().end(); ++namesIt)
 				std::cout << "error_page: " << namesIt->first << " " << namesIt->second << std::endl;
-			for (std::map<std::string, std::string>::iterator namesIt = (*lit)->getConfigMembers().getCgis().begin(); namesIt != (*lit)->getConfigMembers().getCgis().end(); ++namesIt)
-				std::cout << "cgi: " << namesIt->first << " " << namesIt->second << std::endl;
+			if(!(*lit)->getConfigMembers().getCgi().empty())
+				std::cout << "cgi_pass: " << (*lit)->getConfigMembers().getCgi() << std::endl;
 			if((*lit)->getConfigMembers().getAutoIndex() == 1)
 				std::cout << "auto_index: " << "on" << std::endl;
 			else
