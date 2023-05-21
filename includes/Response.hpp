@@ -7,7 +7,7 @@
 #include "Location.hpp"
 #include "Listen.hpp"
 #include "Request.hpp"
-
+#include "Cgi.hpp"
 
 class Response
 {
