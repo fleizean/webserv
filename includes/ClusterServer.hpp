@@ -5,7 +5,6 @@
 #include "Listen.hpp"
 #include "Server.hpp"
 #include "Location.hpp"
-#include "Response.hpp"
 
 class ClusterServer
 {
