@@ -5,11 +5,10 @@
 #include "ServerMembers.hpp"
 #include "Location.hpp"
 #include <arpa/inet.h>
-
+#include "Request.hpp"
 
 #define MAX_CONNECTIONS 65535 
 #define DATA_BUFFER 800000
-
 
 class Server
 {
@@ -24,8 +23,6 @@ private:
 	std::string buffu;
 
 	std::vector<ServerMembers*> _servers;
-
-
 	std::string _host;
 	int _port;
 public:
@@ -40,4 +37,9 @@ public:
 	void create_socket(int port, std::string host);
 	int read_connection(int socket);
 	void setup(); 
+
+	/* helper function */
+	bool checkServerSocketsValidity(const int* fd, int nbPorts);
+	void prepareFileDescriptorSets(int* all_connections, int maxConnections, fd_set& read_fd_set, fd_set& write_fd_set);
+	void handleNewConnections(int fd, int* all_connections, int maxConnections, fd_set& read_fd_set, int& ret_val);
 };

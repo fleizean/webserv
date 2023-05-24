@@ -45,6 +45,7 @@ Error::Error(const int& err_code) : err_code(err_code)
     error_list[39] = "bind function setup error";
     error_list[40] = "listen socket error";
     error_list[41] = "accept failed error";
+    error_list[42] = "read_connection failed error";
 }
 
 Error::~Error() { }

@@ -8,7 +8,8 @@ SRCS_LIST	= \
 			Config/ServerMembers.cpp \
 			ErrorHandle/Error.cpp \
 			Server/Server.cpp \
-			Utils/UtilsParse.cpp
+			Utils/UtilsParse.cpp \
+			Request/Request.cpp
 			
 
 SRCS_FOLDER	= sources
