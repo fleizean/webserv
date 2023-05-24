@@ -19,6 +19,7 @@ private:
 	// int					sockfd;
 	int					NbPort;
 	struct sockaddr_in	new_addr;
+	int all_connections[MAX_CONNECTIONS];
 
 	std::string buffu;
 

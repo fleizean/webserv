@@ -44,6 +44,7 @@ Error::Error(const int& err_code) : err_code(err_code)
     error_list[38] = "setsockopt setup error";
     error_list[39] = "bind function setup error";
     error_list[40] = "listen socket error";
+    error_list[41] = "accept failed error";
 }
 
 Error::~Error() { }

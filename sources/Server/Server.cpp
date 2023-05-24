@@ -70,8 +70,33 @@ int Server::create_server(int port, std::string host)
 
 int Server::read_connection(int socket)
 {
-	(void)socket;
-	return 1;
+    Error err(0);
+	char	buffer[DATA_BUFFER + 1];
+
+    std::cout << BOLD_RED << "Buffer socket: " << RESET << std::endl;
+    std::cout << buffer << std::endl;
+    std::cout << "----------------------------------------------------------------\n";
+	memset(buffer, 0, DATA_BUFFER);
+	int ret = recv(socket, buffer, DATA_BUFFER, 0);
+	if (ret == -1)
+		err.setAndPrint(36, "Server::read_connection");
+	else if (ret == 0)
+        return -1;
+	buffu += std::string(buffer, ret);
+	size_t res = buffu.find("\r\n\r\n");
+	if (res != std::string::npos)
+	{
+		if (buffu.find("Content-Length: ") == std::string::npos)
+			return (0);
+	
+		size_t len = std::atoi(buffu.substr(buffu.find("Content-Length: ") + strlen("Content-Length: "), 10).c_str());
+		
+		if (buffu.size() >= len + res + strlen("\r\n\r\n"))
+			return (0);
+		else
+			return (1);
+	}
+	return (1);
 }
 
 void Server::setup()
@@ -84,18 +109,19 @@ void Server::setup()
     {
 		_port = (*it)->getListen().port;
 		_host = (*it)->getHost();
+        std::cout << BOLD_CYAN << _host << ":" << _port << " setuping and listening right now..." << RESET << "\n";
 		fd[i] = create_server(_port, _host);
 	}
 }
 
 int Server::run()
 {
+    Error err(0);
     fd_set read_fd_set;
     fd_set write_fd_set = {0};
     int new_fd, ret_val;
     // int check_probl = 0;
     socklen_t addrlen;
-    int all_connections[MAX_CONNECTIONS];
     std::string kfe;
 
     for (int i = 0; i < getNbPort(); i++)
@@ -116,9 +142,8 @@ int Server::run()
             if (all_connections[i] >= 0)
                 FD_SET(all_connections[i], &read_fd_set);
         }
-
+        
         ret_val = select(FD_SETSIZE, &read_fd_set, &write_fd_set, NULL, NULL);
-
         if (ret_val >= 0)
         {
             for (int i = 0; i < getNbPort(); i++)
@@ -141,9 +166,7 @@ int Server::run()
                     }
 
                     if (new_fd == -1)
-                    {
-                        std::cerr << "accept() failed for fd\n" << strerror(errno) << std::endl;
-                    }
+                        err.setAndPrint(41, "Server::run");
 
                     ret_val--;
 
@@ -156,7 +179,7 @@ int Server::run()
             {
                 if ((all_connections[i] > 0) && (FD_ISSET(all_connections[i], &read_fd_set)))
                 {
-                    // int err = read_connection(all_connections[i]);
+                    int err = read_connection(all_connections[i]);
 
                     /* if (err == 0)
                     {
@@ -194,19 +217,16 @@ int Server::run()
                         all_connections[i] = -1;
 
                         break;
-                    }
-                    if (err == 5)
-                    {
-                        close(all_connections[i]);
-                        all_connections[i] = -1;
-                    }
-
+                    }  */
                     if (err == -1)
-                    {
-                        break;
-                    } */
+					{
+						close(all_connections[i]);
+						all_connections[i] = -1;
+					}
+                    
                 }
             }
+            
         }
     }
 

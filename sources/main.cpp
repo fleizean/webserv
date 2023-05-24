@@ -6,7 +6,7 @@
 /*   By: fleizean <fleizean@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/24 10:21:15 by eyagiz            #+#    #+#             */
-/*   Updated: 2023/05/23 22:10:12 by fleizean         ###   ########.fr       */
+/*   Updated: 2023/05/24 14:58:29 by fleizean         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ int main(int ac, char **av)
 	else
 	{
 		webserv.FileChecker(av[1]);
-		webserv.printAll();
+		// webserv.printAll();
 		Server serv(webserv.getConfig());
 		serv.run();
 		// Cluster cluster(webserv.getConfig());
