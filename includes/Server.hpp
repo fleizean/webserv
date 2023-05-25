@@ -6,6 +6,7 @@
 #include "Location.hpp"
 #include <arpa/inet.h>
 #include "Request.hpp"
+#include "Response.hpp"
 
 #define MAX_CONNECTIONS 65535 
 #define DATA_BUFFER 800000
@@ -15,16 +16,18 @@ class Server
 private:
 	int					fd[MAX_CONNECTIONS];
 	int					efd;
+	int 				all_connections[MAX_CONNECTIONS];
 	// int					sockfd;
 	int					NbPort;
 	struct sockaddr_in	new_addr;
-	int all_connections[MAX_CONNECTIONS];
-
 	std::string buffu;
+
 
 	std::vector<ServerMembers*> _servers;
 	std::string _host;
 	int _port;
+
+	socklen_t addrlen;
 public:
 	Server(std::vector<ServerMembers*> server);
 	~Server();
@@ -38,8 +41,11 @@ public:
 	int read_connection(int socket);
 	void setup(); 
 
-	/* helper function */
-	bool checkServerSocketsValidity(const int* fd, int nbPorts);
-	void prepareFileDescriptorSets(int* all_connections, int maxConnections, fd_set& read_fd_set, fd_set& write_fd_set);
-	void handleNewConnections(int fd, int* all_connections, int maxConnections, fd_set& read_fd_set, int& ret_val);
+
+	bool checkValidSockets();
+
+	void selectConnection(int& ret_val, fd_set& read_fd_set, int& new_fd);
+	void processActiveConnection(int connectionIndex, fd_set& read_fd_set);
+	void handleConnectionError(int connectionIndex);
+	void processActiveConnections(fd_set& read_fd_set);
 };

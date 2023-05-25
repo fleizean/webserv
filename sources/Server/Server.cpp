@@ -114,53 +114,116 @@ void Server::setup()
 	}
 }
 
-bool Server::checkServerSocketsValidity(const int* fd, int nbPorts)
+/* utils functions */
+
+bool Server::checkValidSockets()
 {
-    for (int i = 0; i < nbPorts; i++) {
-        if (fd[i] == -1)
-            return false;
-    }
-    return true;
+	for (int i = 0; i < getNbPort(); i++)
+	{
+		if (fd[i] == -1)
+		{
+			return false;
+		}
+	}
+
+	for (int i = 0; i < MAX_CONNECTIONS; i++)
+	{
+		all_connections[i] = -1;
+	}
+
+	for (int i = 0; i < getNbPort(); i++)
+	{
+		all_connections[i] = fd[i];
+	}
+	return true;
 }
 
-void Server::prepareFileDescriptorSets(int* all_connections, int maxConnections, fd_set& read_fd_set, fd_set& write_fd_set)
+void Server::selectConnection(int& ret_val, fd_set& read_fd_set, int& new_fd)
 {
-    FD_ZERO(&read_fd_set);
-    FD_ZERO(&write_fd_set);
+	for (int i = 0; i < getNbPort(); i++)
+	{
+		if (FD_ISSET(fd[i], &read_fd_set))
+		{
+			new_fd = accept(fd[i], (struct sockaddr *)&new_addr, &addrlen);
+			fcntl(fd[i], F_SETFD, FD_CLOEXEC);
+			if (new_fd >= 0)
+			{
+				for (i = 0; i < MAX_CONNECTIONS; i++)
+				{
+					if (all_connections[i] < 0)
+					{
+						all_connections[i] = new_fd;
+						break;
+					}
+				}
+			}
+			if (new_fd == -1)
+			{
+				std::cout << "accept() failed for fd \n"
+						  << strerror(errno) << std::endl;
+			}
+			ret_val--;
+			if (!ret_val)
+				continue;
+		}
+	}
+}
+void Server::processActiveConnection(int connectionIndex, fd_set& read_fd_set)
+{
+    Response test;
+    char buf[DATA_BUFFER + 1];
+    memset(buf, 0, sizeof(buf));
+    strcpy(buf, buffu.c_str());
+    test.bando = buffu;
+    std::string conttype;
+    test.parse_buf(buf, test.filename, conttype);
+    Request pr(buf);
+    pr.printAll();
+    test.host = pr._host;
+    test.protocol = pr._protocol;
+    test.type = pr._method;
+    test.path = pr._location;
+    test.content_len = pr._content_length;
+    test.buffit = std::string(buf);
+    test.CheckModiDate();
+    test.setDate();
+    test.Erostatus();
+    test.Methodes(_servers);
+    write(all_connections[connectionIndex], test.TheReposn.c_str(), (test.TheReposn.size() + 1));
 
-    for (int i = 0; i < maxConnections; i++) {
-        if (all_connections[i] >= 0)
-            FD_SET(all_connections[i], &read_fd_set);
-    }
+    close(all_connections[connectionIndex]);
+    fcntl(all_connections[connectionIndex], F_SETFD, FD_CLOEXEC);
+    FD_CLR(all_connections[connectionIndex], &read_fd_set);
+
+    buffu = "";
+    test.TheReposn = "";
+    all_connections[connectionIndex] = -1;
 }
 
-void Server::handleNewConnections(int fd, int* all_connections, int maxConnections, fd_set& read_fd_set, int& ret_val)
+void Server::handleConnectionError(int connectionIndex)
 {
-    Error err(0);
-    int new_fd;
-    socklen_t addrlen;
+	Error err(0);
+    close(all_connections[connectionIndex]);
+    all_connections[connectionIndex] = -1;
+    err.setAndPrint(42, "Server::run");
+}
 
-    if (FD_ISSET(fd, &read_fd_set)) {
-        new_fd = accept(fd, (struct sockaddr *)&new_addr, &addrlen);
-        fcntl(fd, F_SETFD, FD_CLOEXEC);
-
-        if (new_fd >= 0) {
-            for (int j = 0; j < maxConnections; j++) {
-                if (all_connections[j] < 0) {
-                    all_connections[j] = new_fd;
-                    break;
-                }
+void Server::processActiveConnections(fd_set& read_fd_set)
+{
+    for (int i = 1; i < MAX_CONNECTIONS; i++)
+    {
+        if ((all_connections[i] > 0) && (FD_ISSET(all_connections[i], &read_fd_set)))
+        {
+            int error_handle = read_connection(all_connections[i]);
+            if (error_handle == 0)
+            {
+                processActiveConnection(i, read_fd_set);
+                break;
             }
-        }
-
-        if (new_fd == -1) {
-            err.setAndPrint(41, "Server::handleNewConnections");
-        }
-
-        ret_val--;
-
-        if (!ret_val) {
-            return;
+            else if (error_handle == -1)
+            {
+                handleConnectionError(i);
+            }
         }
     }
 }
@@ -170,79 +233,32 @@ int Server::run()
 {
     Error err(0);
     fd_set read_fd_set;
-    fd_set write_fd_set = {0};
-    int new_fd, ret_val;
-    // int check_probl = 0;
-    std::string kfe;
-    
-    if (!checkServerSocketsValidity(fd, getNbPort()))
+	fd_set write_fd_set = {0};
+	int new_fd, ret_val;
+	
+	std::string kfe;
+
+	if (!checkValidSockets()) // socket validasyon kontrolü
         return -1;
-    std::fill_n(all_connections, MAX_CONNECTIONS, -1);
-
-    while (true)
-    {
-        prepareFileDescriptorSets(all_connections, MAX_CONNECTIONS, read_fd_set, write_fd_set);
-
-        ret_val = select(FD_SETSIZE, &read_fd_set, &write_fd_set, NULL, NULL);
-        if (ret_val >= 0)
-        {
-            for (int i = 0; i < getNbPort(); i++) 
-                handleNewConnections(fd[i], all_connections, MAX_CONNECTIONS, read_fd_set, ret_val);
-
-            for (int i = 1; i < MAX_CONNECTIONS; i++)
-            {
-                if ((all_connections[i] > 0) && (FD_ISSET(all_connections[i], &read_fd_set)))
-                {
-                    int error_handle = read_connection(all_connections[i]);
-                    if (error_handle == 0)
-                    {
-                        //ResHandler test;
-                        char buf[DATA_BUFFER + 1];
-                        memset(buf, 0, sizeof(buf));
-                        strcpy(buf, buffu.c_str());
-                        //test.MainServer.bando = buffu;
-                        std::string conttype;
-                        // test.parse_buf(buf, test.MainServer.filename, conttype);
-                        Request pr(buf);
-                        pr.printAll();
-                        //test.MainServer.host = pr.getRequest().host;
-                        //test.MainServer.protocol = pr.getRequest().protocol;
-                        //test.MainServer.type = pr.getRequest().method;
-                        //test.MainServer.path = pr.getRequest().location;
-                        //test.MainServer.content_len = pr.getRequest().content_length;
-                        //test.MainServer.buffit = std::string(buf);
-                        //test.CheckModiDate();
-                        //test.setDate();
-                        //test.Erostatus();
-                        //test.Methodes(FileConf);
-                        //int checkWrit = write(all_connections[i], test.TheReposn.c_str(), (test.TheReposn.size() + 1));
-
-                        //if (checkWrit == 0)
-                        //    check_probl = 0;
-                        //else if (checkWrit == -1)
-                        //    check_probl = -1;
-
-                        close(all_connections[i]);
-                        fcntl(all_connections[i], F_SETFD, FD_CLOEXEC);
-                        FD_CLR(all_connections[i], &read_fd_set);
-
-                        buffu = "";
-                        // test.TheReposn = "";
-                        all_connections[i] = -1;
-
-                        break;
-                    }
-                    else if (error_handle == -1)
-					{
-						close(all_connections[i]);
-						all_connections[i] = -1;
-                        err.setAndPrint(42, "Server::run");
-					}
-
-                }
-            }
-            
-        }
+	
+	while (1)
+	{
+		FD_ZERO(&read_fd_set);
+		FD_ZERO(&write_fd_set);
+		for (int i = 0; i < MAX_CONNECTIONS; i++)
+		{
+			if (all_connections[i] >= 0)
+			{
+				FD_SET(all_connections[i], &read_fd_set);
+			}
+		}
+		ret_val = select(FD_SETSIZE, &read_fd_set, &write_fd_set, NULL, NULL);
+		selectConnection(ret_val, read_fd_set, new_fd);
+		if (ret_val >= 0)
+			 processActiveConnections(read_fd_set);
+		else if (ret_val == -1)
+			err.setAndPrint(43, "Server::run");
+		
     }
 
     close(new_fd);

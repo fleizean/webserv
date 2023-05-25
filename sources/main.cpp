@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fleizean <fleizean@student.42.fr>          +#+  +:+       +#+        */
+/*   By: eyagiz <eyagiz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/24 10:21:15 by eyagiz            #+#    #+#             */
-/*   Updated: 2023/05/24 14:58:29 by fleizean         ###   ########.fr       */
+/*   Updated: 2023/05/25 11:02:42 by eyagiz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,8 @@ int main(int ac, char **av)
 	else
 	{
 		webserv.FileChecker(av[1]);
-		// webserv.printAll();
+		webserv.printAll();
+		std::cout << "\n\n";
 		Server serv(webserv.getConfig());
 		serv.run();
 		// Cluster cluster(webserv.getConfig());

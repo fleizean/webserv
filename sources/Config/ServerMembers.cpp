@@ -23,7 +23,6 @@ t_listen    ServerMembers::getListen() const { return this->_listen; }
 std::string const &ServerMembers::getLocationUri() const { return this->_locationUri; }
 std::vector<Location *>& ServerMembers::getLocations() { return _locations; }
 const std::vector<std::string>& ServerMembers::getServerName() { return _serverName; }
-std::string const &ServerMembers::getCgiPath() const { return _cgiPath; }
 ConfigMembers& ServerMembers::getConfigMembers() { return this->_members; }
 std::string const &ServerMembers::getHost() { return this->_host; }
 
@@ -48,8 +47,6 @@ void ServerMembers::setPort(int const &port)
 {
     _listen.port = port;
 }
-
-void ServerMembers::setCgiPath(const std::string& path) { _cgiPath = path; }
 
 
 /* <------------------------------------------> */

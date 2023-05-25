@@ -115,7 +115,7 @@ void Config::parseServerArea(std::string& line)
 		parseListen(ss, *srvr);
 	else if (word == "server_name")
 		parseServerName(ss, *srvr);
-	else if (word == "cgi_pass")
+	else if (word == "cgi_param")
 		parseCgi(ss, srvr->getConfigMembers());
 	else if (word == "root")
 		parseRoot(ss, srvr->getConfigMembers());
@@ -163,13 +163,10 @@ void Config::parseLocationArea(std::string& line)
 		parseMaxClientBodySize(ss, lctn->getConfigMembers());
 	else if (word == "index")
 		parseIndex(ss, lctn->getConfigMembers());
-	else if (word == "cgi_pass")
+	else if (word == "cgi_param")
 		parseCgi(ss, lctn->getConfigMembers());
-	else{
-				std::cout << "line: " << line << std::endl;
-
+	else
 		err.setAndPrint(19, "Config::parseLocationArea");
-	}
 }
 
 void Config::parse_server()
@@ -229,10 +226,13 @@ void Config::parseCgi(std::stringstream& ss, ConfigMembers &cm)
 {
 	Error err(0);
 	std::string word;
-
+	std::string cgi;
 	if (!(ss >> word))
 		err.setAndPrint(18, "Config::parseCgi");
-	cm.setCgi(word);
+	cgi = word;
+	if (!(ss >> word))
+		err.setAndPrint(22, "Config::parseErrorPage");
+	cm.getCgi().insert(std::make_pair(cgi, word));
 	if (ss >> word)
 		err.setAndPrint(19, "Config::parseCgi");
 }
@@ -404,8 +404,8 @@ void Config::printAll()
 		std::cout << "listen : on host '" << (*it)->getListen().host << " & " << (*it)->getHost() << "', port '" << (*it)->getListen().port << "'" << std::endl;
 		for (std::vector<std::string>::const_iterator namesIt = (*it)->getServerName().begin(); namesIt != (*it)->getServerName().end(); ++namesIt)
 			std::cout << "serverName: " << *namesIt << std::endl;
-		if(!(*it)->getConfigMembers().getCgi().empty())
-			std::cout << "cgi_pass: " << (*it)->getConfigMembers().getCgi() << std::endl;
+		for (std::map<std::string, std::string>::iterator namesIt = (*it)->getConfigMembers().getCgi().begin(); namesIt != (*it)->getConfigMembers().getCgi().end(); ++namesIt)
+			std::cout << "cgi_param: " << namesIt->first << " " << namesIt->second << std::endl;
 		if(!(*it)->getConfigMembers().getRoot().empty())
 			std::cout << "root: " << (*it)->getConfigMembers().getRoot() << std::endl;
 		for (std::vector<std::string>::const_iterator namesIt = (*it)->getConfigMembers().getIndex().begin(); namesIt != (*it)->getConfigMembers().getIndex().end(); ++namesIt)
@@ -438,8 +438,8 @@ void Config::printAll()
 			std::cout << "max_client_body_size: " << (*lit)->getConfigMembers().getMaxClientBodySize() << std::endl;
 			for (std::map<int, std::string>::iterator namesIt = (*lit)->getConfigMembers().getErrorPage().begin(); namesIt != (*lit)->getConfigMembers().getErrorPage().end(); ++namesIt)
 				std::cout << "error_page: " << namesIt->first << " " << namesIt->second << std::endl;
-			if(!(*lit)->getConfigMembers().getCgi().empty())
-				std::cout << "cgi_pass: " << (*lit)->getConfigMembers().getCgi() << std::endl;
+			for (std::map<std::string, std::string>::iterator namesIt = (*lit)->getConfigMembers().getCgi().begin(); namesIt != (*lit)->getConfigMembers().getCgi().end(); ++namesIt)
+				std::cout << "cgi_param: " << namesIt->first << " " << namesIt->second << std::endl;
 			if((*lit)->getConfigMembers().getAutoIndex() == 1)
 				std::cout << "auto_index: " << "on" << std::endl;
 			else

@@ -9,7 +9,9 @@ SRCS_LIST	= \
 			ErrorHandle/Error.cpp \
 			Server/Server.cpp \
 			Utils/UtilsParse.cpp \
-			Request/Request.cpp
+			Request/Request.cpp \
+			Response/Response.cpp \
+			Cgi/Cgi.cpp
 			
 
 SRCS_FOLDER	= sources

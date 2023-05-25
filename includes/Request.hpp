@@ -5,13 +5,7 @@
 class Request
 {
 private:
-    std::string	_method;
-    std::string	_location;
-    std::string	_protocol;
-    std::string	_host;
-    size_t		_content_length;
-
-    std::string		m_request;
+    
 public:
     Request(const char *buffer);
     ~Request();
@@ -32,6 +26,14 @@ public:
     std::string const &getHost() const;
     size_t const &getContentLength() const;
 
+    /*aaa*/
+    std::string	_method;
+    std::string	_location;
+    std::string	_protocol;
+    std::string	_host;
+    size_t		_content_length;
+
+    std::string		m_request;
     /* Print All */
 	void printAll();
 };

@@ -13,7 +13,6 @@ private:
 	std::string                         _locationUri; // location URI
 	vector<Location *>					_locations;
 	vector<std::string>					_serverName;
-	std::string							_cgiPath;
 	ConfigMembers						_members;
 public:
 	/* default constructor */
@@ -32,7 +31,6 @@ public:
 	std::vector<Location *>& getLocations();
 	const std::vector<std::string>& getServerName(); // & eklendi bakılacak
 	void	setServerName(const std::string& name);
-	std::string const &getCgiPath() const; // & eklendi bakılacak
 	ConfigMembers& getConfigMembers();
 	std::string  const &getHost();
 	
@@ -41,5 +39,4 @@ public:
 	void setHost(unsigned int const &host); // listen
 	void setPort(int const &port); // port
 	void setLocationUri(std::string const &uri);
-	void setCgiPath(std::string const &path);
 };
