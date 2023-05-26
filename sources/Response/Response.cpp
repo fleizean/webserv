@@ -13,8 +13,10 @@ void Response::parse_buf(char *buf, std::string &filename, std::string &content_
 	{
 		if (word.size() > 9 && word.substr(0, 9) == "filename=")
 			filename = word.substr(9);
-		if (word.size() == 13 && word.substr(0, 13) == "Content-Type:")
+		if (word.size() == 13 && word.substr(0, 13) == "Content-Type:"){
 			ss >> content_type;
+			std::cout << "content_type: " << content_type << std::endl;
+		}
 	}
 }
 

@@ -3,6 +3,9 @@
 Request::Request(const char *buffer)
 {
     m_request = buffer;
+	std::cout << BOLD_RED << "Buffer socket: " << RESET << std::endl;
+
+	std::cout << buffer << std::endl;
     parse();
     printAll();
 }

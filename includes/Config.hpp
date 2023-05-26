@@ -58,7 +58,7 @@ public:
 	void parseListen(std::stringstream& ss, ServerMembers &srvr);
 	void parseServerName(std::stringstream& ss, ServerMembers &srvr);
 	void parseLocation(std::stringstream& ss, ServerMembers &srvr);
-
+	void parseUpload(std::stringstream& ss, ServerMembers &srvr);
 	/* Location Parse */
 	
 	void parseReturn(std::stringstream& ss, Location &lctn);

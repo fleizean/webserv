@@ -121,7 +121,7 @@ void Config::parseServerArea(std::string& line)
 		parseRoot(ss, srvr->getConfigMembers());
 	else if (word == "index")
 		parseIndex(ss, srvr->getConfigMembers());
-	else if (word == "autoindex")
+	else if (word == "auto_index")
 		parseAutoIndex(ss, srvr->getConfigMembers());
 	else if (word == "error_page")
 		parseErrorPage(ss, srvr->getConfigMembers());
@@ -131,6 +131,9 @@ void Config::parseServerArea(std::string& line)
 		parseMaxClientBodySize(ss, srvr->getConfigMembers());
 	else if (word == "location")
 		parseLocation(ss, *srvr);
+	else if (word == "upload_pass")
+		parseUpload(ss, *srvr);
+
 }
 
 void Config::parseLocationArea(std::string& line)
@@ -157,7 +160,7 @@ void Config::parseLocationArea(std::string& line)
 		parseReturn(ss, *lctn);
 	else if (word == "error_page")
 		parseErrorPage(ss, lctn->getConfigMembers());
-	else if (word == "autoindex")
+	else if (word == "auto_index")
 		parseAutoIndex(ss, lctn->getConfigMembers());
 	else if (word == "max_client_body_size")
 		parseMaxClientBodySize(ss, lctn->getConfigMembers());
@@ -220,6 +223,18 @@ void Config::parseServerName(std::stringstream& ss, ServerMembers &srvr)
 	}
 	if(srvr.getServerName().empty())
 		err.setAndPrint(12, "Config::parseServerName");
+}
+
+void Config::parseUpload(std::stringstream& ss, ServerMembers &srvr)
+{
+	Error err(0);
+	std::string word;
+	
+	if(!(ss >> word))
+		err.setAndPrint(11, "Config::parseUpload");
+	srvr.setUpload(word);
+	if(ss >> word)
+		err.setAndPrint(19, "Config::parseUpload");
 }
 
 void Config::parseCgi(std::stringstream& ss, ConfigMembers &cm)

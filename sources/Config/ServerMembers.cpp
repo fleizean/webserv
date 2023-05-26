@@ -25,7 +25,7 @@ std::vector<Location *>& ServerMembers::getLocations() { return _locations; }
 const std::vector<std::string>& ServerMembers::getServerName() { return _serverName; }
 ConfigMembers& ServerMembers::getConfigMembers() { return this->_members; }
 std::string const &ServerMembers::getHost() { return this->_host; }
-
+std::string const &ServerMembers::getUpload() { return this->_upload; }
 /* <------------------------------------------> */
 
 /* <---------------> Set Area <---------------> */
@@ -48,6 +48,10 @@ void ServerMembers::setPort(int const &port)
     _listen.port = port;
 }
 
+void ServerMembers::setUpload(std::string const &upload)
+{
+    _upload = upload;
+}
 
 /* <------------------------------------------> */
 

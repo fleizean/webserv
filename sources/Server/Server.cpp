@@ -74,8 +74,8 @@ int Server::read_connection(int socket)
 	char	buffer[DATA_BUFFER + 1];
 
     std::cout << BOLD_RED << "Buffer socket: " << RESET << std::endl;
-    std::cout << buffer << std::endl;
-    std::cout << "----------------------------------------------------------------\n";
+    // std::cout << buffer << std::endl;
+    // std::cout << "----------------------------------------------------------------\n";
 	memset(buffer, 0, DATA_BUFFER);
 	int ret = recv(socket, buffer, DATA_BUFFER, 0);
 	if (ret == -1)
