@@ -139,7 +139,6 @@ void Response::Methodes(std::vector<ServerMembers*> _server)
 	int jn = 1;
 	std::string aled;
 	std::string all;
-	int num;
 	bool yes;
 	std::map<int, int> portfind;
 	for (int pl = 1; ss != xx; ++ss, ++pl, jn++)
@@ -151,7 +150,6 @@ void Response::Methodes(std::vector<ServerMembers*> _server)
 	{
 		if (path.find((*locIt)->getUri()) != std::string::npos)
 		{
-			num = j;
 			uril_root = (*locIt)->getConfigMembers().getRoot();
 			aled = (*locIt)->getUri();
 			max_body = (*locIt)->getConfigMembers().getMaxClientBodySize();
@@ -230,19 +228,19 @@ int Response::filexist(const char *fileName)
 			http = test.str();
 			if (cgitype == "py" && mp[".py"].find("/usr/bin/python") != std::string::npos)
 			{
-				http = g.cgiExecute("/usr/bin/python", fileName, postname, postvalue, 0, bando, code);
+				http = g.cgiExecute("/usr/bin/python", fileName, postname, postvalue, 0, bando);
 				code = 200;
 				return code;
 			}
 			else if (cgitype == "pl" && mp[".pl"].find("/usr/bin/perl") != std::string::npos)
 			{
-				http = g.cgiExecute("/usr/bin/perl", fileName, postname, postvalue, 0, bando, code);
+				http = g.cgiExecute("/usr/bin/perl", fileName, postname, postvalue, 0, bando);
 				code = 200;
 				return code;
 			}
 			else if (cgitype == "php" && mp[".php"].find("/usr/bin/php-cgi") != std::string::npos)
 			{
-				http = g.cgiExecute("/usr/bin/php-cgi", fileName, postname, postvalue, 0, bando, code);
+				http = g.cgiExecute("/usr/bin/php-cgi", fileName, postname, postvalue, 0, bando);
 				code = 200;
 				return code;
 			}
@@ -421,9 +419,9 @@ int Response::POSTMethodes()
 	ParseQueryString_(bando.substr(bando.find("\r\n\r\n") + strlen("\r\n\r\n")));
 	GetContent_Type(p);
 	if (path.substr(path.find_last_of(".") + 1) == "php")
-		http = g.cgiExecute("/usr/bin/php", p.c_str(), postname, postvalue, 0, bando, code);
+		http = g.cgiExecute("/usr/bin/php", p.c_str(), postname, postvalue, 0, bando);
 	if (path.substr(path.find_last_of(".") + 1) == "py")
-		http = g.cgiExecute("/usr/bin/python", p.c_str(), postname, postvalue, envj, bando, code);
+		http = g.cgiExecute("/usr/bin/python", p.c_str(), postname, postvalue, envj, bando);
 	bool upload = false;
 	if (content_len <= max_body)
 	{

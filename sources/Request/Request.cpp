@@ -1,5 +1,28 @@
 #include "../../includes/Request.hpp"
 
+/* utils */
+
+bool Request::checkPort()
+{
+	string host_temp = "127.0.0.1";
+	size_t i = _host.find_first_of(':');
+
+	if (i == std::string::npos)
+		this->_port = 80;
+	else
+	{
+		host_temp = _host.substr(0, i);
+    	std::string tmp(_host.substr(i + 1, _host.size() - (i + 1)));
+		this->_port = std::stoi(tmp.c_str());
+		if (_port == 0)
+			return false;
+		_host = host_temp;
+	}
+	return true;
+}
+
+/* ----- */
+
 Request::Request(const char *buffer)
 {
     m_request = buffer;
@@ -35,19 +58,31 @@ void	Request::parseLine(std::string& line)
 		addHost(ss);
 	else if (word == "Content-Length:")
 		addContentLength(ss);
+	else if (word == "Accept-Language:")
+		addAcceptLanguage(ss);
 }
 
 
 void	Request::addMethod(std::stringstream& ss, std::string& word)
 {
+	Error err(0);		
 	_method = word;
-	ss >> _location;
-	ss >> _protocol;
+	if (!(ss >> _location))
+		err.setAndPrint(45, "Request::addMethod");
+	if (!(ss >> _protocol))
+		err.setAndPrint(46, "Request::addMethod");
+	if(_protocol != "HTTP/1.1")
+		err.setAndPrint(44, "Request::addMethod");
 }
 
 void	Request::addHost(std::stringstream& ss)
 {
-	ss >> _host;
+	Error err(0);
+	if(!(ss >> _host))
+		err.setAndPrint(47, "Request::addHost");
+	
+	if(!checkPort())
+		err.setAndPrint(48, "Request::addHost");
 }
 
 void	Request::addContentLength(std::stringstream& ss)
@@ -58,20 +93,36 @@ void	Request::addContentLength(std::stringstream& ss)
 	_content_length = std::stoi(word);
 }
 
+void    Request::addAcceptLanguage(std::stringstream& ss)
+{
+	Error err(0);
+	std::string word;
+
+	if(!(ss >> word))
+		err.setAndPrint(49, "Request::addAcceptLanguage");
+	size_t i = word.find_first_of('-');
+	_accept_language = word.substr(0, i);
+}
+
 /* Getters */
 std::string const &Request::getMethod() const { return this->_method; }
 std::string const &Request::getLocation() const { return this->_location; }
 std::string const &Request::getProtocol() const { return this->_protocol; }
 std::string const &Request::getHost() const { return this->_host; }
+std::string const &Request::getAcceptLanguage() const { return this->_accept_language; }
+
 size_t const &Request::getContentLength() const { return this->_content_length; }
+int const &Request::getPort() const { return this->_port; }
 
 /* Other */
 void Request::printAll()
 {
     std::cout << BLUE << "----------> Request Parse Area <----------" << RESET << "\n";
-    std::cout << RED << "method: " << this->getMethod() << "\n";
-    std::cout << RED << "location: " << this->getLocation() << "\n";
-    std::cout << RED << "protocol: " << this->getProtocol() << "\n";
-    std::cout << RED << "host: " << this->getHost() << "\n";
-    std::cout << RED << "content_length: " << this->getContentLength() << "\n" << RESET;
+    std::cout << BOLD_MAGENTA << "Http-Method: " << RESET << this->getMethod() << "\n";
+    std::cout << BOLD_MAGENTA << "Http-Locaiton: " << RESET << this->getLocation() << "\n";
+    std::cout << BOLD_MAGENTA << "Http-Protocol: " << RESET << this->getProtocol() << "\n";
+    std::cout << BOLD_MAGENTA << "Http-Host: " << RESET << this->getHost() << "\n";
+	std::cout << BOLD_MAGENTA << "Http-Port: " << RESET << this->getPort() << "\n";
+    std::cout << BOLD_MAGENTA << "Http-Content-Length: " << RESET << this->getContentLength() << "\n";
+	std::cout << BOLD_MAGENTA << "Http-Accept-Language: " << RESET << this->getAcceptLanguage() << "\n";
 }

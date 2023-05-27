@@ -197,6 +197,8 @@ void Config::parseListen(std::stringstream& ss, ServerMembers &srvr)
 	if (founded_indx != std::string::npos)
 	{
 		srvr.setHost(word.substr(0, founded_indx));
+		if (srvr.getHost() == "localhost" || srvr.getHost() == "0" || srvr.getHost() == "*")
+			srvr.setHost("127.0.0.1");
 		srvr.setHost(strToIp(word.substr(0, founded_indx)));
 		word = word.substr(founded_indx + 1, word.size());
 	}

@@ -47,6 +47,12 @@ Error::Error(const int& err_code) : err_code(err_code)
     error_list[41] = "accept failed error";
     error_list[42] = "read_connection failed error";
     error_list[43] = "select function failed error";
+    error_list[44] = "HTTP protocol must be HTTP/1.1 in Http Request";
+    error_list[45] = "HTTP location must be in Http Request";
+    error_list[46] = "HTTP protocol must be in Http Request";
+    error_list[47] = "HTTP host must be in Http Request";
+    error_list[48] = "Port must be 1~65535 in Http Request";
+    error_list[49] = "HTTP accept language must be in Http Request";
 }
 
 Error::~Error() { }

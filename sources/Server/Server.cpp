@@ -73,9 +73,6 @@ int Server::read_connection(int socket)
     Error err(0);
 	char	buffer[DATA_BUFFER + 1];
 
-    std::cout << BOLD_RED << "Buffer socket: " << RESET << std::endl;
-    // std::cout << buffer << std::endl;
-    // std::cout << "----------------------------------------------------------------\n";
 	memset(buffer, 0, DATA_BUFFER);
 	int ret = recv(socket, buffer, DATA_BUFFER, 0);
 	if (ret == -1)
@@ -170,16 +167,17 @@ void Server::selectConnection(int& ret_val, fd_set& read_fd_set, int& new_fd)
 }
 void Server::processActiveConnection(int connectionIndex, fd_set& read_fd_set)
 {
-    Response test;
     char buf[DATA_BUFFER + 1];
     memset(buf, 0, sizeof(buf));
     strcpy(buf, buffu.c_str());
+	(void)connectionIndex;
+	(void)read_fd_set;
+	/* Response test;
     test.bando = buffu;
     std::string conttype;
-    test.parse_buf(buf, test.filename, conttype);
+    test.parse_buf(buf, test.filename, conttype); */
     Request pr(buf);
-    pr.printAll();
-    test.host = pr._host;
+    /* test.host = pr._host;
     test.protocol = pr._protocol;
     test.type = pr._method;
     test.path = pr._location;
@@ -188,8 +186,8 @@ void Server::processActiveConnection(int connectionIndex, fd_set& read_fd_set)
     test.CheckModiDate();
     test.setDate();
     test.Erostatus();
-    test.Methodes(_servers);
-    write(all_connections[connectionIndex], test.TheReposn.c_str(), (test.TheReposn.size() + 1));
+    test.Methodes(_servers); */
+    /* write(all_connections[connectionIndex], test.TheReposn.c_str(), (test.TheReposn.size() + 1));
 
     close(all_connections[connectionIndex]);
     fcntl(all_connections[connectionIndex], F_SETFD, FD_CLOEXEC);
@@ -197,7 +195,7 @@ void Server::processActiveConnection(int connectionIndex, fd_set& read_fd_set)
 
     buffu = "";
     test.TheReposn = "";
-    all_connections[connectionIndex] = -1;
+    all_connections[connectionIndex] = -1; */
 }
 
 void Server::handleConnectionError(int connectionIndex)

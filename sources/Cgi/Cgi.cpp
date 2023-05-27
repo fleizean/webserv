@@ -4,8 +4,7 @@ Cgi::Cgi() {}
 
 Cgi::~Cgi() {}
 
-std::string Cgi::cgiExecute(std::string location, std::string executable ,std::string	postname[], std::string	postvalue[], int j,std::string m_request, int code){
-    code = 500;
+std::string Cgi::cgiExecute(std::string location, std::string executable ,std::string	postname[], std::string	postvalue[], int j,std::string m_request){
     std::vector<std::string> env;
     std::string content = m_request;
     std::string combine[10000];
@@ -59,6 +58,8 @@ std::string Cgi::cgiExecute(std::string location, std::string executable ,std::s
 	int checke_prob = 0;
     int fd = open("tmp", O_CREAT | O_TRUNC | O_WRONLY | O_NONBLOCK, 0777);
 
+    (void)checke_prob;
+    (void)ret;
     int checke_Cwrite = write(fd, content.c_str(), content.size());
 	if (checke_Cwrite == 0)
 	{
