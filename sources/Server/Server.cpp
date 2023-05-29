@@ -167,35 +167,20 @@ void Server::selectConnection(int& ret_val, fd_set& read_fd_set, int& new_fd)
 }
 void Server::processActiveConnection(int connectionIndex, fd_set& read_fd_set)
 {
+	Location* matchedLocation;
+	ServerMembers* matchedServer;
     char buf[DATA_BUFFER + 1];
     memset(buf, 0, sizeof(buf));
     strcpy(buf, buffu.c_str());
 	(void)connectionIndex;
 	(void)read_fd_set;
-	/* Response test;
-    test.bando = buffu;
-    std::string conttype;
-    test.parse_buf(buf, test.filename, conttype); */
+
     Request pr(buf);
-    /* test.host = pr._host;
-    test.protocol = pr._protocol;
-    test.type = pr._method;
-    test.path = pr._location;
-    test.content_len = pr._content_length;
-    test.buffit = std::string(buf);
-    test.CheckModiDate();
-    test.setDate();
-    test.Erostatus();
-    test.Methodes(_servers); */
-    /* write(all_connections[connectionIndex], test.TheReposn.c_str(), (test.TheReposn.size() + 1));
-
-    close(all_connections[connectionIndex]);
-    fcntl(all_connections[connectionIndex], F_SETFD, FD_CLOEXEC);
-    FD_CLR(all_connections[connectionIndex], &read_fd_set);
-
-    buffu = "";
-    test.TheReposn = "";
-    all_connections[connectionIndex] = -1; */
+    matchedServer = getServerForRequest(pr.getListen(), _servers);
+	std::cout << "dönen server: " << matchedServer->getConfigMembers().getRoot() << std::endl;
+	matchedLocation = getLocationForRequest(matchedServer, pr.getLocation());
+	std::cout << "dönen location: " << matchedLocation->getUri() << std::endl;
+	
 }
 
 void Server::handleConnectionError(int connectionIndex)
@@ -263,3 +248,30 @@ int Server::run()
     close(ret_val);
     return 0;
 }
+
+ServerMembers*    Server::getServerForRequest(t_listen& address, std::vector<ServerMembers*>& servers)
+{	
+	for (std::vector<ServerMembers *>::const_iterator it = servers.begin() ; it != servers.end(); it++)
+    {
+		std::cout << "host: " << address.host << " = " << (*it)->getListen().host << "\n";
+		std::cout << "port: " << address.port << " = " << (*it)->getListen().port << "\n";
+        if (address.host == (*it)->getListen().host && address.port == (*it)->getListen().port)
+        {
+            return (*it);
+        }
+    }
+    // If no server name matches, return the first matching server
+    return NULL;
+}
+
+Location* Server::getLocationForRequest(ServerMembers* server, const std::string& uri)
+{
+	for (std::vector<Location *>::iterator it = server->getLocations().begin(); it != server->getLocations().end(); it++)
+	{
+		if ((*it)->getUri() == uri)
+        {
+            return (*it);
+        }
+	}
+	return NULL;
+} 

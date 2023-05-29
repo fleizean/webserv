@@ -17,6 +17,8 @@ bool Request::checkPort()
 		if (_port == 0)
 			return false;
 		_host = host_temp;
+		_listen.host = strToIp(_host);
+		_listen.port = _port;
 	}
 	return true;
 }
@@ -34,8 +36,6 @@ Request::Request(const char *buffer)
 }
 
 Request::~Request() {}
-
-const std::string&	Request::getRequestStr() const { return (m_request); }
 
 void Request::parse()
 {
@@ -60,8 +60,17 @@ void	Request::parseLine(std::string& line)
 		addContentLength(ss);
 	else if (word == "Accept-Language:")
 		addAcceptLanguage(ss);
+	else if (word == "Connection:")
+		addConnection(ss);
 }
 
+void 	Request::addConnection(std::stringstream& ss)
+{
+	std::string word;
+
+	ss >> word;
+	_connection = word;
+}
 
 void	Request::addMethod(std::stringstream& ss, std::string& word)
 {
@@ -80,7 +89,6 @@ void	Request::addHost(std::stringstream& ss)
 	Error err(0);
 	if(!(ss >> _host))
 		err.setAndPrint(47, "Request::addHost");
-	
 	if(!checkPort())
 		err.setAndPrint(48, "Request::addHost");
 }
@@ -110,9 +118,11 @@ std::string const &Request::getLocation() const { return this->_location; }
 std::string const &Request::getProtocol() const { return this->_protocol; }
 std::string const &Request::getHost() const { return this->_host; }
 std::string const &Request::getAcceptLanguage() const { return this->_accept_language; }
-
+const std::string&	Request::getRequestStr() const { return (m_request); }
+std::string const &Request::getConnection() const { return this->_connection; }
 size_t const &Request::getContentLength() const { return this->_content_length; }
 int const &Request::getPort() const { return this->_port; }
+t_listen &Request::getListen() { return _listen; }
 
 /* Other */
 void Request::printAll()
@@ -125,4 +135,5 @@ void Request::printAll()
 	std::cout << BOLD_MAGENTA << "Http-Port: " << RESET << this->getPort() << "\n";
     std::cout << BOLD_MAGENTA << "Http-Content-Length: " << RESET << this->getContentLength() << "\n";
 	std::cout << BOLD_MAGENTA << "Http-Accept-Language: " << RESET << this->getAcceptLanguage() << "\n";
+	std::cout << BOLD_MAGENTA << "Http-Connection: " << RESET << this->getConnection() << "\n";
 }

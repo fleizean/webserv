@@ -22,7 +22,6 @@ private:
 	struct sockaddr_in	new_addr;
 	std::string buffu;
 
-
 	std::vector<ServerMembers*> _servers;
 	std::string _host;
 	int _port;
@@ -48,4 +47,7 @@ public:
 	void processActiveConnection(int connectionIndex, fd_set& read_fd_set);
 	void handleConnectionError(int connectionIndex);
 	void processActiveConnections(fd_set& read_fd_set);
+
+	ServerMembers*    getServerForRequest(t_listen& address, std::vector<ServerMembers*>& servers);
+	Location* getLocationForRequest(ServerMembers* server, const std::string& uri);
 };
