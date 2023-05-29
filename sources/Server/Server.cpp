@@ -4,9 +4,10 @@
 
 Server::Server(std::vector<ServerMembers*> server) 
 { 
+	Error err(0);
 	_servers = server;
 	if(!validateLocationUri())
-		std::cout << "Errror\n";
+		err.setAndPrint(50, "Server::Server");
 	else
 		setup(); // setup server
 }
@@ -202,9 +203,9 @@ void Server::processActiveConnection(int connectionIndex, fd_set& read_fd_set)
 
     Request pr(buf);
     matchedServer = getServerForRequest(pr.getListen(), _servers);
-	// std::cout << "dönen server: " << matchedServer->getConfigMembers().getRoot() << std::endl;
+	std::cout << "dönen server: " << matchedServer->getConfigMembers().getRoot() << std::endl;
 	matchedLocation = getLocationForRequest(matchedServer, pr.getLocation());
-	// std::cout << "dönen location: " << matchedLocation->getUri() << std::endl;
+	std::cout << "dönen location: " << matchedLocation->getUri() << std::endl;
 	
 }
 
@@ -278,8 +279,6 @@ ServerMembers*    Server::getServerForRequest(t_listen& address, std::vector<Ser
 {	
 	for (std::vector<ServerMembers *>::const_iterator it = servers.begin() ; it != servers.end(); it++)
     {
-		std::cout << "host: " << address.host << " = " << (*it)->getListen().host << "\n";
-		std::cout << "port: " << address.port << " = " << (*it)->getListen().port << "\n";
         if (address.host == (*it)->getListen().host && address.port == (*it)->getListen().port)
         {
             return (*it);
