@@ -47,6 +47,7 @@ public:
 	void processActiveConnection(int connectionIndex, fd_set& read_fd_set);
 	void handleConnectionError(int connectionIndex);
 	void processActiveConnections(fd_set& read_fd_set);
+	bool validateLocationUri();
 
 	ServerMembers*    getServerForRequest(t_listen& address, std::vector<ServerMembers*>& servers);
 	Location* getLocationForRequest(ServerMembers* server, const std::string& uri);

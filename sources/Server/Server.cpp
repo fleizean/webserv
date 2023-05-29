@@ -5,7 +5,32 @@
 Server::Server(std::vector<ServerMembers*> server) 
 { 
 	_servers = server;
-	setup(); // setup server
+	if(!validateLocationUri())
+		std::cout << "Errror\n";
+	else
+		setup(); // setup server
+}
+
+bool Server::validateLocationUri()
+{
+	std::vector<ServerMembers*>::iterator ite = _servers.end();
+	std::vector<ServerMembers*>::iterator it = _servers.begin();
+
+	int uriCount;
+
+	for(int i = 0; it != ite; it++, i++)
+	{
+		uriCount = 0;
+		std::vector<Location *> &locations = (*it)->getLocations();
+		for (std::vector<Location *>::const_iterator lit = locations.cbegin(); lit != locations.cend(); ++lit)
+		{
+			if((*lit)->getUri() == "/")
+				uriCount++;
+		}
+		if(uriCount != 1)
+			return false;
+	}
+	return true;
 }
 
 Server::~Server() 
@@ -177,9 +202,9 @@ void Server::processActiveConnection(int connectionIndex, fd_set& read_fd_set)
 
     Request pr(buf);
     matchedServer = getServerForRequest(pr.getListen(), _servers);
-	std::cout << "dönen server: " << matchedServer->getConfigMembers().getRoot() << std::endl;
+	// std::cout << "dönen server: " << matchedServer->getConfigMembers().getRoot() << std::endl;
 	matchedLocation = getLocationForRequest(matchedServer, pr.getLocation());
-	std::cout << "dönen location: " << matchedLocation->getUri() << std::endl;
+	// std::cout << "dönen location: " << matchedLocation->getUri() << std::endl;
 	
 }
 
@@ -260,7 +285,7 @@ ServerMembers*    Server::getServerForRequest(t_listen& address, std::vector<Ser
             return (*it);
         }
     }
-    // If no server name matches, return the first matching server
+    // Boyle bir durum soz konusu degil ama yinede NULL donduruyoruz
     return NULL;
 }
 
@@ -273,5 +298,6 @@ Location* Server::getLocationForRequest(ServerMembers* server, const std::string
             return (*it);
         }
 	}
+	// Boyle bir durum soz konusu degil ama yinede NULL donduruyoruz
 	return NULL;
-} 
+}
