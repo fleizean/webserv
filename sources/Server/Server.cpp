@@ -2,14 +2,17 @@
 
 /* ------------> CANNONICAL FUNCTIONS <------------ */
 
-Server::Server(std::vector<ServerMembers*> server) 
+Server::Server(std::vector<ServerMembers*> server, char **env) 
 { 
 	Error err(0);
 	_servers = server;
+	_env = env;
 	if(!validateLocationUri())
 		err.setAndPrint(50, "Server::Server");
 	else
+	{
 		setup(); // setup server
+	}
 }
 
 bool Server::validateLocationUri()
@@ -97,24 +100,25 @@ int Server::create_server(int port, std::string host)
 int Server::read_connection(int socket)
 {
     Error err(0);
-	char	buffer[DATA_BUFFER + 1];
+	char	tmp_buffer[DATA_BUFFER + 1];
 
-	memset(buffer, 0, DATA_BUFFER);
-	int ret = recv(socket, buffer, DATA_BUFFER, 0);
-	if (ret == -1)
-		err.setAndPrint(36, "Server::read_connection");
+	memset(tmp_buffer, 0, DATA_BUFFER);
+	int ret = recv(socket, tmp_buffer, DATA_BUFFER, 0);
+	if (ret == -1){
+		return -1;
+	}
 	else if (ret == 0)
-        return -1;
-	buffu += std::string(buffer, ret);
-	size_t res = buffu.find("\r\n\r\n");
+        return 5;
+	buffer += std::string(tmp_buffer, ret);
+	size_t res = buffer.find("\r\n\r\n");
 	if (res != std::string::npos)
 	{
-		if (buffu.find("Content-Length: ") == std::string::npos)
+		if (buffer.find("Content-Length: ") == std::string::npos)
 			return (0);
 	
-		size_t len = std::atoi(buffu.substr(buffu.find("Content-Length: ") + strlen("Content-Length: "), 10).c_str());
+		size_t len = std::atoi(buffer.substr(buffer.find("Content-Length: ") + strlen("Content-Length: "), 10).c_str());
 		
-		if (buffu.size() >= len + res + strlen("\r\n\r\n"))
+		if (buffer.size() >= len + res + strlen("\r\n\r\n"))
 			return (0);
 		else
 			return (1);
@@ -195,43 +199,49 @@ void Server::processActiveConnection(int connectionIndex, fd_set& read_fd_set)
 {
 	Location* matchedLocation;
 	ServerMembers* matchedServer;
-    char buf[DATA_BUFFER + 1];
-    memset(buf, 0, sizeof(buf));
-    strcpy(buf, buffu.c_str());
-	(void)connectionIndex;
-	(void)read_fd_set;
+    char tmp_buff[DATA_BUFFER + 1];
 
-    Request pr(buf);
+    memset(tmp_buff, 0, sizeof(tmp_buff));
+    strcpy(tmp_buff, buffer.c_str());
+	/* (void)connectionIndex;
+	(void)read_fd_set; */
+
+    Request pr(tmp_buff);
     matchedServer = getServerForRequest(pr.getListen(), _servers);
 	std::cout << "dönen server: " << matchedServer->getConfigMembers().getRoot() << std::endl;
 	matchedLocation = getLocationForRequest(matchedServer, pr.getLocation());
 	std::cout << "dönen location: " << matchedLocation->getUri() << std::endl;
 	
-}
+	
+	close(all_connections[connectionIndex]);
+    fcntl(all_connections[connectionIndex], F_SETFD, FD_CLOEXEC);
+    FD_CLR(all_connections[connectionIndex], &read_fd_set);
 
-void Server::handleConnectionError(int connectionIndex)
-{
-	Error err(0);
-    close(all_connections[connectionIndex]);
-    all_connections[connectionIndex] = -1;
-    err.setAndPrint(42, "Server::run");
+    buffer = "";
+    all_connections[connectionIndex] = -1; 
 }
 
 void Server::processActiveConnections(fd_set& read_fd_set)
 {
+	int error_handle = -1;
     for (int i = 1; i < MAX_CONNECTIONS; i++)
     {
         if ((all_connections[i] > 0) && (FD_ISSET(all_connections[i], &read_fd_set)))
         {
-            int error_handle = read_connection(all_connections[i]);
+            error_handle = read_connection(all_connections[i]);
             if (error_handle == 0)
             {
                 processActiveConnection(i, read_fd_set);
                 break;
             }
-            else if (error_handle == -1)
+			else if (error_handle == 5)
+			{
+				close(all_connections[i]);
+				all_connections[i] = -1;
+			}
+			else if (error_handle == -1)
             {
-                handleConnectionError(i);
+                break;
             }
         }
     }
@@ -262,12 +272,11 @@ int Server::run()
 			}
 		}
 		ret_val = select(FD_SETSIZE, &read_fd_set, &write_fd_set, NULL, NULL);
-		selectConnection(ret_val, read_fd_set, new_fd);
-		if (ret_val >= 0)
-			 processActiveConnections(read_fd_set);
-		else if (ret_val == -1)
-			err.setAndPrint(43, "Server::run");
-		
+		if(ret_val >= 0)
+		{
+			selectConnection(ret_val, read_fd_set, new_fd);
+			processActiveConnections(read_fd_set);
+		}
     }
 
     close(new_fd);

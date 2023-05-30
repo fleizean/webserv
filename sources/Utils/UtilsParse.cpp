@@ -162,3 +162,30 @@ int		pathIsFile(const std::string& path)
 	else
 		return 0;
 }
+
+int	isFile(std::string file) 
+{
+	struct stat	st;
+	if (stat(file.c_str(), &st) == 0) {
+		if ((st.st_mode & S_IFMT) == S_IFREG)
+			return 1;
+	}
+	return 0;
+}
+
+int	isDir(std::string file) 
+{
+	struct stat	st;
+	if (stat(file.c_str(), &st) == 0) {
+		if ((st.st_mode & S_IFMT) == S_IFDIR)
+			return 1;
+	}
+	return 0;
+}
+
+std::string toString(int num) 
+{
+    std::ostringstream oss;
+    oss << num;
+    return oss.str();
+}

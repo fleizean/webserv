@@ -19,16 +19,18 @@ private:
 	int 				all_connections[MAX_CONNECTIONS];
 	// int					sockfd;
 	int					NbPort;
-	struct sockaddr_in	new_addr;
-	std::string buffu;
-
-	std::vector<ServerMembers*> _servers;
-	std::string _host;
+	std::string 		_host;
+	std::string 		buffer;
 	int _port;
 
+	char **_env;
+
 	socklen_t addrlen;
+	struct sockaddr_in	new_addr;
+
+	std::vector<ServerMembers*> _servers;
 public:
-	Server(std::vector<ServerMembers*> server);
+	Server(std::vector<ServerMembers*> server, char **env);
 	~Server();
 
 	int run();

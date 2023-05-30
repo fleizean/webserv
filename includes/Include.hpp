@@ -17,6 +17,8 @@
 #include <string>
 #include <map>
 #include <dirent.h>
+#include <cstring> // strerror
+#include <cerrno> // errno
 #include <filesystem>
 
 using namespace std;
@@ -33,3 +35,7 @@ bool            isValidMethod(const std::string& word);
 unsigned int	strToIp(std::string strIp);
 std::string     removeAdjacentSlashes(const std::string &str);
 int             pathIsFile(const std::string& path);
+int	            isFile(std::string file);
+int	            isDir(std::string file);
+std::string     toString(int num);
+
