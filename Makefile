@@ -10,7 +10,6 @@ SRCS_LIST	= \
 			Server/Server.cpp \
 			Utils/UtilsParse.cpp \
 			Request/Request.cpp \
-			AutoIndex/AutoIndex.cpp \
 			Response/Response.cpp \
 			CGI/Cgi.cpp
 			
