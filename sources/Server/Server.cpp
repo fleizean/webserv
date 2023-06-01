@@ -181,20 +181,15 @@ void Server::processActiveConnection(int connectionIndex, fd_set& read_fd_set)
 	matchedLocation = getLocationForRequest(matchedServer, pr.getLocation());
 	// std::cout << "dönen server: " << matchedServer->getConfigMembers().getRoot() << std::endl;
 	// std::cout << "dönen location: " << matchedLocation->getUri() << std::endl;
-	Response response(pr, _servers);
+	Response response(pr, _servers, _env);
 	if (_foundError == true && pr.getLocation() != "/"){
 		setErrorPage(pr);
 		write(all_connections[connectionIndex], _errorResponse.c_str(), _errorResponse.size() + 1);
 		_foundError = false;
 	}
 
-	
 	/* closing area */
-	buffer = "";
-	close(all_connections[connectionIndex]);
-    fcntl(all_connections[connectionIndex], F_SETFD, FD_CLOEXEC);
-    FD_CLR(all_connections[connectionIndex], &read_fd_set);
-    all_connections[connectionIndex] = -1; 
+	closeConnection(connectionIndex, read_fd_set);
 }
 
 void Server::processActiveConnections(fd_set& read_fd_set)
@@ -223,6 +218,14 @@ void Server::processActiveConnections(fd_set& read_fd_set)
     }
 }
 
+void Server::closeConnection(int &connectionIndex, fd_set& read_fd_set)
+{
+	buffer = "";
+	close(all_connections[connectionIndex]);
+    fcntl(all_connections[connectionIndex], F_SETFD, FD_CLOEXEC);
+    FD_CLR(all_connections[connectionIndex], &read_fd_set);
+    all_connections[connectionIndex] = -1; 
+}
 
 int Server::run()
 {

@@ -1,6 +1,6 @@
 #include "../../includes/Response.hpp"
 
-Response::Response(Request req, std::vector<ServerMembers*> servers) : _req(req), _servers(servers)
+Response::Response(Request req, std::vector<ServerMembers*> servers, char** envp) : _req(req), _servers(servers), _envp(envp)
 {
     setupRequest();
 }
@@ -226,7 +226,8 @@ void Response::errorPage()
 
 void Response::getContentType(std::string path)
 {
-    std::set<std::string> imageExtensions = { "jpeg", "jpg", "pjp", "jfif", "pjpeg" };
+	std::string imageExtensionsArray[] = { "jpeg", "jpg", "pjp", "jfif", "pjpeg" };
+	std::set<std::string> imageExtensions(imageExtensionsArray, imageExtensionsArray + 5);
 	_contentType = path.substr(path.rfind(".") + 1, path.size() - path.rfind("."));
 	_cgiType = _contentType;
 
@@ -424,4 +425,110 @@ std::string Response::uploadFile(std::string sear, std::string buffer)
     write(fd, sear.c_str(), sear.size());
     close(fd);
     return mainbuffer;
+}
+
+int Response::getMethodes()
+{
+	std::string raw_path = realpath(".", NULL);
+	std::string path = realpath(".", NULL) + removeAll(_path, realpath(".", NULL));
+
+	if (path.find(raw_path + raw_path) != std::string::npos)
+		path = path.substr(path.find(raw_path));
+	_path = path + "/";
+	getContentType(path);
+	fileExist(path.c_str());
+	errorPage();
+
+	if (_contentLen >= _maxBody)
+	{
+		_code = 413;
+		_http = "";
+		errorPage();
+	}
+	else
+		_code = 200;
+	if (_http.find("Status: 500") != std::string::npos)
+	{
+		_code = 500;
+		_http = "";
+		errorPage();
+	}
+
+	_responseHeader += _protocol + " " + std::to_string(_code) + " " + _errorRep[_code];
+	_responseHeader += "\nDate : " + _time;
+	_responseHeader += "\nServer: " + _serverName;
+	_responseHeader += "\nLast-modified " + _modifyTime;
+	_responseHeader += "\nContent-Type: " + _contentType;
+	_responseHeader += "\nContent-Length : " + std::to_string(_http.size() - 1);
+	_responseHeader += "\nContent-Location: " + _path;
+	_responseHeader += "\nTransfer-Encoding: identity" + _encoding;
+	_responseHeader += "\n\n";
+	_responseHeader += _http;
+	return 0;
+}
+
+/**
+ * @brief DELETE isteğini işler ve yanıt başlığını oluşturur.
+ *
+ * DELETE isteğini gerçekleştirir ve sonuç olarak oluşan yanıt başlığını oluşturur.
+ * İşlevleri şunlardır:
+ *   - handleDeleteRequest() fonksiyonunu çağırarak DELETE isteğini gerçekleştirir.
+ *   - _contentLen ve _maxBody değişkenlerini karşılaştırarak içeriğin uzunluğunu kontrol eder.
+ *     Eğer aşılmışsa, _code değerini 413 olarak ayarlar.
+ *   - _responseHeader değişkenine _protocol, _code ve _errorRep[_code] değerlerini ekler.
+ *   - Date alanını _time değeriyle birlikte ekler.
+ *   - resetHTML() fonksiyonunu çağırarak _http değişkenini sıfırlar.
+ *   - errorPage() fonksiyonunu çağırarak hata sayfasını oluşturur.
+ *   - Son olarak _http'yi _responseHeader'a ekler.
+ *
+ */
+void Response::deleteMethodes()
+{
+	handleDeleteRequest();
+
+	if (_contentLen >= _maxBody)
+		_code = 413;
+    
+	_responseHeader += _protocol + " " + std::to_string(_code) + " " + _errorRep[_code];
+	_responseHeader += "\nDate : " + _time + "\n\n";
+
+	resetHTML();
+	errorPage();
+
+	_responseHeader += _http;
+}
+
+/**
+ * @brief _http'nin değerlerini sıfırlar
+ * 
+ */
+void Response::resetHTML()
+{
+    _http = "";
+}
+
+/**
+ * @brief DELETE isteğini işleyerek belirtilen dosyayı veya dizini siler.
+ * 
+ * Bu fonksiyon, geçerli çalışma dizinine ve verilen dizine dayanarak mutlak yol oluşturur.
+ * Yolun geçerli bir dosyaya işaret edip etmediğini kontrol eder. Dosya mevcutsa silinir.
+ * İşlemin sonucuna bağlı olarak uygun HTTP durum kodu ayarlanır.
+ */
+void Response::handleDeleteRequest()
+{
+	std::string path = realpath(".", NULL) + _path;
+	if (checkIfPathIsFile(path.c_str()) == true)
+	{
+		if ((access(path.c_str(), F_OK) == 0))
+		{
+			if (remove(path.c_str()) == 0)
+				_code = 204;
+			else
+				_code = 403;
+		}
+		else
+			_code = 404;
+	}
+	else
+		_code = 404;
 }

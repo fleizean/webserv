@@ -46,6 +46,7 @@ public:
 
 
 	bool checkValidSockets();
+	void closeConnection(int &connectionIndex, fd_set& read_fd_set);
 
 	void selectConnection(int& ret_val, fd_set& read_fd_set, int& new_fd);
 	void processActiveConnection(int connectionIndex, fd_set& read_fd_set);
