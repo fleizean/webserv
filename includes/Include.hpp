@@ -35,3 +35,4 @@ bool            isValidMethod(const std::string& word);
 unsigned int	strToIp(std::string strIp);
 std::string     removeAdjacentSlashes(const std::string &str);
 int             pathIsFile(const std::string& path);
+std::string     removeAll(std::string str, const std::string &from);

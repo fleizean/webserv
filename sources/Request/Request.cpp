@@ -25,12 +25,27 @@ bool Request::checkPort()
 
 /* ----- */
 
+void Request::clear(){
+	_method = "";
+	_location = "";
+	_protocol = "";
+	_host = "";
+	_accept_language = "";
+	_connection = "";
+	_contentType = "";
+	_fileName = "";
+	_port = 0;
+	_content_length = 0;
+	_listen.host = 0;
+	_listen.port = 0;
+}
+
 Request::Request(const char *buffer)
 {
     m_request = buffer;
 	std::cout << BOLD_RED << "Buffer socket: " << RESET << std::endl;
-
 	std::cout << buffer << std::endl;
+	clear();
     parse();
     printAll();
 }
@@ -62,6 +77,29 @@ void	Request::parseLine(std::string& line)
 		addAcceptLanguage(ss);
 	else if (word == "Connection:")
 		addConnection(ss);
+	else if (word == "Content-Type:")
+		addContentType(ss);
+	else if (word == "filename=")
+		addFileName(ss);
+}
+
+void    Request::addFileName(std::stringstream& ss)
+{
+	std::string word;
+
+    ss >> word;
+    size_t pos = word.find("filename=");
+    if (pos != std::string::npos && pos + 9 < word.size())
+    {
+        _fileName = word.substr(9);
+    }
+}
+
+void	Request::addContentType(std::stringstream& ss)
+{
+	std::string word;
+	ss >> word;
+	_contentType = word;
 }
 
 void 	Request::addConnection(std::stringstream& ss)
@@ -118,8 +156,10 @@ std::string const &Request::getLocation() const { return this->_location; }
 std::string const &Request::getProtocol() const { return this->_protocol; }
 std::string const &Request::getHost() const { return this->_host; }
 std::string const &Request::getAcceptLanguage() const { return this->_accept_language; }
-const std::string&	Request::getRequestStr() const { return (m_request); }
+const std::string& Request::getRequestStr() const { return (m_request); }
+std::string const &Request::getContentType() const { return this->_contentType; }
 std::string const &Request::getConnection() const { return this->_connection; }
+std::string const &Request::getFileName() const { return this->_fileName; }
 size_t const &Request::getContentLength() const { return this->_content_length; }
 int const &Request::getPort() const { return this->_port; }
 t_listen &Request::getListen() { return _listen; }
@@ -136,4 +176,7 @@ void Request::printAll()
     std::cout << BOLD_MAGENTA << "Http-Content-Length: " << RESET << this->getContentLength() << "\n";
 	std::cout << BOLD_MAGENTA << "Http-Accept-Language: " << RESET << this->getAcceptLanguage() << "\n";
 	std::cout << BOLD_MAGENTA << "Http-Connection: " << RESET << this->getConnection() << "\n";
+	std::cout << BOLD_MAGENTA << "Http-Content-Type: " << RESET << this->getContentType() << "\n";
+	std::cout << BOLD_MAGENTA << "Http-Filename: " << RESET << this->getFileName() << "\n";
+
 }

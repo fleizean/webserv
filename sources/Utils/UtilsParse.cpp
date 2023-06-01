@@ -162,3 +162,14 @@ int		pathIsFile(const std::string& path)
 	else
 		return 0;
 }
+
+
+std::string removeAll(std::string str, const std::string &from)
+{
+	size_t start_pos = 0;
+	while ((start_pos = str.find(from)) != std::string::npos)
+	{
+		str.erase(start_pos, from.length());
+	}
+	return str;
+}

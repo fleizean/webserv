@@ -6,15 +6,17 @@
 class Request
 {
 private:
-    std::string	_method;
-    std::string	_location;
-    std::string	_protocol;
-    std::string	_host;
-    int	        _port;
-    size_t		_content_length;
-    std::string _accept_language;
-    std::string _connection;
-    t_listen    _listen;
+    std::string	    _method;
+    std::string	    _location;
+    std::string	    _protocol;
+    std::string	    _host;
+    std::string     _accept_language;
+    std::string     _connection;
+    std::string     _contentType;
+    std::string     _fileName;
+    int	            _port;
+    size_t		    _content_length;
+    t_listen        _listen;
 
     std::string		m_request;
 public:
@@ -32,6 +34,8 @@ public:
     void    addAcceptLanguage(std::stringstream& ss);
     bool    checkPort();
     void    addConnection(std::stringstream& ss);
+    void    addContentType(std::stringstream& ss);
+    void    addFileName(std::stringstream& ss);
 
     /* Getters */
     std::string const &getMethod() const;
@@ -39,11 +43,14 @@ public:
     std::string const &getProtocol() const;
     std::string const &getHost() const;
     std::string const &getAcceptLanguage() const;
+    std::string const &getConnection() const;
+    std::string const &getContentType() const;
+    std::string const &getFileName() const;
+    t_listen &getListen();
     size_t const &getContentLength() const;
     int	const &getPort() const;
-    std::string const &getConnection() const;
-    t_listen &getListen();
-    
+
+    void clear();
     /* Print All */
 	void printAll();
 };

@@ -7,34 +7,7 @@ Server::Server(std::vector<ServerMembers*> server, char **env)
 	Error err(0);
 	_servers = server;
 	_env = env;
-	if(!validateLocationUri())
-		err.setAndPrint(50, "Server::Server");
-	else
-	{
-		setup(); // setup server
-	}
-}
-
-bool Server::validateLocationUri()
-{
-	std::vector<ServerMembers*>::iterator ite = _servers.end();
-	std::vector<ServerMembers*>::iterator it = _servers.begin();
-
-	int uriCount;
-
-	for(int i = 0; it != ite; it++, i++)
-	{
-		uriCount = 0;
-		std::vector<Location *> &locations = (*it)->getLocations();
-		for (std::vector<Location *>::const_iterator lit = locations.cbegin(); lit != locations.cend(); ++lit)
-		{
-			if((*lit)->getUri() == "/")
-				uriCount++;
-		}
-		if(uriCount != 1)
-			return false;
-	}
-	return true;
+	setup(); // setup server
 }
 
 Server::~Server() 
@@ -200,24 +173,27 @@ void Server::processActiveConnection(int connectionIndex, fd_set& read_fd_set)
 	Location* matchedLocation;
 	ServerMembers* matchedServer;
     char tmp_buff[DATA_BUFFER + 1];
-
     memset(tmp_buff, 0, sizeof(tmp_buff));
     strcpy(tmp_buff, buffer.c_str());
-	/* (void)connectionIndex;
-	(void)read_fd_set; */
-
+	(void)matchedLocation;
     Request pr(tmp_buff);
     matchedServer = getServerForRequest(pr.getListen(), _servers);
-	std::cout << "dönen server: " << matchedServer->getConfigMembers().getRoot() << std::endl;
 	matchedLocation = getLocationForRequest(matchedServer, pr.getLocation());
-	std::cout << "dönen location: " << matchedLocation->getUri() << std::endl;
+	// std::cout << "dönen server: " << matchedServer->getConfigMembers().getRoot() << std::endl;
+	// std::cout << "dönen location: " << matchedLocation->getUri() << std::endl;
+	Response response(pr, _servers);
+	if (_foundError == true && pr.getLocation() != "/"){
+		setErrorPage(pr);
+		write(all_connections[connectionIndex], _errorResponse.c_str(), _errorResponse.size() + 1);
+		_foundError = false;
+	}
+
 	
-	
+	/* closing area */
+	buffer = "";
 	close(all_connections[connectionIndex]);
     fcntl(all_connections[connectionIndex], F_SETFD, FD_CLOEXEC);
     FD_CLR(all_connections[connectionIndex], &read_fd_set);
-
-    buffer = "";
     all_connections[connectionIndex] = -1; 
 }
 
@@ -299,13 +275,24 @@ ServerMembers*    Server::getServerForRequest(t_listen& address, std::vector<Ser
 
 Location* Server::getLocationForRequest(ServerMembers* server, const std::string& uri)
 {
+	_foundError = true;
 	for (std::vector<Location *>::iterator it = server->getLocations().begin(); it != server->getLocations().end(); it++)
 	{
 		if ((*it)->getUri() == uri)
         {
+			_foundError = false;
             return (*it);
         }
 	}
 	// Boyle bir durum soz konusu degil ama yinede NULL donduruyoruz
 	return NULL;
+}
+
+void Server::setErrorPage(Request pr)
+{
+	_errorResponse = pr.getProtocol() + " 404 Not Found\r\n";
+	_errorResponse += "Content-Type: text/html\r\n";
+	_errorResponse += "Connection: close\r\n";
+	_errorResponse += "\r\n";
+	_errorResponse += "<!DOCTYPE html>\n<html><head><title>404 Not Found</title></head><body><h1>404 Not Found</h1><p>There was an error finding your error page</p></body></html>\n";
 }

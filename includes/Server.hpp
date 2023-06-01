@@ -21,6 +21,8 @@ private:
 	int					NbPort;
 	std::string 		_host;
 	std::string 		buffer;
+	std::string			_errorResponse;
+	bool				_foundError;
 	int _port;
 
 	char **_env;
@@ -36,7 +38,7 @@ public:
 	int run();
 	int getNbPort();
 	void setNbPort(int n);
-
+	void setErrorPage(Request pr);
 	int create_server(int iport, std::string host);
 	void create_socket(int port, std::string host);
 	int read_connection(int socket);

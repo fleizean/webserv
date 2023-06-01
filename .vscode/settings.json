@@ -1,6 +1,6 @@
 {
     "files.associations": {
-        "ostream": "cpp",
+        "iosfwd": "cpp",
         "__bit_reference": "cpp",
         "__bits": "cpp",
         "__config": "cpp",
@@ -38,7 +38,6 @@
         "initializer_list": "cpp",
         "iomanip": "cpp",
         "ios": "cpp",
-        "iosfwd": "cpp",
         "iostream": "cpp",
         "istream": "cpp",
         "limits": "cpp",
@@ -49,6 +48,7 @@
         "mutex": "cpp",
         "new": "cpp",
         "optional": "cpp",
+        "ostream": "cpp",
         "ratio": "cpp",
         "set": "cpp",
         "sstream": "cpp",
@@ -70,10 +70,6 @@
         "compare": "cpp",
         "concepts": "cpp",
         "algorithm": "cpp",
-        "cerrno": "cpp",
-        "__functional_base": "cpp",
-        "functional": "cpp",
-        "iterator": "cpp",
-        "utility": "cpp"
+        "filesystem": "cpp"
     }
 }
