@@ -170,24 +170,31 @@ void Server::selectConnection(int& ret_val, fd_set& read_fd_set, int& new_fd)
 }
 void Server::processActiveConnection(int connectionIndex, fd_set& read_fd_set)
 {
-	Location* matchedLocation;
-	ServerMembers* matchedServer;
+	// Location* matchedLocation;
+	//ServerMembers* matchedServer;
     char tmp_buff[DATA_BUFFER + 1];
     memset(tmp_buff, 0, sizeof(tmp_buff));
     strcpy(tmp_buff, buffer.c_str());
-	(void)matchedLocation;
+	// (void)matchedLocation;
     Request pr(tmp_buff);
-    matchedServer = getServerForRequest(pr.getListen(), _servers);
-	matchedLocation = getLocationForRequest(matchedServer, pr.getLocation());
+    // matchedServer = getServerForRequest(pr.getListen(), _servers);
+	// matchedLocation = getLocationForRequest(matchedServer, pr.getLocation());
 	// std::cout << "dönen server: " << matchedServer->getConfigMembers().getRoot() << std::endl;
 	// std::cout << "dönen location: " << matchedLocation->getUri() << std::endl;
 	Response response(pr, _servers, _env);
-	if (_foundError == true && pr.getLocation() != "/"){
+	/* if (_foundError == true && pr.getLocation() != "/"){
 		setErrorPage(pr);
 		write(all_connections[connectionIndex], _errorResponse.c_str(), _errorResponse.size() + 1);
 		_foundError = false;
 	}
+	else */
+	response.setBando(buffer);
+	response.checkModifyDate();
+	response.setDate();
+	response.errorStatus();
 
+	response.run();
+	write(all_connections[connectionIndex], response.getResponseHeader().c_str(), response.getResponseHeader().size() + 1);
 	/* closing area */
 	closeConnection(connectionIndex, read_fd_set);
 }

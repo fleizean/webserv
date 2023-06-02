@@ -79,7 +79,7 @@ void	Request::parseLine(std::string& line)
 		addConnection(ss);
 	else if (word == "Content-Type:")
 		addContentType(ss);
-	else if (word == "filename=")
+	else if (word == "Content-Disposition:")
 		addFileName(ss);
 }
 
@@ -88,7 +88,9 @@ void    Request::addFileName(std::stringstream& ss)
 	std::string word;
 
     ss >> word;
-    size_t pos = word.find("filename=");
+	ss >> word;
+	ss >> word;
+    size_t pos = 0;
     if (pos != std::string::npos && pos + 9 < word.size())
     {
         _fileName = word.substr(9);
@@ -127,6 +129,7 @@ void	Request::addHost(std::stringstream& ss)
 	Error err(0);
 	if(!(ss >> _host))
 		err.setAndPrint(47, "Request::addHost");
+	_fullHost = _host;
 	if(!checkPort())
 		err.setAndPrint(48, "Request::addHost");
 }
@@ -163,6 +166,7 @@ std::string const &Request::getFileName() const { return this->_fileName; }
 size_t const &Request::getContentLength() const { return this->_content_length; }
 int const &Request::getPort() const { return this->_port; }
 t_listen &Request::getListen() { return _listen; }
+std::string const &Request::getFullHost() { return _fullHost; }
 
 /* Other */
 void Request::printAll()
@@ -180,3 +184,4 @@ void Request::printAll()
 	std::cout << BOLD_MAGENTA << "Http-Filename: " << RESET << this->getFileName() << "\n";
 
 }
+

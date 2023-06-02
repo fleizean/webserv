@@ -10,6 +10,7 @@ private:
     std::string	    _location;
     std::string	    _protocol;
     std::string	    _host;
+    std::string     _fullHost;
     std::string     _accept_language;
     std::string     _connection;
     std::string     _contentType;
@@ -49,7 +50,7 @@ public:
     t_listen &getListen();
     size_t const &getContentLength() const;
     int	const &getPort() const;
-
+    std::string const &getFullHost();
     void clear();
     /* Print All */
 	void printAll();

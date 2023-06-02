@@ -3,6 +3,8 @@
 #include "Include.hpp"
 #include "Request.hpp"
 #include "ServerMembers.hpp"
+#include "Location.hpp"
+#include "Cgi.hpp"
 #include <sys/stat.h>
 #include <sys/time.h>
 
@@ -15,7 +17,6 @@ private:
 	std::string							_statusCode;
 	std::string							_type;
 	std::string							_contentType;
-	int									_contentLen;
 	std::string							_time;
 	std::string							_modifyTime;
 	std::string							_http;
@@ -32,6 +33,7 @@ private:
 	std::string							_postValue[10000];
 	char*								_files;
 	int									_code;
+	int									_contentLen;
 	int									_port;
 	int									_envj;
 	int									_maxBody;
@@ -47,15 +49,17 @@ private:
 
 	Request								_req;
 	std::vector<ServerMembers*> 		_servers;
+	Cgi									_cgi;
 	char**								_envp;
 	/* unused */
 	Response();
 public:
+	std::string getResponseHeader();
 	Response(Request req, std::vector<ServerMembers*> servers, char** envp);
 	~Response();
 	void	parseQueryString(const std::string &query_string);
 	int		postMethodes();
-	void	methodes(std::string FileConf);
+	void	run();
 	void	resetHTML();
 	void	errorStatus();
 	int		getMethodes();
@@ -69,6 +73,7 @@ public:
 	void	errorPage();
 	void	setupRequest();
 	bool	checkIfPathIsFile(const char * path);
+	void	setBando(std::string bando);
 
 	std::string fAutoIndex(const char *path);
 	std::string createDirectoryLink(std::string const &dirEntry, std::string Directory, std::string const &host);

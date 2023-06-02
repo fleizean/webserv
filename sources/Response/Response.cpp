@@ -8,11 +8,81 @@ Response::Response(Request req, std::vector<ServerMembers*> servers, char** envp
 Response::~Response() { }
 
 /* --------> Functions <-------- */
+void Response::run()
+{
+	std::vector<ServerMembers*>::iterator it = _servers.begin();
+	std::vector<ServerMembers*>::iterator ss = _servers.begin();
+	std::vector<ServerMembers*>::iterator xx = _servers.end();
+	int j = 1;
+	int jn = 1;
+	std::string aled;
+	std::string all;
+	bool yes;
+	std::map<int, int> portfind;
+	for (int pl = 1; ss != xx; ++ss, ++pl, jn++)
+		portfind.insert(std::make_pair((*ss)->getListen().port, jn));
+	std::vector<Location*>::iterator locItos = (*it)->getLocations().begin();
+	for (int i = 1; i != portfind[atoi(_host.substr(_host.find(":") + 1).c_str())]; i++)
+		it++;
+	for (std::vector<Location*>::iterator locIt = (*it)->getLocations().begin(); locIt != (*it)->getLocations().end(); ++locIt, locItos++, ++j)
+	{
+		if (_path.find((*locIt)->getUri()) != std::string::npos)
+		{
+			_uriRoot = (*locIt)->getConfigMembers().getRoot();
+			aled = (*locIt)->getUri();
+			_maxBody = (*locIt)->getConfigMembers().getMaxClientBodySize();
+			_upload = (*it)->getUpload();
+			for (std::map<int, std::string>::iterator errIt = (*locIt)->getConfigMembers().getErrorPage().begin(); errIt != (*locIt)->getConfigMembers().getErrorPage().end(); ++errIt)
+				mp.insert(std::make_pair(std::to_string(errIt->first), errIt->second));
+			for (std::vector<std::string>::iterator namesIt = (*locItos)->getConfigMembers().getAllowedMethods().begin(); namesIt != (*locItos)->getConfigMembers().getAllowedMethods().end(); ++namesIt)
+				all += *namesIt;
+			yes = true;
+		}
+		else if (yes != true)
+		{
+			all = "GETPOSTDELETE";
+			_maxBody = (*it)->getConfigMembers().getMaxClientBodySize();
+		}
+		for (std::map<std::string, std::string>::iterator namesIt = (*it)->getConfigMembers().getCgi().begin(); namesIt != (*it)->getConfigMembers().getCgi().end(); ++namesIt)
+			mp.insert(std::make_pair(namesIt->first, namesIt->second));
+		_upload = (*it)->getUpload();
+	}
+	for (std::vector<std::string>::const_iterator namesIt = (*it)->getServerName().begin(); namesIt != (*it)->getServerName().end(); ++namesIt)
+		_serverName = *namesIt;
+	std::map<std::string, std::string> indexmap;
+	for (std::vector<Location*>::iterator locIt = (*it)->getLocations().begin(); locIt != (*it)->getLocations().end(); ++locIt, ++j)
+		for (std::vector<std::string>::iterator namesIt = (*locIt)->getConfigMembers().getIndex().begin(); namesIt != (*locIt)->getConfigMembers().getIndex().end(); ++namesIt)
+			indexmap.insert(std::make_pair((*locIt)->getUri(), *namesIt));
+	if (_path == aled)
+		_path += indexmap[aled];
+	_path.replace(_path.find(aled), aled.length(), _uriRoot);
+	_responseHeader = "";
+	if (_type == "GET")
+		getMethodes();
+	else if (_type == "DELETE")
+		deleteMethodes();
+	else if (_type == "POST")
+		postMethodes();
+	else
+	{
+		resetHTML();
+		if (_type == "POST" || _type == "DELETE" || _type == "GET")
+			_code = 405;
+		else
+			_code = 501;
+		errorPage();
+		_responseHeader += _protocol + " " + std::to_string(_code) + " " + _errorRep[_code];
+		_responseHeader += "\nDate : " + _time;
+		_responseHeader += "\nServer: Webserv /1.0.0";
+		_responseHeader += "\n\n";
+		_responseHeader += _http;
+	}
+}
 
 /**
  * @brief Error Status'ların başlangıç değerlerini verir
  * 
- */
+ */	
 void Response::errorStatus()
 {
 	_errorRep[100] = "Continue";
@@ -62,7 +132,6 @@ int Response::fileExist(const char* fileName)
     }
     
     std::ifstream document;
-    
     // Belirtilen yol bir dosya mı diye kontrol et
     if (checkIfPathIsFile(fileName) == true)
     {
@@ -83,24 +152,25 @@ int Response::fileExist(const char* fileName)
             _http = test.str();
             
             // Uzantı ve yorumlayıcı eşleşiyorsa CGI betiğini çalıştır
-            /* if (_cgiType == "py" && mp[".py"].find("/usr/bin/python") != std::string::npos)
+            if (_cgiType == "py" && mp[".py"].find("/usr/bin/python") != std::string::npos)
             {
-                _http = g.cgiExecute("/usr/bin/python", fileName, _postName, _postValue, 0, _bando, _code);
+                _http = _cgi.cgiExecute("/usr/bin/python", fileName, _postName, _postValue, 0, _bando, _code, _envp);
                 _code = 200;
                 return _code;
             }
             else if (_cgiType == "pl" && mp[".pl"].find("/usr/bin/perl") != std::string::npos)
             {
-                _http = g.cgiExecute("/usr/bin/perl", fileName, _postName, _postValue, 0, _bando, _code);
+                _http = _cgi.cgiExecute("/usr/bin/perl", fileName, _postName, _postValue, 0, _bando, _code, _envp);
                 _code = 200;
                 return _code;
             }
             else if (_cgiType == "php" && mp[".php"].find("/usr/bin/php-cgi") != std::string::npos)
             {
-                _http = g.cgiExecute("/usr/bin/php-cgi", fileName, _postName, _postValue, 0, _bando, _code);
+
+                _http = _cgi.cgiExecute("/usr/bin/php-cgi", fileName, _postName, _postValue, 0, _bando, _code, _envp);
                 _code = 200;
                 return _code;
-            } */
+            }
             return _code;
         }
         else
@@ -165,6 +235,60 @@ std::string Response::fAutoIndex(const char* path)
     return Autoindex_Page;
 }
 
+
+int Response::postMethodes()
+{
+	std::string path = realpath(".", NULL) + removeAll(_path, realpath(".", NULL));
+	_code = 413;
+	parseQueryString(_bando.substr(_bando.find("\r\n\r\n") + strlen("\r\n\r\n")));
+	getContentType(path);
+	if (_path.substr(_path.find_last_of(".") + 1) == "php")
+		_http = _cgi.cgiExecute("/usr/bin/php", path.c_str(), _postName, _postValue, 0, _bando, _code, _envp);
+	if (_path.substr(_path.find_last_of(".") + 1) == "py")
+		_http = _cgi.cgiExecute("/usr/bin/python", path.c_str(), _postName, _postValue, _envj, _bando, _code, _envp);
+	bool upload = false;
+	if (_contentLen <= _maxBody)
+	{
+		_code = 200;
+		std::string sear(_bando);
+		size_t i = sear.rfind("Content-Type:");
+		if (i != std::string::npos)
+			i = sear.find("\n", i);
+		if (i != std::string::npos)
+		{
+			size_t j = sear.find("------WebKitFormBoundary", i);
+			if (j != std::string::npos)
+			{
+				upload = true;
+				_http = "<!DOCTYPE htm1l>\n<html>\n<h1>File " + _fileName + "Hs Been Uploaded</h1>";
+				_http = "<a href=" + _upload + removeAll(_fileName, "\"") + " download>Download File</a>";
+				uploadFile(std::string((sear.begin() + i + 3), sear.begin() + j - 2), _bando);
+			}
+		}
+	}
+	if (_contentLen >= _maxBody)
+		_code = 413;
+	if (_http.find("Status: 500") != std::string::npos)
+	{
+		_code = 500;
+		_http = "";
+		errorPage();
+	}
+	_responseHeader += _protocol + " " + std::to_string(_code) + " " + _errorRep[_code];
+	_responseHeader += "\nDate : " + _time;
+	_responseHeader += "\nServer: " + _serverName;
+	_responseHeader += "\nContent-Type: " + _contentType;
+	if (upload != true)
+		_responseHeader += "\nContent-Length : " + std::to_string(_http.size() - 1); // make a update for upload
+	else
+		_responseHeader += "\nContent-Length : " + std::to_string(_contentLen);
+	_responseHeader += "\nContent-Location: " + _path;
+	_responseHeader += "\n\n";
+	errorPage();
+	_responseHeader += _http;
+	return 0;
+}
+
 /**
  * @brief Dizin girişi için otomatik dizin içeriğindeki bir bağlantı oluşturur.
  *
@@ -188,7 +312,7 @@ std::string Response::createDirectoryLink(std::string const& dirEntry, std::stri
 }
 
 /**
- * @brief Hata sayfasını oluşturur ve `MainServer.http`'ye ekler.
+ * @brief Hata sayfasını oluşturur ve `_http`'ye ekler.
  */
 void Response::errorPage()
 {
@@ -216,7 +340,7 @@ void Response::errorPage()
     {
         document.open(path, std::ios::in);
         
-        // Dosyayı satır satır oku ve MainServer.http'ye ekle
+        // Dosyayı satır satır oku ve _http'ye ekle
         while (getline(document, line))
         {
             _http += line + " ";
@@ -230,7 +354,7 @@ void Response::getContentType(std::string path)
 	std::set<std::string> imageExtensions(imageExtensionsArray, imageExtensionsArray + 5);
 	_contentType = path.substr(path.rfind(".") + 1, path.size() - path.rfind("."));
 	_cgiType = _contentType;
-
+	std::cout << "contentType: " << _contentType << std::endl;
 	if (_contentType == "html")
 		_contentType = "text/html";
 	else if (_contentType == "pdf")
@@ -253,8 +377,6 @@ void Response::getContentType(std::string path)
 		_contentType = "video/mpeg";
 	else if (_contentType == "mp3")
 		_contentType = "audio/mpeg";
-	else if (_contentType == "doc")
-		_contentType = "application/msword";
 	else if (_contentType == "gif")
 		_contentType = "image/gif";
 	else if (_contentType == "ico")
@@ -333,10 +455,11 @@ void Response::setDate(void)
  */
 void	Response::setupRequest()
 {
-    _host = _req.getHost();
+    _host = _req.getFullHost();
     _protocol = _req.getProtocol();
     _type = _req.getMethod();
     _path = _req.getLocation();
+	_fileName = _req.getFileName();
     _contentLen = _req.getContentLength();
     _buffit = _req.getRequestStr();
 }
@@ -405,26 +528,32 @@ void Response::parseQueryString(const std::string &query_string)
  */
 std::string Response::uploadFile(std::string sear, std::string buffer)
 {
-    std::string mainbuffer(buffer);
-    size_t i = mainbuffer.rfind("filename=\"");
-    if (i != std::string::npos)
-    {
-        i += 10;
-        size_t j = mainbuffer.find("\"", i);
-        if (j != std::string::npos)
-        {
-            mainbuffer = mainbuffer.substr(i, j - i);
-        }
-    }
-    std::string tmpFile = "." + _upload;
-    std::string filePath = tmpFile + "/" + tmpFile;
-    int fd = open(filePath.c_str(), O_RDWR | O_CREAT | O_TRUNC, 00777);
-    if (fd == -1)
-        return std::string();
-
-    write(fd, sear.c_str(), sear.size());
-    close(fd);
-    return mainbuffer;
+	std::string mainbuffer(buffer);
+	size_t i = mainbuffer.rfind("filename=\"");
+	if (i != std::string::npos)
+	{
+		i += 10;
+		size_t j = mainbuffer.find("\"", i);
+		if (j != std::string::npos)
+		{
+			mainbuffer = std::string((mainbuffer.begin() + i), mainbuffer.begin() + j);
+		}
+	}
+	std::string tmpFileName = "." + _upload;
+	std::string root = "";
+	int fd;
+	if ("" == tmpFileName)
+		fd = open((tmpFileName + "/" + mainbuffer).c_str(), O_RDWR | O_CREAT | O_TRUNC, 00777);
+	else
+	{
+		mkdir((tmpFileName + "/" + "").c_str(), 0755);
+		fd = open((tmpFileName + "/" + "" + "" + mainbuffer).c_str(), O_RDWR | O_CREAT | O_TRUNC, 00777);
+	}
+	if (fd == -1)
+		return (std::string());
+	write(fd, sear.c_str(), sear.size());
+	close(fd);
+	return (mainbuffer);
 }
 
 int Response::getMethodes()
@@ -453,7 +582,6 @@ int Response::getMethodes()
 		_http = "";
 		errorPage();
 	}
-
 	_responseHeader += _protocol + " " + std::to_string(_code) + " " + _errorRep[_code];
 	_responseHeader += "\nDate : " + _time;
 	_responseHeader += "\nServer: " + _serverName;
@@ -532,3 +660,7 @@ void Response::handleDeleteRequest()
 	else
 		_code = 404;
 }
+
+std::string Response::getResponseHeader() { return _responseHeader; }
+
+void	Response::setBando(std::string bando) { this->_bando = bando; }
