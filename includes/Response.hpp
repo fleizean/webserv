@@ -29,8 +29,6 @@ private:
 	std::string							_buffit;
 	std::string							_serverName;
 	std::string							_upload;
-	std::string							_postName[10000];
-	std::string							_postValue[10000];
 	char*								_files;
 	int									_code;
 	int									_contentLen;
@@ -41,6 +39,7 @@ private:
 	std::string							_uriRoot;
 	std::string							_configName;
 	std::string							_index;
+	std::vector<std::string>			_postValues;
 	
 	std::map<std::string, std::string>	mp;
 
@@ -49,7 +48,6 @@ private:
 
 	Request								_req;
 	std::vector<ServerMembers*> 		_servers;
-	Cgi									_cgi;
 	char**								_envp;
 	/* unused */
 	Response();

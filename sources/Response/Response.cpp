@@ -154,20 +154,22 @@ int Response::fileExist(const char* fileName)
             // Uzantı ve yorumlayıcı eşleşiyorsa CGI betiğini çalıştır
             if (_cgiType == "py" && mp[".py"].find("/usr/bin/python") != std::string::npos)
             {
-                _http = _cgi.cgiExecute("/usr/bin/python", fileName, _postName, _postValue, 0, _bando, _code, _envp);
+				Cgi _cgi(_envp, _fileName, _bando, _req, "/usr/bin/python", _postValues);
+                _http = _cgi.cgiExecute();
                 _code = 200;
                 return _code;
             }
             else if (_cgiType == "pl" && mp[".pl"].find("/usr/bin/perl") != std::string::npos)
             {
-                _http = _cgi.cgiExecute("/usr/bin/perl", fileName, _postName, _postValue, 0, _bando, _code, _envp);
+				Cgi _cgi(_envp, _fileName, _bando, _req, "/usr/bin/perl", _postValues);
+                _http = _cgi.cgiExecute();
                 _code = 200;
                 return _code;
             }
             else if (_cgiType == "php" && mp[".php"].find("/usr/bin/php-cgi") != std::string::npos)
             {
-
-                _http = _cgi.cgiExecute("/usr/bin/php-cgi", fileName, _postName, _postValue, 0, _bando, _code, _envp);
+				Cgi _cgi(_envp, _fileName, _bando, _req, "/usr/bin/php-cgi", _postValues);
+                _http = _cgi.cgiExecute();
                 _code = 200;
                 return _code;
             }
@@ -242,10 +244,15 @@ int Response::postMethodes()
 	_code = 413;
 	parseQueryString(_bando.substr(_bando.find("\r\n\r\n") + strlen("\r\n\r\n")));
 	getContentType(path);
-	if (_path.substr(_path.find_last_of(".") + 1) == "php")
-		_http = _cgi.cgiExecute("/usr/bin/php", path.c_str(), _postName, _postValue, 0, _bando, _code, _envp);
-	if (_path.substr(_path.find_last_of(".") + 1) == "py")
-		_http = _cgi.cgiExecute("/usr/bin/python", path.c_str(), _postName, _postValue, _envj, _bando, _code, _envp);
+	if (_path.substr(_path.find_last_of(".") + 1) == "php"){
+		Cgi _cgi(_envp, _fileName, _bando, _req, "/usr/bin/php", _postValues);
+
+		_http = _cgi.cgiExecute();
+	}
+	if (_path.substr(_path.find_last_of(".") + 1) == "py"){
+		Cgi _cgi(_envp, _fileName, _bando, _req, "/usr/bin/python", _postValues);
+		_http = _cgi.cgiExecute();
+	}
 	bool upload = false;
 	if (_contentLen <= _maxBody)
 	{
@@ -351,10 +358,9 @@ void Response::errorPage()
 void Response::getContentType(std::string path)
 {
 	std::string imageExtensionsArray[] = { "jpeg", "jpg", "pjp", "jfif", "pjpeg" };
-	std::set<std::string> imageExtensions(imageExtensionsArray, imageExtensionsArray + 5);
+	std::set<std::string> imageExten_postValuesions(imageExtensionsArray, imageExtensionsArray + 5);
 	_contentType = path.substr(path.rfind(".") + 1, path.size() - path.rfind("."));
 	_cgiType = _contentType;
-	std::cout << "contentType: " << _contentType << std::endl;
 	if (_contentType == "html")
 		_contentType = "text/html";
 	else if (_contentType == "pdf")
@@ -365,7 +371,7 @@ void Response::getContentType(std::string path)
 		_contentType = "text/javascript";
 	else if (_contentType == "css")
 		_contentType = "text/css";
-	else if (imageExtensions.count(_contentType) > 0)
+	else if (imageExten_postValuesions.count(_contentType) > 0)
 		_contentType = "image/jpeg";
 	else if (_contentType == "png")
 		_contentType= "image/png";
@@ -497,9 +503,8 @@ void Response::parseQueryString(const std::string &query_string)
 		{
 			value = query.substr(pair_delimiter + 1);
 		}
-		_postName[i] = name;
-		_postValue[i] = value;
-
+		_postValues.push_back(name + "=" + value);
+		
 		if (next_delimiter == std::string::npos)
 		{
 			break;

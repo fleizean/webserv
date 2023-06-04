@@ -40,6 +40,8 @@ void Request::clear(){
 	_listen.port = 0;
 }
 
+Request::Request() {}
+
 Request::Request(const char *buffer)
 {
     m_request = buffer;

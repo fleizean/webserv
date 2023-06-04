@@ -54,6 +54,7 @@ Error::Error(const int& err_code) : err_code(err_code)
     error_list[48] = "Port must be 1~65535 in Http Request.";
     error_list[49] = "HTTP accept language must be in Http Request.";
     error_list[50] = "Config file must have default location '/' path.";
+    error_list[51] = "getcwd An error occurred while retrieving the current working directory.";
 }
 
 Error::~Error() { }

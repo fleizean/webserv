@@ -21,6 +21,7 @@ private:
 
     std::string		m_request;
 public:
+    Request();
     Request(const char *buffer);
     ~Request();
 
