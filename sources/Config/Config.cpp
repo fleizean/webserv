@@ -4,7 +4,25 @@ Config::Config() : _configContent(), serverBlock(false), mainBlock(true), locati
 
 Config::Config(Config const &rhs) : _configContent(rhs._configContent), serverBlock(rhs.serverBlock), mainBlock(rhs.mainBlock), locationBlock(rhs.locationBlock) {}
 
-Config::~Config() {}
+Config::~Config() 
+{
+	for (std::vector<ServerMembers*>::iterator it = _parsedServers.begin(); it != _parsedServers.end(); ++it)
+    {
+        delete (*it);
+    }
+    _parsedServers.clear();
+    
+    // Location nesnelerini temizle
+    for (std::vector<ServerMembers*>::iterator it = _parsedServers.begin(); it != _parsedServers.end(); ++it)
+    {
+        std::vector<Location*>& locations = (*it)->getLocations();
+        for (std::vector<Location*>::iterator locIt = locations.begin(); locIt != locations.end(); ++locIt)
+        {
+            delete (*locIt);
+        }
+        locations.clear();
+    }
+}
 
 Config &Config::operator=(Config const &rhs)
 {

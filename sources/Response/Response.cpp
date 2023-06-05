@@ -152,9 +152,9 @@ int Response::fileExist(const char* fileName)
             _http = test.str();
             
             // Uzantı ve yorumlayıcı eşleşiyorsa CGI betiğini çalıştır
-            if (_cgiType == "py" && mp[".py"].find("/usr/bin/python") != std::string::npos)
+            if (_cgiType == "py" && mp[".py"].find("/usr/bin/python3") != std::string::npos)
             {
-				Cgi _cgi(_envp, _fileName, _bando, _req, "/usr/bin/python", _postValues);
+				Cgi _cgi(_envp, _fileName, _bando, _req, "/usr/bin/python3", _postValues);
                 _http = _cgi.cgiExecute();
                 _code = 200;
                 return _code;
@@ -249,7 +249,7 @@ int Response::postMethodes()
 		_http = _cgi.cgiExecute();
 	}
 	if (_path.substr(_path.find_last_of(".") + 1) == "py"){
-		Cgi _cgi(_envp, path.c_str(), _bando, _req, "/usr/bin/python", _postValues);
+		Cgi _cgi(_envp, path.c_str(), _bando, _req, "/usr/bin/python3", _postValues);
 		_http = _cgi.cgiExecute();
 	}
 	bool upload = false;
@@ -562,16 +562,17 @@ std::string Response::uploadFile(std::string sear, std::string buffer)
 
 int Response::getMethodes()
 {
-	std::string raw_path = realpath(".", NULL);
-	std::string path = realpath(".", NULL) + removeAll(_path, realpath(".", NULL));
+	char* raw_path = realpath(".", NULL);
+	std::string raw_path_str(raw_path);
+	free(raw_path);
 
-	if (path.find(raw_path + raw_path) != std::string::npos)
-		path = path.substr(path.find(raw_path));
+	std::string path = raw_path_str + removeAll(_path, raw_path_str);
+	if (path.find(raw_path_str + raw_path_str) != std::string::npos)
+	    path = path.substr(path.find(raw_path_str) + raw_path_str.length());
 	_path = path + "/";
 	getContentType(path);
 	fileExist(path.c_str());
 	errorPage();
-
 	if (_contentLen >= _maxBody)
 	{
 		_code = 413;
@@ -596,6 +597,7 @@ int Response::getMethodes()
 	_responseHeader += "\nTransfer-Encoding: identity" + _encoding;
 	_responseHeader += "\n\n";
 	_responseHeader += _http;
+
 	return 0;
 }
 

@@ -66,12 +66,9 @@ std::string Cgi::cgiExecute()
     if (getcwd(cwd, sizeof(cwd)) == NULL)
         err.setAndPrint(51, "Cgi::cgiExecute");
     initOthersEnvironment(cwd);
-     
     int pip[2];
-    int ret = 0;
     pid_t child = 0;
     pid_t parent = 0;
-	int checke_prob = 0;
     int fd = open("tmp", O_CREAT | O_TRUNC | O_WRONLY | O_NONBLOCK, 0777);
     write(fd, _requestHeader.c_str(), _requestHeader.size());
     close(fd);
@@ -104,7 +101,7 @@ std::string Cgi::cgiExecute()
     {
         dup2(pip[1], 1);
         close(pip[0]);
-        ret = execve("/bin/cat", echo, NULL);
+        execve("/bin/cat", echo, NULL);
     }
     else
     {
@@ -117,7 +114,7 @@ std::string Cgi::cgiExecute()
             dup2(pip[0], 0);
             dup2(tmp, 1);
             close(pip[1]);
-            ret = execve(cmd[0], cmd, yes);
+            execve(cmd[0], cmd, yes);
         }
         else
         {
@@ -134,11 +131,7 @@ std::string Cgi::cgiExecute()
 
             char buf[65535];
             bzero(buf, 65535);
-            int checkRead = read(tmp, buf, 65535);
-			if (checkRead == 0)
-				checke_prob = 0;
-			else if (checkRead == -1)
-				checke_prob = -1;
+            read(tmp, buf, 65535);
             close(tmp);
             _requestHeader = std::string(buf);
             remove("tmp");

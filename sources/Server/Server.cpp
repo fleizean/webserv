@@ -189,11 +189,11 @@ void Server::processActiveConnection(int connectionIndex, fd_set& read_fd_set)
 		_foundError = false;
 	}
 	else */
+	
 	response.setBando(buffer);
 	response.checkModifyDate();
 	response.setDate();
 	response.errorStatus();
-
 	response.run();
 	write(all_connections[connectionIndex], response.getResponseHeader().c_str(), response.getResponseHeader().size() + 1);
 	/* closing area */
@@ -264,6 +264,8 @@ int Server::run()
 			selectConnection(ret_val, read_fd_set, new_fd);
 			processActiveConnections(read_fd_set);
 		}
+		system("leaks webserv");
+
     }
 
     close(new_fd);
