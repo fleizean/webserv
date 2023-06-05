@@ -168,6 +168,7 @@ void Server::selectConnection(int& ret_val, fd_set& read_fd_set, int& new_fd)
 		}
 	}
 }
+
 void Server::processActiveConnection(int connectionIndex, fd_set& read_fd_set)
 {
 	// Location* matchedLocation;

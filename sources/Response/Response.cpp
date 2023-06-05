@@ -245,12 +245,11 @@ int Response::postMethodes()
 	parseQueryString(_bando.substr(_bando.find("\r\n\r\n") + strlen("\r\n\r\n")));
 	getContentType(path);
 	if (_path.substr(_path.find_last_of(".") + 1) == "php"){
-		Cgi _cgi(_envp, _fileName, _bando, _req, "/usr/bin/php", _postValues);
-
+		Cgi _cgi(_envp, path.c_str(), _bando, _req, "/usr/bin/php", _postValues);
 		_http = _cgi.cgiExecute();
 	}
 	if (_path.substr(_path.find_last_of(".") + 1) == "py"){
-		Cgi _cgi(_envp, _fileName, _bando, _req, "/usr/bin/python", _postValues);
+		Cgi _cgi(_envp, path.c_str(), _bando, _req, "/usr/bin/python", _postValues);
 		_http = _cgi.cgiExecute();
 	}
 	bool upload = false;

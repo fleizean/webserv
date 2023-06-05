@@ -6,7 +6,6 @@
 class Cgi
 {
 private:
-    char* _cwd;
     char** _envp;
     std::string _requestHeader;
     std::string _fileName;
@@ -21,6 +20,6 @@ public:
     ~Cgi();
 
     std::string cgiExecute();
-    void initOthersEnvironment();
+    void initOthersEnvironment(char* cwd);
     void extractKeyValues();
 };
