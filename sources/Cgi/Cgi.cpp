@@ -22,9 +22,7 @@ Cgi::Cgi(char** envp, std::string fileName, std::string m_request, Request req, 
     _matchedServer = matchedServer;
 }
 
-Cgi::~Cgi() 
-{
-}
+Cgi::~Cgi() {}
 
 void Cgi::extractKeyValues() {
     for(std::vector<std::string>::iterator it = _postValues.begin(); it != _postValues.end(); it++)
