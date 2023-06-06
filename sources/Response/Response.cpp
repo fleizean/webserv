@@ -34,9 +34,10 @@ void Response::run()
 			_upload = (*it)->getUpload();
 			for (std::map<int, std::string>::iterator errIt = (*locIt)->getConfigMembers().getErrorPage().begin(); errIt != (*locIt)->getConfigMembers().getErrorPage().end(); ++errIt)
 				mp.insert(std::make_pair(std::to_string(errIt->first), errIt->second));
-			for (std::vector<std::string>::iterator namesIt = (*locItos)->getConfigMembers().getAllowedMethods().begin(); namesIt != (*locItos)->getConfigMembers().getAllowedMethods().end(); ++namesIt)
+
+			for (std::vector<std::string>::iterator namesIt = (*locIt)->getConfigMembers().getAllowedMethods().begin(); namesIt != (*locIt)->getConfigMembers().getAllowedMethods().end(); ++namesIt)
 				all += *namesIt;
-			yes = true;
+ 			yes = true;
 		}
 		else if (yes != true)
 		{
@@ -46,6 +47,7 @@ void Response::run()
 		for (std::map<std::string, std::string>::iterator namesIt = (*it)->getConfigMembers().getCgi().begin(); namesIt != (*it)->getConfigMembers().getCgi().end(); ++namesIt)
 			mp.insert(std::make_pair(namesIt->first, namesIt->second));
 		_upload = (*it)->getUpload();
+		std::cout << "test7\n";
 	}
 	for (std::vector<std::string>::const_iterator namesIt = (*it)->getServerName().begin(); namesIt != (*it)->getServerName().end(); ++namesIt)
 		_serverName = *namesIt;

@@ -29,7 +29,7 @@ std::vector<std::string>& ConfigMembers::getIndex() { return _index; }
 
 std::map<std::string, std::string>& ConfigMembers::getCgi() { return this->_cgiPath; }
 
-std::vector<std::string> &ConfigMembers::getAllowedMethods() { return _allowedMethods; }
+std::vector<std::string>& ConfigMembers::getAllowedMethods() { return _allowedMethods; }
 
 
 
