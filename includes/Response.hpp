@@ -49,11 +49,12 @@ private:
 	Request								_req;
 	std::vector<ServerMembers*> 		_servers;
 	char**								_envp;
+	ServerMembers*						_matchedServer;
 	/* unused */
 	Response();
 public:
 	std::string getResponseHeader();
-	Response(Request req, std::vector<ServerMembers*> servers, char** envp);
+	Response(Request req, std::vector<ServerMembers*> servers, char** envp, ServerMembers* matchedServer);
 	~Response();
 	void	parseQueryString(const std::string &query_string);
 	int		postMethodes();

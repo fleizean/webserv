@@ -19,7 +19,6 @@
 #include <dirent.h>
 #include <cstring> // strerror
 #include <cerrno> // errno
-#include <filesystem>
 
 using namespace std;
 #include "Error.hpp"
@@ -36,3 +35,4 @@ unsigned int	strToIp(std::string strIp);
 std::string     removeAdjacentSlashes(const std::string &str);
 int             pathIsFile(const std::string& path);
 std::string     removeAll(std::string str, const std::string &from);
+char	*get_cwd_buf();

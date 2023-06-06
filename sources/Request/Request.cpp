@@ -4,50 +4,52 @@
 
 bool Request::checkPort()
 {
-	string host_temp = "127.0.0.1";
-	size_t i = _host.find_first_of(':');
+    string host_temp = "127.0.0.1";
+    size_t i = _host.find_first_of(':');
 
-	if (i == std::string::npos)
-		this->_port = 80;
-	else
-	{
-		host_temp = _host.substr(0, i);
-    	std::string tmp(_host.substr(i + 1, _host.size() - (i + 1)));
-		this->_port = std::stoi(tmp.c_str());
-		if (_port == 0)
-			return false;
-		_host = host_temp;
-		_listen.host = strToIp(_host);
-		_listen.port = _port;
-	}
-	return true;
+    if (i == std::string::npos)
+        this->_port = 80;
+    else
+    {
+        host_temp = _host.substr(0, i);
+        std::string tmp(_host.substr(i + 1, _host.size() - (i + 1)));
+        this->_port = std::stoi(tmp.c_str());
+        if (_port == 0)
+            return false;
+        _host = host_temp;
+        _listen.host = strToIp(_host);
+        _listen.port = _port;
+    }
+    return true;
 }
 
 /* ----- */
 
 void Request::clear(){
-	_method = "";
-	_location = "";
-	_protocol = "";
-	_host = "";
-	_accept_language = "";
-	_connection = "";
-	_contentType = "";
-	_fileName = "";
-	_port = 0;
-	_content_length = 0;
-	_listen.host = 0;
-	_listen.port = 0;
+    _method = "";
+    _location = "";
+    _protocol = "";
+    _host = "";
+    _accept_language = "";
+    _connection = "";
+    _contentType = "";
+    _fileName = "";
+    _port = 0;
+    _content_length = 0;
+    _listen.host = 0;
+    _listen.port = 0;
 }
 
 Request::Request() {}
 
+
+
 Request::Request(const char *buffer)
 {
     m_request = buffer;
-	std::cout << BOLD_RED << "Buffer socket: " << RESET << std::endl;
-	std::cout << buffer << std::endl;
-	clear();
+    // std::cout << BOLD_RED << "Buffer socket: " << RESET << std::endl;
+    // std::cout << buffer << std::endl;
+    clear();
     parse();
     printAll();
 }
@@ -56,42 +58,54 @@ Request::~Request() {}
 
 void Request::parse()
 {
-    std::stringstream	ss(m_request);
-	std::string			line;
+    std::stringstream   ss(m_request);
+    std::string         line;
     
     while (std::getline(ss, line))
-		parseLine(line);
+        parseLine(line);
 }
 
-void	Request::parseLine(std::string& line)
+void    Request::parseLine(std::string& line)
 {
-	std::stringstream	ss(line);
-	std::string			word;
+    std::stringstream   ss(line);
+    std::string         word;
 
-	ss >> word;
-	if (isValidMethod(word))
-		addMethod(ss, word);
-	else if (word == "Host:")
-		addHost(ss);
-	else if (word == "Content-Length:")
-		addContentLength(ss);
-	else if (word == "Accept-Language:")
-		addAcceptLanguage(ss);
-	else if (word == "Connection:")
-		addConnection(ss);
-	else if (word == "Content-Type:")
-		addContentType(ss);
-	else if (word == "Content-Disposition:")
-		addFileName(ss);
+    ss >> word;
+    if (isValidMethod(word))
+        addMethod(ss, word);
+    else if (word == "Host:")
+        addHost(ss);
+    else if (word == "Content-Length:")
+        addContentLength(ss);
+    else if (word == "Accept-Language:")
+        addAcceptLanguage(ss);
+    else if (word == "Connection:")
+        addConnection(ss);
+    else if (word == "Content-Type:")
+        addContentType(ss);
+    else if (word == "Content-Disposition:")
+        addFileName(ss);
+    else if (word == "Accept:")
+        addFirstMediaType(ss);
+}
+
+void Request::addFirstMediaType(std::stringstream& ss)
+{
+    std::string mediaType;
+
+    std::getline(ss, mediaType, ',');
+    // Gelen medya türünden boşlukları temizle
+    mediaType.erase(std::remove_if(mediaType.begin(), mediaType.end(), ::isspace), mediaType.end());
+    _firstMediaType = mediaType;
 }
 
 void    Request::addFileName(std::stringstream& ss)
 {
-	std::string word;
+    std::string word;
 
     ss >> word;
-	ss >> word;
-	ss >> word;
+    ss >> word;
+    ss >> word;
     size_t pos = 0;
     if (pos != std::string::npos && pos + 9 < word.size())
     {
@@ -99,60 +113,60 @@ void    Request::addFileName(std::stringstream& ss)
     }
 }
 
-void	Request::addContentType(std::stringstream& ss)
+void    Request::addContentType(std::stringstream& ss)
 {
-	std::string word;
-	ss >> word;
-	_contentType = word;
+    std::string word;
+    ss >> word;
+    _contentType = word;
 }
 
-void 	Request::addConnection(std::stringstream& ss)
+void    Request::addConnection(std::stringstream& ss)
 {
-	std::string word;
+    std::string word;
 
-	ss >> word;
-	_connection = word;
+    ss >> word;
+    _connection = word;
 }
 
-void	Request::addMethod(std::stringstream& ss, std::string& word)
+void    Request::addMethod(std::stringstream& ss, std::string& word)
 {
-	Error err(0);		
-	_method = word;
-	if (!(ss >> _location))
-		err.setAndPrint(45, "Request::addMethod");
-	if (!(ss >> _protocol))
-		err.setAndPrint(46, "Request::addMethod");
-	if(_protocol != "HTTP/1.1")
-		err.setAndPrint(44, "Request::addMethod");
+    Error err(0);       
+    _method = word;
+    if (!(ss >> _location))
+        err.setAndPrint(45, "Request::addMethod");
+    if (!(ss >> _protocol))
+        err.setAndPrint(46, "Request::addMethod");
+    if(_protocol != "HTTP/1.1")
+        err.setAndPrint(44, "Request::addMethod");
 }
 
-void	Request::addHost(std::stringstream& ss)
+void    Request::addHost(std::stringstream& ss)
 {
-	Error err(0);
-	if(!(ss >> _host))
-		err.setAndPrint(47, "Request::addHost");
-	_fullHost = _host;
-	if(!checkPort())
-		err.setAndPrint(48, "Request::addHost");
+    Error err(0);
+    if(!(ss >> _host))
+        err.setAndPrint(47, "Request::addHost");
+    _fullHost = _host;
+    if(!checkPort())
+        err.setAndPrint(48, "Request::addHost");
 }
 
-void	Request::addContentLength(std::stringstream& ss)
+void    Request::addContentLength(std::stringstream& ss)
 {
-	std::string	word;
+    std::string word;
 
-	ss >> word;
-	_content_length = std::stoi(word);
+    ss >> word;
+    _content_length = std::stoi(word);
 }
 
 void    Request::addAcceptLanguage(std::stringstream& ss)
 {
-	Error err(0);
-	std::string word;
+    Error err(0);
+    std::string word;
 
-	if(!(ss >> word))
-		err.setAndPrint(49, "Request::addAcceptLanguage");
-	size_t i = word.find_first_of('-');
-	_accept_language = word.substr(0, i);
+    if(!(ss >> word))
+        err.setAndPrint(49, "Request::addAcceptLanguage");
+    size_t i = word.find_first_of('-');
+    _accept_language = word.substr(0, i);
 }
 
 /* Getters */
@@ -169,6 +183,7 @@ size_t const &Request::getContentLength() const { return this->_content_length; 
 int const &Request::getPort() const { return this->_port; }
 t_listen &Request::getListen() { return _listen; }
 std::string const &Request::getFullHost() { return _fullHost; }
+std::string const &Request::getFirstMediaType() const { return _firstMediaType; }
 
 /* Other */
 void Request::printAll()
@@ -178,12 +193,11 @@ void Request::printAll()
     std::cout << BOLD_MAGENTA << "Http-Locaiton: " << RESET << this->getLocation() << "\n";
     std::cout << BOLD_MAGENTA << "Http-Protocol: " << RESET << this->getProtocol() << "\n";
     std::cout << BOLD_MAGENTA << "Http-Host: " << RESET << this->getHost() << "\n";
-	std::cout << BOLD_MAGENTA << "Http-Port: " << RESET << this->getPort() << "\n";
+    std::cout << BOLD_MAGENTA << "Http-Port: " << RESET << this->getPort() << "\n";
     std::cout << BOLD_MAGENTA << "Http-Content-Length: " << RESET << this->getContentLength() << "\n";
-	std::cout << BOLD_MAGENTA << "Http-Accept-Language: " << RESET << this->getAcceptLanguage() << "\n";
-	std::cout << BOLD_MAGENTA << "Http-Connection: " << RESET << this->getConnection() << "\n";
-	std::cout << BOLD_MAGENTA << "Http-Content-Type: " << RESET << this->getContentType() << "\n";
-	std::cout << BOLD_MAGENTA << "Http-Filename: " << RESET << this->getFileName() << "\n";
-
+    std::cout << BOLD_MAGENTA << "Http-Accept-Language: " << RESET << this->getAcceptLanguage() << "\n";
+    std::cout << BOLD_MAGENTA << "Http-Connection: " << RESET << this->getConnection() << "\n";
+    std::cout << BOLD_MAGENTA << "Http-Content-Type: " << RESET << this->getContentType() << "\n";
+    std::cout << BOLD_MAGENTA << "Http-Filename: " << RESET << this->getFileName() << "\n";
+    std::cout << BOLD_MAGENTA << "Http-Accept-Media-Type: " << RESET << this->getFirstMediaType() << "\n";
 }
-

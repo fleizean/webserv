@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fleizean <fleizean@student.42.fr>          +#+  +:+       +#+        */
+/*   By: eyagiz <eyagiz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/24 10:21:15 by eyagiz            #+#    #+#             */
-/*   Updated: 2023/06/06 00:10:59 by fleizean         ###   ########.fr       */
+/*   Updated: 2023/06/06 13:13:15 by eyagiz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,6 @@ int main(int ac, char **av, char **env)
 		webserv.printAll();
 		std::cout << "\n\n";
 		Server serv(webserv.getConfig(), env);
-		serv.run();
+		serv.run();		
 	}
 }

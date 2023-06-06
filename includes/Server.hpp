@@ -55,5 +55,4 @@ public:
 	bool validateLocationUri();
 
 	ServerMembers*    getServerForRequest(t_listen& address, std::vector<ServerMembers*>& servers);
-	Location* getLocationForRequest(ServerMembers* server, const std::string& uri);
 };

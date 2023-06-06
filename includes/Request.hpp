@@ -20,6 +20,8 @@ private:
     t_listen        _listen;
 
     std::string		m_request;
+
+    std::string     _firstMediaType;
 public:
     Request();
     Request(const char *buffer);
@@ -40,6 +42,7 @@ public:
     void    addFileName(std::stringstream& ss);
 
     /* Getters */
+    std::string const &getFirstMediaType() const;
     std::string const &getMethod() const;
     std::string const &getLocation() const;
     std::string const &getProtocol() const;
@@ -53,6 +56,8 @@ public:
     int	const &getPort() const;
     std::string const &getFullHost();
     void clear();
+
+    void addFirstMediaType(std::stringstream& acceptHeader);
     /* Print All */
 	void printAll();
 };

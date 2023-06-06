@@ -47,6 +47,17 @@ string removeComments(const string& str)
 		return result;
 }
 
+char	*get_cwd_buf()
+{
+	size_t	size;
+	char	*buf;
+
+	size = 2000;
+	buf = NULL;
+	buf = getcwd(buf, size);
+	return (buf);
+}
+
 bool isBracketBalanced(string fileContent)
 {
 	// Bracketlar açılıp kapanmış mı bakılacak

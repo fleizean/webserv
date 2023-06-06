@@ -1,6 +1,6 @@
 #include "../../includes/Response.hpp"
 
-Response::Response(Request req, std::vector<ServerMembers*> servers, char** envp) : _req(req), _servers(servers), _envp(envp)
+Response::Response(Request req, std::vector<ServerMembers*> servers, char** envp, ServerMembers* matchedServer) : _req(req), _servers(servers), _envp(envp), _matchedServer(matchedServer)
 {
     setupRequest();
 }
@@ -154,21 +154,21 @@ int Response::fileExist(const char* fileName)
             // Uzantı ve yorumlayıcı eşleşiyorsa CGI betiğini çalıştır
             if (_cgiType == "py" && mp[".py"].find("/usr/bin/python3") != std::string::npos)
             {
-				Cgi _cgi(_envp, _fileName, _bando, _req, "/usr/bin/python3", _postValues);
+				Cgi _cgi(_envp, _fileName, _bando, _req, "/usr/bin/python3", _postValues, _matchedServer);
                 _http = _cgi.cgiExecute();
                 _code = 200;
                 return _code;
             }
             else if (_cgiType == "pl" && mp[".pl"].find("/usr/bin/perl") != std::string::npos)
             {
-				Cgi _cgi(_envp, _fileName, _bando, _req, "/usr/bin/perl", _postValues);
+				Cgi _cgi(_envp, _fileName, _bando, _req, "/usr/bin/perl", _postValues, _matchedServer);
                 _http = _cgi.cgiExecute();
                 _code = 200;
                 return _code;
             }
             else if (_cgiType == "php" && mp[".php"].find("/usr/bin/php-cgi") != std::string::npos)
             {
-				Cgi _cgi(_envp, _fileName, _bando, _req, "/usr/bin/php-cgi", _postValues);
+				Cgi _cgi(_envp, _fileName, _bando, _req, "/usr/bin/php-cgi", _postValues, _matchedServer);
                 _http = _cgi.cgiExecute();
                 _code = 200;
                 return _code;
@@ -245,11 +245,11 @@ int Response::postMethodes()
 	parseQueryString(_bando.substr(_bando.find("\r\n\r\n") + strlen("\r\n\r\n")));
 	getContentType(path);
 	if (_path.substr(_path.find_last_of(".") + 1) == "php"){
-		Cgi _cgi(_envp, path.c_str(), _bando, _req, "/usr/bin/php", _postValues);
+		Cgi _cgi(_envp, path.c_str(), _bando, _req, "/usr/bin/php", _postValues, _matchedServer);
 		_http = _cgi.cgiExecute();
 	}
 	if (_path.substr(_path.find_last_of(".") + 1) == "py"){
-		Cgi _cgi(_envp, path.c_str(), _bando, _req, "/usr/bin/python3", _postValues);
+		Cgi _cgi(_envp, path.c_str(), _bando, _req, "/usr/bin/python3", _postValues, _matchedServer);
 		_http = _cgi.cgiExecute();
 	}
 	bool upload = false;
@@ -265,9 +265,14 @@ int Response::postMethodes()
 			size_t j = sear.find("------WebKitFormBoundary", i);
 			if (j != std::string::npos)
 			{
+				char* cwd;
 				upload = true;
+
+				cwd = get_cwd_buf();
+				std::string scwd = cwd;
+				free(cwd);
 				_http = "<!DOCTYPE htm1l>\n<html>\n<h1>File " + _fileName + "Hs Been Uploaded</h1>";
-				_http = "<a href=" + _upload + removeAll(_fileName, "\"") + " download>Download File</a>";
+				_http = "<a href=" + scwd + _upload + removeAll(_fileName, "\"") + " download>Download File</a>";
 				uploadFile(std::string((sear.begin() + i + 3), sear.begin() + j - 2), _bando);
 			}
 		}

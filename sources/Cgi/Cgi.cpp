@@ -8,9 +8,10 @@ Cgi::Cgi()
     _path = "";
     _postValues = std::vector<std::string>();
     _fileName = "";
+    _matchedServer = NULL;
 }
 
-Cgi::Cgi(char** envp, std::string fileName, std::string m_request, Request req, std::string path, std::vector<std::string> postValues) 
+Cgi::Cgi(char** envp, std::string fileName, std::string m_request, Request req, std::string path, std::vector<std::string> postValues, ServerMembers* matchedServer) 
 {
     _envp = envp;
     _requestHeader = m_request;
@@ -18,6 +19,7 @@ Cgi::Cgi(char** envp, std::string fileName, std::string m_request, Request req, 
     _path = path;
     _postValues = postValues;
     _fileName = fileName;
+    _matchedServer = matchedServer;
 }
 
 Cgi::~Cgi() 
@@ -31,58 +33,66 @@ void Cgi::extractKeyValues() {
 
 void Cgi::initOthersEnvironment(char* cwd)
 {
-    _env.push_back("CONTENT_TYPE text/html");
+    std::string serverName = "";
+    for (std::vector<std::string>::const_iterator it = _matchedServer->getServerName().begin(); it != _matchedServer->getServerName().end(); ++it) {
+        serverName = *it;
+        break;
+    }
+    _env.push_back("CONTENT_TYPE=" + _request.getFirstMediaType());
     _env.push_back("DOCUMENT_ROOT");
-    _env.push_back("CONTENT_LENGTH");
-    _env.push_back("HTTP_COOKIE = none");
-    _env.push_back("HTTP_HOST = off");
+    _env.push_back("CONTENT_LENGTH=" + std::to_string(_request.getContentLength()));
+    _env.push_back("HTTP_COOKIE=none");
+    _env.push_back("HTTP_HOST=off");
     _env.push_back("HTTP_REFERER");
     _env.push_back("HTTP_USER_AGENT");
-    _env.push_back("HTTPS = off");
-    _env.push_back("PATH" + std::string(cwd));
+    _env.push_back("HTTPS=off");
+    _env.push_back("PATH=" + std::string(cwd));
     _env.push_back("QUERY_STRING");
-    _env.push_back("REMOTE_ADDR");
+    _env.push_back("REMOTE_ADDR=127.0.0.1");
     _env.push_back("REMOTE_HOST");
-    _env.push_back("REMOTE_PORT");
+    _env.push_back("REMOTE_PORT=");
     _env.push_back("REMOTE_USER");
-    _env.push_back("REQUEST_METHOD");
-    _env.push_back("REQUEST_URI" + std::string(cwd));
-    _env.push_back("SCRIPT_FILENAME" ); 
+    _env.push_back("REQUEST_METHOD=" + _request.getMethod());
+    _env.push_back("REQUEST_URI=" + std::string(cwd));
+    _env.push_back("SCRIPT_FILENAME"); 
     _env.push_back("SCRIPT_NAME");
     _env.push_back("SERVER_ADMIN");
-    _env.push_back("SERVER_NAME");
-    _env.push_back("SERVER_PORT");
-    _env.push_back("SERVER_SOFTWARE");
-    _env.push_back("SERVER_PROTOCOL=HTTP/1.1");
+    _env.push_back("SERVER_NAME=" + serverName);
+    _env.push_back("SERVER_PORT=" + std::to_string(_request.getPort()));
+    _env.push_back("SERVER_SOFTWARE=Weebserv/1.0");
+    _env.push_back("SERVER_PROTOCOL=" + _request.getProtocol());
     _env.push_back("REDIRECT_STATUS=200");
-}
 
+    /* std::cout << BOLD_YELLOW <<"\n----------> Env Testing <----------\n" << RESET;
+    std::cout << CYAN << std::endl;
+    for(std::vector<std::string>::iterator it = _env.begin(); it != _env.end(); it++)
+        std::cout << *it << std::endl;
+    std::cout << RESET << std::endl; */
+}
 
 std::string Cgi::cgiExecute()
 {
-    char cwd[256];
-    Error err(0);
-    extractKeyValues();
-    if (getcwd(cwd, sizeof(cwd)) == NULL)
-        err.setAndPrint(51, "Cgi::cgiExecute");
-    initOthersEnvironment(cwd);
+    size_t i = 0;
     int pip[2];
     pid_t child = 0;
     pid_t parent = 0;
+    char* cwd;
+    Error err(0);
+    extractKeyValues();
+    cwd = get_cwd_buf();
+    initOthersEnvironment(cwd);
+    
     int fd = open("tmp", O_CREAT | O_TRUNC | O_WRONLY | O_NONBLOCK, 0777);
     write(fd, _requestHeader.c_str(), _requestHeader.size());
     close(fd);
-    size_t i = 0;
-
+    free(cwd);
     char **yes = new char *[_env.size() + 1];
     for (; i != _env.size(); i++)
         yes[i] = (char *)_env.at(i).c_str();
     yes[i] = NULL;
-
     char *echo[3] = {(char *)"cat", (char *)"tmp", NULL};
-    std::cout << ": "<< echo[0] << echo[1] << std::endl;
     char *cmd[] =  {&_path[0], &_fileName[0], NULL};
-
+    
     if (pipe(pip) == -1)
     {
         perror("CGI part : Pipe failed");

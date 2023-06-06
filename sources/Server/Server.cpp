@@ -171,25 +171,14 @@ void Server::selectConnection(int& ret_val, fd_set& read_fd_set, int& new_fd)
 
 void Server::processActiveConnection(int connectionIndex, fd_set& read_fd_set)
 {
-	// Location* matchedLocation;
-	//ServerMembers* matchedServer;
+	ServerMembers* matchedServer;
     char tmp_buff[DATA_BUFFER + 1];
     memset(tmp_buff, 0, sizeof(tmp_buff));
     strcpy(tmp_buff, buffer.c_str());
-	// (void)matchedLocation;
     Request pr(tmp_buff);
-    // matchedServer = getServerForRequest(pr.getListen(), _servers);
-	// matchedLocation = getLocationForRequest(matchedServer, pr.getLocation());
-	// std::cout << "dönen server: " << matchedServer->getConfigMembers().getRoot() << std::endl;
-	// std::cout << "dönen location: " << matchedLocation->getUri() << std::endl;
-	Response response(pr, _servers, _env);
-	/* if (_foundError == true && pr.getLocation() != "/"){
-		setErrorPage(pr);
-		write(all_connections[connectionIndex], _errorResponse.c_str(), _errorResponse.size() + 1);
-		_foundError = false;
-	}
-	else */
-	
+    matchedServer = getServerForRequest(pr.getListen(), _servers);
+	Response response(pr, _servers, _env, matchedServer);
+
 	response.setBando(buffer);
 	response.checkModifyDate();
 	response.setDate();
@@ -264,8 +253,6 @@ int Server::run()
 			selectConnection(ret_val, read_fd_set, new_fd);
 			processActiveConnections(read_fd_set);
 		}
-		system("leaks webserv");
-
     }
 
     close(new_fd);
@@ -284,21 +271,6 @@ ServerMembers*    Server::getServerForRequest(t_listen& address, std::vector<Ser
     }
     // Boyle bir durum soz konusu degil ama yinede NULL donduruyoruz
     return NULL;
-}
-
-Location* Server::getLocationForRequest(ServerMembers* server, const std::string& uri)
-{
-	_foundError = true;
-	for (std::vector<Location *>::iterator it = server->getLocations().begin(); it != server->getLocations().end(); it++)
-	{
-		if ((*it)->getUri() == uri)
-        {
-			_foundError = false;
-            return (*it);
-        }
-	}
-	// Boyle bir durum soz konusu degil ama yinede NULL donduruyoruz
-	return NULL;
 }
 
 void Server::setErrorPage(Request pr)
