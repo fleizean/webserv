@@ -172,8 +172,6 @@ void Config::parseLocationArea(std::string& line)
 		parseRoot(ss, lctn->getConfigMembers());
 	else if (word == "allow_methods")
 		parseAllowedMethods(ss, lctn->getConfigMembers());
-	else if (word == "return")
-		parseReturn(ss, *lctn);
 	else if (word == "error_page")
 		parseErrorPage(ss, lctn->getConfigMembers());
 	else if (word == "auto_index")
@@ -395,30 +393,6 @@ void Config::parseAllowedMethods(std::stringstream& ss, ConfigMembers &cm)
 		err.setAndPrint(25, "Config::parseAllowedMethods");
 }
 
-
-void Config::parseReturn(std::stringstream& ss, Location &lctn)
-{
-	Error err(0);
-	std::string word;
-	size_t		returnVal;
-
-	if (!(ss >> word))
-		err.setAndPrint(23, "Config::parseReturn");
-	try
-	{
-		returnVal = std::stoi(word);
-	}
-	catch (std::exception& e)
-	{
-		err.setAndPrint(21, "Config::parseReturn");;
-	}
-	if (!(ss >> word))
-		err.setAndPrint(22, "Config::parseReturn");
-	lctn.getReturns().insert(std::make_pair(returnVal, word));
-	if (ss >> word)
-		err.setAndPrint(19, "Config::parseReturn"); 
-}
-
 /* <----------------------------------------------> */
 
 void Config::printAll()
@@ -458,11 +432,6 @@ void Config::printAll()
  			for (std::vector<std::string>::iterator allowedIt = (*lit)->getConfigMembers().getAllowedMethods().begin(); allowedIt != (*lit)->getConfigMembers().getAllowedMethods().end(); ++allowedIt)
 			{
 				std::cout << "allowed_methods: " << *allowedIt << " " << std::endl;
-			}
-			const std::map<int, std::string> &returnType = (*lit)->getReturns();
-			for (std::map<int, std::string>::const_iterator rit = returnType.cbegin(); rit != returnType.cend(); ++rit)
-			{
-			    std::cout << "returns: " << rit->first << " " << rit->second << '\n';
 			}
 			if (!(*lit)->getConfigMembers().getRoot().empty())
 				std::cout << "root:" << (*lit)->getConfigMembers().getRoot() << std::endl;

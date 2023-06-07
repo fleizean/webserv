@@ -60,8 +60,7 @@ public:
 	void parseLocation(std::stringstream& ss, ServerMembers &srvr);
 	void parseUpload(std::stringstream& ss, ServerMembers &srvr);
 	/* Location Parse */
-	
-	void parseReturn(std::stringstream& ss, Location &lctn);
+
 
 	/* Print All */
 	void printAll();

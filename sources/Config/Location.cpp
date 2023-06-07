@@ -18,7 +18,6 @@ std::string const &Location::getUri() const { return this->_uri; }
 
 ConfigMembers& Location::getConfigMembers() { return this->_members; }
 
-std::map <int, std::string>& Location::getReturns() { return this->_returns; }
 /* <------------------------------------------> */
 
 
