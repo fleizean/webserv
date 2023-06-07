@@ -47,8 +47,8 @@ Request::Request() {}
 Request::Request(const char *buffer)
 {
     m_request = buffer;
-    // std::cout << BOLD_RED << "Buffer socket: " << RESET << std::endl;
-    // std::cout << buffer << std::endl;
+    std::cout << BOLD_RED << "Buffer socket: " << RESET << std::endl;
+    std::cout << buffer << std::endl;
     clear();
     parse();
     printAll();
@@ -87,6 +87,17 @@ void    Request::parseLine(std::string& line)
         addFileName(ss);
     else if (word == "Accept:")
         addFirstMediaType(ss);
+    else if (word == "Access-Control-Request-Method:")
+        addAcceptControlMethod(ss);
+}
+
+void Request::addAcceptControlMethod(std::stringstream& ss)
+{
+    std::string word;
+
+    ss >> word;
+    if(word == "DELETE")
+        _method = word;
 }
 
 void Request::addFirstMediaType(std::stringstream& ss)

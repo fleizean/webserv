@@ -177,14 +177,15 @@ void Server::processActiveConnection(int connectionIndex, fd_set& read_fd_set)
     strcpy(tmp_buff, buffer.c_str());
     Request pr(tmp_buff);
     matchedServer = getServerForRequest(pr.getListen(), _servers);
+	
 	Response response(pr, _servers, _env, matchedServer);
 	response.setBando(buffer);
 	response.checkModifyDate();
 	response.setDate();
 	response.errorStatus();
 	response.run();
-	std::cout << "test7\n";
 	write(all_connections[connectionIndex], response.getResponseHeader().c_str(), response.getResponseHeader().size() + 1);
+
 	/* closing area */
 	closeConnection(connectionIndex, read_fd_set);
 }

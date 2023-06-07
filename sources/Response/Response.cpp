@@ -8,6 +8,15 @@ Response::Response(Request req, std::vector<ServerMembers*> servers, char** envp
 Response::~Response() { }
 
 /* --------> Functions <-------- */
+
+template <typename T>
+static std::string toStringFor(T numb)
+{
+	std::stringstream stream;
+	stream << numb;
+	return stream.str();
+}
+
 void Response::run()
 {
 	std::vector<ServerMembers*>::iterator it = _servers.begin();
@@ -47,7 +56,6 @@ void Response::run()
 		for (std::map<std::string, std::string>::iterator namesIt = (*it)->getConfigMembers().getCgi().begin(); namesIt != (*it)->getConfigMembers().getCgi().end(); ++namesIt)
 			mp.insert(std::make_pair(namesIt->first, namesIt->second));
 		_upload = (*it)->getUpload();
-		std::cout << "test7\n";
 	}
 	for (std::vector<std::string>::const_iterator namesIt = (*it)->getServerName().begin(); namesIt != (*it)->getServerName().end(); ++namesIt)
 		_serverName = *namesIt;
@@ -239,10 +247,22 @@ std::string Response::fAutoIndex(const char* path)
     return Autoindex_Page;
 }
 
-
+/**
+ * HTTP isteğinin POST yöntemini işler.
+ * Bu fonksiyon, POST isteğini işler ve dosya yüklemeleri ile CGI yürütmesini gerçekleştirir.
+ * İçerik türünü belirler, dosya yüklemelerini yönetir ve istenen dosya bir PHP veya Python betiği ise CGI betiklerini yürütür.
+ * İçerik uzunluğu, izin verilen maksimum boyutu aşarsa yanıt kodunu 413 (İstek Varlık Çok Büyük) olarak ayarlar.
+ * Yanıt kodu bir sunucu hatası (500) belirtiyorsa hata sayfası oluşturur.
+ * Son olarak, uygun durum kodu, içerik türü, içerik uzunluğu ve konumu içeren yanıt başlığını oluşturur
+ * ve HTTP yanıt gövdesine ekler.
+ *
+ * @return POST yönteminin başarılı bir şekilde işlendiğini belirten 0 değerini döndürür.
+ */
 int Response::postMethodes()
 {
-	std::string path = realpath(".", NULL) + removeAll(_path, realpath(".", NULL));
+	char* point_path = realpath(".", NULL);
+	std::string path = point_path + removeAll(_path, point_path);
+	free(point_path);
 	_code = 413;
 	parseQueryString(_bando.substr(_bando.find("\r\n\r\n") + strlen("\r\n\r\n")));
 	getContentType(path);
@@ -330,37 +350,36 @@ std::string Response::createDirectoryLink(std::string const& dirEntry, std::stri
 void Response::errorPage()
 {
     std::string line;
-    std::ifstream fahd;
-    std::string path;
-    char buf[PATH_MAX];
-    
-    // Hata koduna karşılık gelen dosyanın yolunu belirle
-    if (mp[std::to_string(_code)] == "")
-    {
-        if (realpath(".", buf) != NULL)
-            path = std::string(buf) + "/srcs/Http(Errors)/" + std::to_string(_code) + ".html";
-    }
-    else
-    {
-         if (realpath(".", buf) != NULL)
-            path = std::string(buf) + std::to_string(_code) + ".html";
-    }
-    
-    std::ifstream document;
-    
-    // Dosyanın var olup olmadığını kontrol et
-    if ((access(path.c_str(), F_OK) == 0))
-    {
-        document.open(path, std::ios::in);
-        
-        // Dosyayı satır satır oku ve _http'ye ekle
-        while (getline(document, line))
-        {
-            _http += line + " ";
-        }
-    }
+	std::ifstream fahd;
+	std::string path;
+	if (mp[toStringFor(_code)] == "")
+	{
+		path = toStringFor(realpath(".", NULL)) + "/sources/Http(Errors)/" + toStringFor(_code) + ".html";
+	}
+	else
+		path = toStringFor(realpath(".", NULL)) + mp[toStringFor(_code)];
+	std::ifstream document;
+	if ((access(path.c_str(), F_OK) == 0))
+	{
+		document.open(path, std::ios::in);
+		while (getline(document, line))
+		{
+			_http += line + " ";
+		}
+	}
 }
 
+/**
+ * HTTP isteğinin GET yöntemini işler.
+ * Bu fonksiyon, GET isteğini işler ve istenen dosyanın varlığını kontrol eder.
+ * İstek URL'sinden dosya yolunu elde eder, içerik türünü belirler ve varlık durumuna göre hata sayfası oluşturur.
+ * İçerik uzunluğu, izin verilen maksimum boyutu aşarsa yanıt kodunu 413 (İstek Varlık Çok Büyük) olarak ayarlar.
+ * Yanıt kodu bir sunucu hatası (500) belirtiyorsa hata sayfası oluşturur.
+ * Son olarak, uygun durum kodu, sunucu adı, değiştirilme zamanı, içerik türü, içerik uzunluğu ve konumu içeren yanıt başlığını oluşturur
+ * ve HTTP yanıt gövdesine ekler.
+ *
+ * @return GET yönteminin başarılı bir şekilde işlendiğini belirten 0 değerini döndürür.
+ */
 void Response::getContentType(std::string path)
 {
 	std::string imageExtensionsArray[] = { "jpeg", "jpg", "pjp", "jfif", "pjpeg" };
@@ -399,6 +418,13 @@ void Response::getContentType(std::string path)
 		_contentType = "text/html";
 }
 
+/**
+ * @brief böyle bir path var mı diye kontrol eder true false döndürür.
+ * 
+ * @param path 
+ * @return true 
+ * @return false 
+ */
 bool Response::checkIfPathIsFile(const char *path)
 {
 	struct stat s;
@@ -567,6 +593,17 @@ std::string Response::uploadFile(std::string sear, std::string buffer)
 	return (mainbuffer);
 }
 
+/**
+ * HTTP isteğinin GET yöntemini işler.
+ * Bu fonksiyon, GET isteğini işler ve istenen dosyanın varlığını kontrol eder.
+ * İstek URL'sinden dosya yolunu elde eder, içerik türünü belirler ve varlık durumuna göre hata sayfası oluşturur.
+ * İçerik uzunluğu, izin verilen maksimum boyutu aşarsa yanıt kodunu 413 (İstek Varlık Çok Büyük) olarak ayarlar.
+ * Yanıt kodu bir sunucu hatası (500) belirtiyorsa hata sayfası oluşturur.
+ * Son olarak, uygun durum kodu, sunucu adı, değiştirilme zamanı, içerik türü, içerik uzunluğu ve konumu içeren yanıt başlığını oluşturur
+ * ve HTTP yanıt gövdesine ekler.
+ *
+ * @return GET yönteminin başarılı bir şekilde işlendiğini belirten 0 değerini döndürür.
+ */
 int Response::getMethodes()
 {
 	char* raw_path = realpath(".", NULL);
@@ -675,5 +712,4 @@ void Response::handleDeleteRequest()
 }
 
 std::string Response::getResponseHeader() { return _responseHeader; }
-
 void	Response::setBando(std::string bando) { this->_bando = bando; }

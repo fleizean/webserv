@@ -89,7 +89,7 @@ std::string	trim(std::string& line, const std::string& whitespace)
 
 bool	isValidMethod(const std::string& word)
 {
-	if (word == "GET" || word == "POST" || word == "DELETE")
+	if (word == "GET" || word == "POST" || word == "DELETE" || word == "OPTIONS")
 		return true;
 	return false;
 }
@@ -138,42 +138,6 @@ unsigned int	strToIp(std::string strIp) {
 	unsigned final = *(reinterpret_cast<unsigned int *>(m));
 	return final;
 }
-
-std::string	removeAdjacentSlashes(const std::string &str)
-{
-	std::string	ret;
-	bool		lastIsSlash = false;
-
-	for (std::string::size_type i = 0; i < str.length(); i++) {
-		if (str[i] == '/') {
-			if (!lastIsSlash)
-				ret.push_back(str[i]);
-			lastIsSlash = true;
-		}
-		else {
-			lastIsSlash = false;
-			ret.push_back(str[i]);
-		}
-	}
-	return ret;
-}
-
-int		pathIsFile(const std::string& path)
-{
-	struct stat s;
-	if (stat(path.c_str(), &s) == 0 )
-	{
-		if (s.st_mode & S_IFDIR)
-			return 0;
-		else if (s.st_mode & S_IFREG)
-			return 1;
-		else
-			return 0;
-	}
-	else
-		return 0;
-}
-
 
 std::string removeAll(std::string str, const std::string &from)
 {

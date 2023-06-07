@@ -74,38 +74,38 @@ std::string Cgi::cgiExecute()
     int pip[2];
     pid_t child = 0;
     pid_t parent = 0;
-    char* cwd;
-    Error err(0);
+    
     extractKeyValues();
-    cwd = get_cwd_buf();
+    
+    char* cwd = get_cwd_buf();
     initOthersEnvironment(cwd);
+    free(cwd);
     
     int fd = open("tmp", O_CREAT | O_TRUNC | O_WRONLY | O_NONBLOCK, 0777);
     write(fd, _requestHeader.c_str(), _requestHeader.size());
     close(fd);
-    free(cwd);
-    char **yes = new char *[_env.size() + 1];
-    for (; i != _env.size(); i++)
-        yes[i] = (char *)_env.at(i).c_str();
+    
+    char** yes = new char*[_env.size() + 1];
+    for (i = 0; i < _env.size(); i++)
+        yes[i] = (char*)_env.at(i).c_str();
     yes[i] = NULL;
-    char *echo[3] = {(char *)"cat", (char *)"tmp", NULL};
-    char *cmd[] =  {&_path[0], &_fileName[0], NULL};
+    
+    char* echo[3] = {(char*)"cat", (char*)"tmp", NULL};
+    char* cmd[] = {(char*)&_path[0], (char*)&_fileName[0], NULL};
     
     if (pipe(pip) == -1)
     {
-        perror("CGI part : Pipe failed");
+        perror("CGI part: Pipe failed");
         exit(1);
     }
+    
     child = fork();
-
-    int tmp = open(".tmp", O_CREAT | O_TRUNC | O_NONBLOCK | O_RDWR, 0777);
-
     if (child == -1)
     {
         std::cerr << "Fork failed" << std::endl;
-		return ("Status: 500\r\n\r\n");
+        return "Status: 500\r\n\r\n";
     }
-    else if (!child)
+    else if (child == 0)
     {
         dup2(pip[1], 1);
         close(pip[0]);
@@ -114,11 +114,12 @@ std::string Cgi::cgiExecute()
     else
     {
         int status2;
-
         wait(&status2);
+        
         parent = fork();
-        if (!parent)
+        if (parent == 0)
         {
+            int tmp = open(".tmp", O_CREAT | O_TRUNC | O_NONBLOCK | O_RDWR, 0777);
             dup2(pip[0], 0);
             dup2(tmp, 1);
             close(pip[1]);
@@ -127,28 +128,25 @@ std::string Cgi::cgiExecute()
         else
         {
             int status;
-
             wait(&status);
             close(pip[0]);
             close(pip[1]);
-            close(tmp);
-
-            usleep(100000);
-
-            tmp = open(".tmp", O_NONBLOCK | O_RDONLY);
-
+    
+            int tmp = open(".tmp", O_NONBLOCK | O_RDONLY);
             char buf[65535];
-            bzero(buf, 65535);
-            read(tmp, buf, 65535);
+            bzero(buf, sizeof(buf));
+            read(tmp, buf, sizeof(buf));
             close(tmp);
+    
             _requestHeader = std::string(buf);
             remove("tmp");
             remove(".tmp");
-
+    
             delete[] yes;
-            return (_requestHeader);
+            return _requestHeader;
         }
     }
+    
     delete[] yes;
     return _requestHeader;
 }
