@@ -40,7 +40,7 @@ void Config::FileChecker(const string &conf_path)
 	Error err(0);
 	string contentsConfig;
 	std::ifstream conf(conf_path);
-	if(!conf)
+	if (!conf)
 		err.setAndPrint(1, "Config::FileChecker");
 	conf.close();
 	if (!conf_path.length())
@@ -51,7 +51,7 @@ void Config::FileChecker(const string &conf_path)
 		contentsConfig = removeComments(contentsConfig);
 	else
 		err.setAndPrint(2, "Config::FileChecker");
-	if(!isBracketBalanced(contentsConfig))
+	if (!isBracketBalanced(contentsConfig))
 		err.setAndPrint(7, "Config::FileChecker");
 	this->_configContent = contentsConfig;
 	parse_server();
@@ -72,7 +72,7 @@ void Config::split_server(std::string configContent)
 		//std::cout << "mcurrent: " << m_curr_line << ". " << line << " \nmxtx : " << this->mainBlock << " " << this->serverBlock << " " << this->locationBlock << std::endl;
 		//m_curr_line++;
 		line = trim(line, " \t");
-		if(line == "")
+		if (line == "")
 			continue;
 		else if (line == "}")
 			endScopeConf();
@@ -105,7 +105,6 @@ void Config::endScopeConf()
 
 void Config::parseMainArea(std::string& line)
 {
-	// Server new_server;
 	Error err(0);
 	if (line != "server {")
 		err.setAndPrint(8, "Config::parseMainArea");
@@ -128,7 +127,6 @@ void Config::parseServerArea(std::string& line)
 	ServerMembers *srvr =		_parsedServers.back();
 	
 	ss >> word;
-	
 	if (word == "listen")
 		parseListen(ss, *srvr);
 	else if (word == "server_name")
@@ -167,7 +165,7 @@ void Config::parseLocationArea(std::string& line)
 	std::string			word;
 	std::stringstream	ss(line);
 	Location* lctn = _parsedServers.back()->getLocations().back();
-	if(!this->_tmpLocationUri.empty())
+	if (!this->_tmpLocationUri.empty())
 		lctn->setUri(this->_tmpLocationUri);
 	ss >> word;
 	if (word == "root")
@@ -192,9 +190,7 @@ void Config::parseLocationArea(std::string& line)
 
 void Config::parse_server()
 {
-
 	split_server(this->_configContent);
-	
 }
 
 /* <-----------------------------------------------------> */
@@ -241,7 +237,7 @@ void Config::parseServerName(std::stringstream& ss, ServerMembers &srvr)
 	{
 		srvr.setServerName(word); // 2130706433 localhost unsigned int değeri atama yapmak için kullanmak zorundayız
 	}
-	if(srvr.getServerName().empty())
+	if (srvr.getServerName().empty())
 		err.setAndPrint(12, "Config::parseServerName");
 }
 
@@ -250,10 +246,10 @@ void Config::parseUpload(std::stringstream& ss, ServerMembers &srvr)
 	Error err(0);
 	std::string word;
 	
-	if(!(ss >> word))
+	if (!(ss >> word))
 		err.setAndPrint(11, "Config::parseUpload");
 	srvr.setUpload(word);
-	if(ss >> word)
+	if (ss >> word)
 		err.setAndPrint(19, "Config::parseUpload");
 }
 
@@ -290,7 +286,7 @@ void Config::parseIndex(std::stringstream& ss, ConfigMembers& cm)
 	Error err(0);
 	std::string word;
 
-	while(ss >> word)
+	while (ss >> word)
 	{
 		cm.getIndex().push_back(word);
 	}
@@ -320,7 +316,7 @@ void Config::parseAutoIndex(std::stringstream& ss, ConfigMembers& cm)
 	Error err(0);
 	std::string		word;
 
-	if(!(ss >> word))
+	if (!(ss >> word))
 		err.setAndPrint(28, "Config::parseAutoIndex");
 	if (word == "on")
 		cm.setAutoIndex(true);
@@ -388,14 +384,14 @@ void Config::parseAllowedMethods(std::stringstream& ss, ConfigMembers &cm)
 	Error err(0);
 	std::string word;
 
-	while(ss >> word)
+	while (ss >> word)
 	{
 		if (!isValidMethod(word))
 			err.setAndPrint(24, "Config::parseAllowedMethods");
 		cm.getAllowedMethods().push_back(word);
 
 	}
-	if(cm.getAllowedMethods().empty())
+	if (cm.getAllowedMethods().empty())
 		err.setAndPrint(25, "Config::parseAllowedMethods");
 }
 
@@ -432,7 +428,7 @@ void Config::printAll()
 
 	for (int i = 1; it != ite; ++it, ++i)
 	{
-		if(i != 1)
+		if (i != 1)
 			std::cout << std::endl;
 		std::cout << BOLD_YELLOW << "Server " << "-> "<< i << " <-" << " : \n" << RESET;
 		std::cout << GREEN;
@@ -441,16 +437,16 @@ void Config::printAll()
 			std::cout << "serverName: " << *namesIt << std::endl;
 		for (std::map<std::string, std::string>::iterator namesIt = (*it)->getConfigMembers().getCgi().begin(); namesIt != (*it)->getConfigMembers().getCgi().end(); ++namesIt)
 			std::cout << "cgi_param: " << namesIt->first << " " << namesIt->second << std::endl;
-		if(!(*it)->getConfigMembers().getRoot().empty())
+		if (!(*it)->getConfigMembers().getRoot().empty())
 			std::cout << "root: " << (*it)->getConfigMembers().getRoot() << std::endl;
 		for (std::vector<std::string>::const_iterator namesIt = (*it)->getConfigMembers().getIndex().begin(); namesIt != (*it)->getConfigMembers().getIndex().end(); ++namesIt)
 			std::cout << "index: " << *namesIt << std::endl;
-		for(std::vector<std::string>::iterator allowedIt = (*it)->getConfigMembers().getAllowedMethods().begin(); allowedIt != (*it)->getConfigMembers().getAllowedMethods().end(); ++allowedIt)
+		for (std::vector<std::string>::iterator allowedIt = (*it)->getConfigMembers().getAllowedMethods().begin(); allowedIt != (*it)->getConfigMembers().getAllowedMethods().end(); ++allowedIt)
 			std::cout << "allowed_methods: " << *allowedIt << " " << std::endl;
 		std::cout << "max_client_body_size: " << (*it)->getConfigMembers().getMaxClientBodySize() << std::endl;
 		for (std::map<int, std::string>::iterator namesIt = (*it)->getConfigMembers().getErrorPage().begin(); namesIt != (*it)->getConfigMembers().getErrorPage().end(); ++namesIt)
 			std::cout << "error_page: " << namesIt->first << " " << namesIt->second << std::endl;
-		if((*it)->getConfigMembers().getAutoIndex() == 1)
+		if ((*it)->getConfigMembers().getAutoIndex() == 1)
 			std::cout << "auto_index: " << "on" << std::endl;
 		else
 			std::cout << "auto_index: " << "off" << std::endl;
@@ -459,7 +455,7 @@ void Config::printAll()
 		for (std::vector<Location *>::const_iterator lit = locations.cbegin(); lit != locations.cend(); ++lit){
 			std::cout << BOLD_RED << "location uri: " << (*lit)->getUri() << RESET << std::endl;
 			std::cout << BLUE;
- 			for(std::vector<std::string>::iterator allowedIt = (*lit)->getConfigMembers().getAllowedMethods().begin(); allowedIt != (*lit)->getConfigMembers().getAllowedMethods().end(); ++allowedIt)
+ 			for (std::vector<std::string>::iterator allowedIt = (*lit)->getConfigMembers().getAllowedMethods().begin(); allowedIt != (*lit)->getConfigMembers().getAllowedMethods().end(); ++allowedIt)
 			{
 				std::cout << "allowed_methods: " << *allowedIt << " " << std::endl;
 			}
@@ -468,14 +464,14 @@ void Config::printAll()
 			{
 			    std::cout << "returns: " << rit->first << " " << rit->second << '\n';
 			}
-			if(!(*lit)->getConfigMembers().getRoot().empty())
+			if (!(*lit)->getConfigMembers().getRoot().empty())
 				std::cout << "root:" << (*lit)->getConfigMembers().getRoot() << std::endl;
 			std::cout << "max_client_body_size: " << (*lit)->getConfigMembers().getMaxClientBodySize() << std::endl;
 			for (std::map<int, std::string>::iterator namesIt = (*lit)->getConfigMembers().getErrorPage().begin(); namesIt != (*lit)->getConfigMembers().getErrorPage().end(); ++namesIt)
 				std::cout << "error_page: " << namesIt->first << " " << namesIt->second << std::endl;
 			for (std::map<std::string, std::string>::iterator namesIt = (*lit)->getConfigMembers().getCgi().begin(); namesIt != (*lit)->getConfigMembers().getCgi().end(); ++namesIt)
 				std::cout << "cgi_param: " << namesIt->first << " " << namesIt->second << std::endl;
-			if((*lit)->getConfigMembers().getAutoIndex() == 1)
+			if ((*lit)->getConfigMembers().getAutoIndex() == 1)
 				std::cout << "auto_index: " << "on" << std::endl;
 			else
 				std::cout << "auto_index: " << "off" << std::endl;

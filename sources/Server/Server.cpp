@@ -4,7 +4,6 @@
 
 Server::Server(std::vector<ServerMembers*> server, char **env) 
 { 
-	Error err(0);
 	_servers = server;
 	_env = env;
 	setup(); // setup server
@@ -72,7 +71,6 @@ int Server::create_server(int port, std::string host)
 
 int Server::read_connection(int socket)
 {
-    Error err(0);
 	char	tmp_buffer[DATA_BUFFER + 1];
 
 	memset(tmp_buffer, 0, DATA_BUFFER);
@@ -138,7 +136,7 @@ bool Server::checkValidSockets()
 	return true;
 }
 
-void Server::selectConnection(int& ret_val, fd_set& read_fd_set, int& new_fd)
+void Server::selectConnection(fd_set& read_fd_set, int& new_fd)
 {
 	for (int i = 0; i < getNbPort(); i++)
 	{
@@ -162,9 +160,7 @@ void Server::selectConnection(int& ret_val, fd_set& read_fd_set, int& new_fd)
 				std::cout << "accept() failed for fd \n"
 						  << strerror(errno) << std::endl;
 			}
-			ret_val--;
-			if (!ret_val)
-				continue;
+
 		}
 	}
 }
@@ -232,11 +228,8 @@ int Server::run()
 	fd_set write_fd_set = {0};
 	int new_fd, ret_val;
 	
-	std::string kfe;
-
 	if (!checkValidSockets()) // socket validasyon kontrolü
         return -1;
-	
 	while (1)
 	{
 		FD_ZERO(&read_fd_set);
@@ -249,9 +242,9 @@ int Server::run()
 			}
 		}
 		ret_val = select(FD_SETSIZE, &read_fd_set, &write_fd_set, NULL, NULL);
-		if(ret_val >= 0)
+		if (ret_val >= 0)
 		{
-			selectConnection(ret_val, read_fd_set, new_fd);
+			selectConnection(read_fd_set, new_fd);
 			processActiveConnections(read_fd_set);
 		}
     }
@@ -272,13 +265,4 @@ ServerMembers*    Server::getServerForRequest(t_listen& address, std::vector<Ser
     }
     // Boyle bir durum soz konusu degil ama yinede NULL donduruyoruz
     return NULL;
-}
-
-void Server::setErrorPage(Request pr)
-{
-	_errorResponse = pr.getProtocol() + " 404 Not Found\r\n";
-	_errorResponse += "Content-Type: text/html\r\n";
-	_errorResponse += "Connection: close\r\n";
-	_errorResponse += "\r\n";
-	_errorResponse += "<!DOCTYPE html>\n<html><head><title>404 Not Found</title></head><body><h1>404 Not Found</h1><p>There was an error finding your error page</p></body></html>\n";
 }

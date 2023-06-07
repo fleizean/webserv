@@ -42,8 +42,6 @@ void Request::clear(){
 
 Request::Request() {}
 
-
-
 Request::Request(const char *buffer)
 {
     m_request = buffer;
@@ -96,7 +94,7 @@ void Request::addAcceptControlMethod(std::stringstream& ss)
     std::string word;
 
     ss >> word;
-    if(word == "DELETE")
+    if (word == "DELETE")
         _method = word;
 }
 
@@ -147,17 +145,17 @@ void    Request::addMethod(std::stringstream& ss, std::string& word)
         err.setAndPrint(45, "Request::addMethod");
     if (!(ss >> _protocol))
         err.setAndPrint(46, "Request::addMethod");
-    if(_protocol != "HTTP/1.1")
+    if (_protocol != "HTTP/1.1")
         err.setAndPrint(44, "Request::addMethod");
 }
 
 void    Request::addHost(std::stringstream& ss)
 {
     Error err(0);
-    if(!(ss >> _host))
+    if (!(ss >> _host))
         err.setAndPrint(47, "Request::addHost");
     _fullHost = _host;
-    if(!checkPort())
+    if (!checkPort())
         err.setAndPrint(48, "Request::addHost");
 }
 
@@ -174,7 +172,7 @@ void    Request::addAcceptLanguage(std::stringstream& ss)
     Error err(0);
     std::string word;
 
-    if(!(ss >> word))
+    if (!(ss >> word))
         err.setAndPrint(49, "Request::addAcceptLanguage");
     size_t i = word.find_first_of('-');
     _accept_language = word.substr(0, i);

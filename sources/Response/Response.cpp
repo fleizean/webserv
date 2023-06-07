@@ -87,6 +87,7 @@ void Response::run()
 		_responseHeader += "\n\n";
 		_responseHeader += _http;
 	}
+	/* std::cout << "responseHeader:\n" << _responseHeader << std::endl; */
 }
 
 /**
@@ -352,12 +353,19 @@ void Response::errorPage()
     std::string line;
 	std::ifstream fahd;
 	std::string path;
+	char *tmp_path;
 	if (mp[toStringFor(_code)] == "")
 	{
-		path = toStringFor(realpath(".", NULL)) + "/sources/Http(Errors)/" + toStringFor(_code) + ".html";
+		tmp_path = realpath(".", NULL);
+		path = toStringFor(tmp_path) + "/sources/Http(Errors)/" + toStringFor(_code) + ".html";
+		free(tmp_path);
 	}
-	else
-		path = toStringFor(realpath(".", NULL)) + mp[toStringFor(_code)];
+	else 
+	{
+		tmp_path = realpath(".", NULL);
+		path = toStringFor(tmp_path) + mp[toStringFor(_code)];
+		free(tmp_path);
+	}
 	std::ifstream document;
 	if ((access(path.c_str(), F_OK) == 0))
 	{
@@ -694,7 +702,9 @@ void Response::resetHTML()
  */
 void Response::handleDeleteRequest()
 {
-	std::string path = realpath(".", NULL) + _path;
+	char *tmp_path = realpath(".", NULL);
+	std::string path = tmp_path + _path;
+	free(tmp_path);
 	if (checkIfPathIsFile(path.c_str()) == true)
 	{
 		if ((access(path.c_str(), F_OK) == 0))

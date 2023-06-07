@@ -64,7 +64,7 @@ void Error::setAndPrint(const int &err_code, std::string const &line)
     size_t  flag = 0;
     this->err_code = err_code;
     
-    for(std::map<int, std::string>::const_iterator it = error_list.begin(); it != error_list.end(); ++it)
+    for (std::map<int, std::string>::const_iterator it = error_list.begin(); it != error_list.end(); ++it)
     {
         if (it->first == this->err_code){
             if (line != "null" || !(line.empty()))
@@ -74,7 +74,7 @@ void Error::setAndPrint(const int &err_code, std::string const &line)
             flag++;
         }
     }
-    if(flag == 0)
+    if (flag == 0)
         cerr << BOLD_RED << "Unkown error code." << RESET << endl;
     exit(1);
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: eyagiz <eyagiz@student.42.fr>              +#+  +:+       +#+        */
+/*   By: fleizean <fleizean@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/24 10:21:15 by eyagiz            #+#    #+#             */
-/*   Updated: 2023/06/06 13:13:15 by eyagiz           ###   ########.fr       */
+/*   Updated: 2023/06/07 16:59:24 by fleizean         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,11 +16,10 @@
 
 Config webserv;
 
-
 int main(int ac, char **av, char **env)
 {
 	Error err(0);
-	if(ac != 2)
+	if (ac != 2)
 		err.setAndPrint(1, "NULL");
 	else
 	{

@@ -38,7 +38,6 @@ public:
 	int run();
 	int getNbPort();
 	void setNbPort(int n);
-	void setErrorPage(Request pr);
 	int create_server(int iport, std::string host);
 	void create_socket(int port, std::string host);
 	int read_connection(int socket);
@@ -48,7 +47,7 @@ public:
 	bool checkValidSockets();
 	void closeConnection(int &connectionIndex, fd_set& read_fd_set);
 
-	void selectConnection(int& ret_val, fd_set& read_fd_set, int& new_fd);
+	void selectConnection(fd_set& read_fd_set, int& new_fd);
 	void processActiveConnection(int connectionIndex, fd_set& read_fd_set);
 	void handleConnectionError(int connectionIndex);
 	void processActiveConnections(fd_set& read_fd_set);

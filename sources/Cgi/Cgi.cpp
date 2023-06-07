@@ -25,7 +25,7 @@ Cgi::Cgi(char** envp, std::string fileName, std::string m_request, Request req, 
 Cgi::~Cgi() {}
 
 void Cgi::extractKeyValues() {
-    for(std::vector<std::string>::iterator it = _postValues.begin(); it != _postValues.end(); it++)
+    for (std::vector<std::string>::iterator it = _postValues.begin(); it != _postValues.end(); it++)
         _env.push_back(*it);
 }
 
@@ -57,11 +57,11 @@ void Cgi::initOthersEnvironment(char* cwd)
     _env.push_back("SERVER_ADMIN");
     _env.push_back("SERVER_NAME=" + serverName);
     _env.push_back("SERVER_PORT=" + std::to_string(_request.getPort()));
-    _env.push_back("SERVER_SOFTWARE=Weebserv/1.0");
+    _env.push_back("SERVER_SOFTWARE=eyagiz_fyurtsev/1.0");
     _env.push_back("SERVER_PROTOCOL=" + _request.getProtocol());
     _env.push_back("REDIRECT_STATUS=200");
 
-    /* std::cout << BOLD_YELLOW <<"\n----------> Env Testing <----------\n" << RESET;
+    /* std::cout << BOLD_YELLOW << "\n----------> Env Testing <----------\n" << RESET;
     std::cout << CYAN << std::endl;
     for(std::vector<std::string>::iterator it = _env.begin(); it != _env.end(); it++)
         std::cout << *it << std::endl;
@@ -91,7 +91,8 @@ std::string Cgi::cgiExecute()
     yes[i] = NULL;
     
     char* echo[3] = {(char*)"cat", (char*)"tmp", NULL};
-    char* cmd[] = {(char*)&_path[0], (char*)&_fileName[0], NULL};
+    /* std::cout << "fileName: " << _path << " " << _fileName << std::endl; */
+    char* cmd[] = {(char*)&_path, (char*)&_fileName[0], NULL};
     
     if (pipe(pip) == -1)
     {
