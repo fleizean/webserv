@@ -7,7 +7,6 @@
 class Cgi
 {
 private:
-	char**							_envp;
 	std::string						_requestHeader;
 	std::string						_fileName;
 	std::vector<std::string>		_env;
@@ -17,7 +16,7 @@ private:
 	Request							_request;
 public:
 	Cgi();
-	Cgi(char** envp, std::string fileName, std::string m_request, Request req, std::string path, std::vector<std::string> postValues, ServerMembers* matchedServer);
+	Cgi(std::string fileName, std::string m_request, Request req, std::string path, std::vector<std::string> postValues, ServerMembers* matchedServer);
 	~Cgi();
 
 	std::string cgiExecute();

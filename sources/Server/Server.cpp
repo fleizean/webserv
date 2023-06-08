@@ -2,10 +2,9 @@
 
 /* ------------> CANNONICAL FUNCTIONS <------------ */
 
-Server::Server(std::vector<ServerMembers*> server, char **env) 
+Server::Server(std::vector<ServerMembers*> server) 
 { 
 	_servers = server;
-	_env = env;
 	setup(); // setup server
 }
 
@@ -171,10 +170,10 @@ void Server::processActiveConnection(int connectionIndex, fd_set& read_fd_set)
     char tmp_buff[DATA_BUFFER + 1];
     memset(tmp_buff, 0, sizeof(tmp_buff));
     strcpy(tmp_buff, buffer.c_str());
-    Request pr(tmp_buff);
-    matchedServer = getServerForRequest(pr.getListen(), _servers);
+    Request pr(tmp_buff); // Requst Parser
+    matchedServer = getServerForRequest(pr.getListen(), _servers); // matchedServer -> verdiğim ip ve port ile eşleşen serverı getirir
 	
-	Response response(pr, _servers, _env, matchedServer);
+	Response response(pr, _servers, matchedServer); // 
 	response.setBando(buffer);
 	response.checkModifyDate();
 	response.setDate();
@@ -229,7 +228,7 @@ int Server::run()
 	int new_fd, ret_val;
 	
 	if (!checkValidSockets()) // socket validasyon kontrolü
-        return -1;
+        err.setAndPrint(52, "Server::run");
 	while (1)
 	{
 		FD_ZERO(&read_fd_set);

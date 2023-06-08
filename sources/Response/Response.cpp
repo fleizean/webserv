@@ -1,6 +1,6 @@
 #include "../../includes/Response.hpp"
 
-Response::Response(Request req, std::vector<ServerMembers*> servers, char** envp, ServerMembers* matchedServer) : _req(req), _servers(servers), _envp(envp), _matchedServer(matchedServer)
+Response::Response(Request req, std::vector<ServerMembers*> servers, ServerMembers* matchedServer) : _req(req), _servers(servers), _matchedServer(matchedServer)
 {
     setupRequest();
 }
@@ -163,23 +163,24 @@ int Response::fileExist(const char* fileName)
             _http = test.str();
             
             // Uzantı ve yorumlayıcı eşleşiyorsa CGI betiğini çalıştır
+			
             if (_cgiType == "py" && mp[".py"].find("/usr/bin/python3") != std::string::npos)
             {
-				Cgi _cgi(_envp, _fileName, _bando, _req, "/usr/bin/python3", _postValues, _matchedServer);
+				Cgi _cgi(_fileName, _bando, _req, "/usr/bin/python3", _postValues, _matchedServer);
                 _http = _cgi.cgiExecute();
                 _code = 200;
                 return _code;
             }
             else if (_cgiType == "pl" && mp[".pl"].find("/usr/bin/perl") != std::string::npos)
             {
-				Cgi _cgi(_envp, _fileName, _bando, _req, "/usr/bin/perl", _postValues, _matchedServer);
+				Cgi _cgi(_fileName, _bando, _req, "/usr/bin/perl", _postValues, _matchedServer);
                 _http = _cgi.cgiExecute();
                 _code = 200;
                 return _code;
             }
             else if (_cgiType == "php" && mp[".php"].find("/usr/bin/php-cgi") != std::string::npos)
             {
-				Cgi _cgi(_envp, _fileName, _bando, _req, "/usr/bin/php-cgi", _postValues, _matchedServer);
+				Cgi _cgi(_fileName, _bando, _req, "/usr/bin/php-cgi", _postValues, _matchedServer);
                 _http = _cgi.cgiExecute();
                 _code = 200;
                 return _code;
@@ -267,12 +268,13 @@ int Response::postMethodes()
 	_code = 413;
 	parseQueryString(_bando.substr(_bando.find("\r\n\r\n") + strlen("\r\n\r\n")));
 	getContentType(path);
+	std::cout << "_path: " << _path << " " << std::endl;
 	if (_path.substr(_path.find_last_of(".") + 1) == "php"){
-		Cgi _cgi(_envp, path.c_str(), _bando, _req, "/usr/bin/php", _postValues, _matchedServer);
+		Cgi _cgi(path.c_str(), _bando, _req, "/usr/bin/php", _postValues, _matchedServer);
 		_http = _cgi.cgiExecute();
 	}
 	if (_path.substr(_path.find_last_of(".") + 1) == "py"){
-		Cgi _cgi(_envp, path.c_str(), _bando, _req, "/usr/bin/python3", _postValues, _matchedServer);
+		Cgi _cgi(path.c_str(), _bando, _req, "/usr/bin/python3", _postValues, _matchedServer);
 		_http = _cgi.cgiExecute();
 	}
 	bool upload = false;

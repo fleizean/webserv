@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fleizean <fleizean@student.42.fr>          +#+  +:+       +#+        */
+/*   By: eyagiz <eyagiz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/24 10:21:15 by eyagiz            #+#    #+#             */
-/*   Updated: 2023/06/07 16:59:24 by fleizean         ###   ########.fr       */
+/*   Updated: 2023/06/08 13:05:35 by eyagiz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 
 Config webserv;
 
-int main(int ac, char **av, char **env)
+int main(int ac, char **av)
 {
 	Error err(0);
 	if (ac != 2)
@@ -26,7 +26,7 @@ int main(int ac, char **av, char **env)
 		webserv.FileChecker(av[1]);
 		webserv.printAll();
 		std::cout << "\n\n";
-		Server serv(webserv.getConfig(), env);
+		Server serv(webserv.getConfig());
 		serv.run();		
 	}
 }

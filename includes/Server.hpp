@@ -25,14 +25,12 @@ private:
 	bool				_foundError;
 	int _port;
 
-	char **_env;
-
 	socklen_t addrlen;
 	struct sockaddr_in	new_addr;
 
 	std::vector<ServerMembers*> _servers;
 public:
-	Server(std::vector<ServerMembers*> server, char **env);
+	Server(std::vector<ServerMembers*> server);
 	~Server();
 
 	int run();

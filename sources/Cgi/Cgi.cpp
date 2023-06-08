@@ -2,7 +2,6 @@
 
 Cgi::Cgi()
 {
-    _envp = NULL;
     _requestHeader = "";
     _request = NULL;
     _path = "";
@@ -11,9 +10,8 @@ Cgi::Cgi()
     _matchedServer = NULL;
 }
 
-Cgi::Cgi(char** envp, std::string fileName, std::string m_request, Request req, std::string path, std::vector<std::string> postValues, ServerMembers* matchedServer) 
+Cgi::Cgi(std::string fileName, std::string m_request, Request req, std::string path, std::vector<std::string> postValues, ServerMembers* matchedServer) 
 {
-    _envp = envp;
     _requestHeader = m_request;
     _request = req;
     _path = path;
@@ -89,10 +87,9 @@ std::string Cgi::cgiExecute()
     for (i = 0; i < _env.size(); i++)
         yes[i] = (char*)_env.at(i).c_str();
     yes[i] = NULL;
-    
     char* echo[3] = {(char*)"cat", (char*)"tmp", NULL};
     /* std::cout << "fileName: " << _path << " " << _fileName << std::endl; */
-    char* cmd[] = {(char*)&_path, (char*)&_fileName[0], NULL};
+    char* cmd[] = {(char*)&_path[0], (char*)&_fileName[0], NULL};
     
     if (pipe(pip) == -1)
     {

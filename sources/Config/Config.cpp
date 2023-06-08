@@ -216,8 +216,9 @@ void Config::parseListen(std::stringstream& ss, ServerMembers &srvr)
 	}
 	try
 	{
+		if (std::stoi(word) > 65535)
+			err.setAndPrint(48, "Config::parseListen");
 		srvr.setPort(std::stoi(word));
-
 	}
 	catch (std::exception& e)
 	{
