@@ -43,7 +43,7 @@ void Response::run()
 			_upload = (*it)->getUpload();
 			for (std::map<int, std::string>::iterator errIt = (*locIt)->getConfigMembers().getErrorPage().begin(); errIt != (*locIt)->getConfigMembers().getErrorPage().end(); ++errIt)
 				mp.insert(std::make_pair(std::to_string(errIt->first), errIt->second));
-
+			// buraya gelecek return
 			for (std::vector<std::string>::iterator namesIt = (*locIt)->getConfigMembers().getAllowedMethods().begin(); namesIt != (*locIt)->getConfigMembers().getAllowedMethods().end(); ++namesIt)
 				all += *namesIt;
  			yes = true;
@@ -71,7 +71,7 @@ void Response::run()
 		getMethodes();
 	else if (_type == "DELETE")
 		deleteMethodes();
-	else if (_type == "POST")
+	else if (_type == "POST") 
 		postMethodes();
 	else
 	{
@@ -81,13 +81,8 @@ void Response::run()
 		else
 			_code = 501;
 		errorPage();
-		_responseHeader += _protocol + " " + std::to_string(_code) + " " + _errorRep[_code];
-		_responseHeader += "\nDate : " + _time;
-		_responseHeader += "\nServer: Webserv /1.0.0";
-		_responseHeader += "\n\n";
-		_responseHeader += _http;
+		modifyResponseHeader();
 	}
-	/* std::cout << "responseHeader:\n" << _responseHeader << std::endl; */
 }
 
 /**
@@ -262,13 +257,13 @@ std::string Response::fAutoIndex(const char* path)
  */
 int Response::postMethodes()
 {
+	_postmethod = true;
 	char* point_path = realpath(".", NULL);
 	std::string path = point_path + removeAll(_path, point_path);
 	free(point_path);
 	_code = 413;
 	parseQueryString(_bando.substr(_bando.find("\r\n\r\n") + strlen("\r\n\r\n")));
 	getContentType(path);
-	std::cout << "_path: " << _path << " " << std::endl;
 	if (_path.substr(_path.find_last_of(".") + 1) == "php"){
 		Cgi _cgi(path.c_str(), _bando, _req, "/usr/bin/php", _postValues, _matchedServer);
 		_http = _cgi.cgiExecute();
@@ -277,7 +272,6 @@ int Response::postMethodes()
 		Cgi _cgi(path.c_str(), _bando, _req, "/usr/bin/python3", _postValues, _matchedServer);
 		_http = _cgi.cgiExecute();
 	}
-	bool upload = false;
 	if (_contentLen <= _maxBody)
 	{
 		_code = 200;
@@ -291,13 +285,15 @@ int Response::postMethodes()
 			if (j != std::string::npos)
 			{
 				char* cwd;
-				upload = true;
+				_isUpload = true;
 
 				cwd = get_cwd_buf();
 				std::string scwd = cwd;
 				free(cwd);
-				_http = "<!DOCTYPE htm1l>\n<html>\n<h1>File " + _fileName + "Hs Been Uploaded</h1>";
+				_http = "<!DOCTYPE htm1l>\n<html>\n<h1>File " + _fileName + "Has Been Uploaded</h1>";
+				std::cout << "TEST > " << scwd << _upload << removeAll(_fileName, "\"") << std::endl;
 				_http = "<a href=" + scwd + _upload + removeAll(_fileName, "\"") + " download>Download File</a>";
+				
 				uploadFile(std::string((sear.begin() + i + 3), sear.begin() + j - 2), _bando);
 			}
 		}
@@ -310,18 +306,8 @@ int Response::postMethodes()
 		_http = "";
 		errorPage();
 	}
-	_responseHeader += _protocol + " " + std::to_string(_code) + " " + _errorRep[_code];
-	_responseHeader += "\nDate : " + _time;
-	_responseHeader += "\nServer: " + _serverName;
-	_responseHeader += "\nContent-Type: " + _contentType;
-	if (upload != true)
-		_responseHeader += "\nContent-Length : " + std::to_string(_http.size() - 1); // make a update for upload
-	else
-		_responseHeader += "\nContent-Length : " + std::to_string(_contentLen);
-	_responseHeader += "\nContent-Location: " + _path;
-	_responseHeader += "\n\n";
 	errorPage();
-	_responseHeader += _http;
+	modifyResponseHeader();
 	return 0;
 }
 
@@ -350,7 +336,7 @@ std::string Response::createDirectoryLink(std::string const& dirEntry, std::stri
 /**
  * @brief Hata sayfasını oluşturur ve `_http`'ye ekler.
  */
-void Response::errorPage()
+void Response::	errorPage()
 {
     std::string line;
 	std::ifstream fahd;
@@ -366,6 +352,7 @@ void Response::errorPage()
 	{
 		tmp_path = realpath(".", NULL);
 		path = toStringFor(tmp_path) + mp[toStringFor(_code)];
+		std::cout << CYAN << path << RESET << std::endl;
 		free(tmp_path);
 	}
 	std::ifstream document;
@@ -510,6 +497,9 @@ void	Response::setupRequest()
 	_fileName = _req.getFileName();
     _contentLen = _req.getContentLength();
     _buffit = _req.getRequestStr();
+
+	_postmethod = false;
+	_isUpload = false;
 }
 
 /**
@@ -621,8 +611,6 @@ int Response::getMethodes()
 	free(raw_path);
 
 	std::string path = raw_path_str + removeAll(_path, raw_path_str);
-	if (path.find(raw_path_str + raw_path_str) != std::string::npos)
-	    path = path.substr(path.find(raw_path_str) + raw_path_str.length());
 	_path = path + "/";
 	getContentType(path);
 	fileExist(path.c_str());
@@ -641,19 +629,28 @@ int Response::getMethodes()
 		_http = "";
 		errorPage();
 	}
-	_responseHeader += _protocol + " " + std::to_string(_code) + " " + _errorRep[_code];
-	_responseHeader += "\nDate : " + _time;
-	_responseHeader += "\nServer: " + _serverName;
-	_responseHeader += "\nLast-modified " + _modifyTime;
-	_responseHeader += "\nContent-Type: " + _contentType;
-	_responseHeader += "\nContent-Length : " + std::to_string(_http.size() - 1);
-	_responseHeader += "\nContent-Location: " + _path;
-	_responseHeader += "\nTransfer-Encoding: identity" + _encoding;
-	_responseHeader += "\n\n";
-	_responseHeader += _http;
-
+	modifyResponseHeader();
 	return 0;
 }
+
+void Response::modifyResponseHeader()
+{
+	_responseHeader += _protocol + " " + std::to_string(_code) + " " + _errorRep[_code];
+	_responseHeader += "\nDate: " + _time;
+	_responseHeader += "\nServer: " + _serverName;
+	_responseHeader += "\nLast-modified: " + _modifyTime;
+	_responseHeader += "\nContent-Type: " + _contentType;
+	if (_isUpload != true)
+		_responseHeader += "\nContent-Length: " + std::to_string(_http.size() - 1); // make a update for upload
+	else
+		_responseHeader += "\nContent-Length: " + std::to_string(_contentLen);
+	_responseHeader += "\nContent-Location: " + _path;
+	if(_postmethod != true)
+		_responseHeader += "\nTransfer-Encoding: identity" + _encoding;
+	_responseHeader += "\n\n";
+	_responseHeader += _http;
+}
+
 
 /**
  * @brief DELETE isteğini işler ve yanıt başlığını oluşturur.

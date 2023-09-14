@@ -40,7 +40,11 @@ private:
 	std::string							_configName;
 	std::string							_index;
 	std::vector<std::string>			_postValues;
-	
+
+	bool 								_isUpload;
+	bool								_postmethod;
+
+
 	std::map<std::string, std::string>	mp;
 
 	std::string							_errorRep[520];
@@ -61,6 +65,7 @@ public:
 	void	resetHTML();
 	void	errorStatus();
 	int		getMethodes();
+	void	modifyResponseHeader();
 	void 	deleteMethodes();
 	void	handleDeleteRequest();
 	int		fileExist(const char *fileName);
