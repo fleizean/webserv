@@ -6,7 +6,7 @@
 /*   By: fleizean <fleizean@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/24 10:21:15 by eyagiz            #+#    #+#             */
-/*   Updated: 2023/09/15 14:36:49 by fleizean         ###   ########.fr       */
+/*   Updated: 2023/09/15 19:24:52 by fleizean         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,24 +25,22 @@ void	exitFree(int signal, siginfo_t *siginfo, void *unused)
 	(void)siginfo;
 
 	for (std::vector<ServerMembers*>::iterator it = webserv.getConfig().begin(); it != webserv.getConfig().end(); ++it)
-    {
-        delete (*it);
-		*it = 0;
-    }
-    webserv.getConfig().clear();
-    
-    // Location nesnelerini temizle
-    for (std::vector<ServerMembers*>::iterator it = webserv.getConfig().begin(); it != webserv.getConfig().end(); ++it)
-    {
-        std::vector<Location*>& locations = (*it)->getLocations();
-        for (std::vector<Location*>::iterator locIt = locations.begin(); locIt != locations.end(); ++locIt)
-        {
-            delete (*locIt);
-			(*locIt) = 0;
-        }
-        locations.clear();
-    }
+	{
+	    std::vector<Location*>& locations = (*it)->getLocations();
+	
+	    // İkinci döngü: Location nesnelerini temizle
+	    for (std::vector<Location*>::iterator locIt = locations.begin(); locIt != locations.end(); ++locIt)
+	    {
+	        delete (*locIt);
+	    }
+	    locations.clear();
+	
+	    // ServerMembers nesnesini temizle
+	    delete (*it);
+	}
+	
 	webserv.getConfig().clear();
+	// Leak dedektörünü çağır
 	system("leaks webserv");
 	exit(0);
 }

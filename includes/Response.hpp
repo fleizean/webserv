@@ -77,6 +77,7 @@ public:
 	void	setupRequest();
 	bool	checkIfPathIsFile(const char * path);
 	void	setBando(std::string bando);
+	void	processRequest();
 
 	std::string fAutoIndex(const char *path);
 	std::string createDirectoryLink(std::string const &dirEntry, std::string Directory, std::string const &host);

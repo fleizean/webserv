@@ -19,28 +19,20 @@ static std::string toStringFor(T numb)
 
 void Response::run()
 {
-	std::vector<ServerMembers*>::iterator it = _servers.begin();
-	std::vector<ServerMembers*>::iterator ss = _servers.begin();
-	std::vector<ServerMembers*>::iterator xx = _servers.end();
 	int j = 1;
-	int jn = 1;
 	std::string aled;
 	std::string all;
 	bool yes;
-	std::map<int, int> portfind;
-	for (int pl = 1; ss != xx; ++ss, ++pl, jn++)
-		portfind.insert(std::make_pair((*ss)->getListen().port, jn));
-	std::vector<Location*>::iterator locItos = (*it)->getLocations().begin();
-	for (int i = 1; i != portfind[atoi(_host.substr(_host.find(":") + 1).c_str())]; i++)
-		it++;
-	for (std::vector<Location*>::iterator locIt = (*it)->getLocations().begin(); locIt != (*it)->getLocations().end(); ++locIt, locItos++, ++j)
+	std::vector<Location*>::iterator locItos = _matchedServer->getLocations().begin();
+
+	for (std::vector<Location*>::iterator locIt = _matchedServer->getLocations().begin(); locIt != _matchedServer->getLocations().end(); ++locIt, locItos++, ++j)
 	{
 		if (_path.find((*locIt)->getUri()) != std::string::npos)
 		{
 			_uriRoot = (*locIt)->getConfigMembers().getRoot();
 			aled = (*locIt)->getUri();
 			_maxBody = (*locIt)->getConfigMembers().getMaxClientBodySize();
-			_upload = (*it)->getUpload();
+			_upload = _matchedServer->getUpload();
 			for (std::map<int, std::string>::iterator errIt = (*locIt)->getConfigMembers().getErrorPage().begin(); errIt != (*locIt)->getConfigMembers().getErrorPage().end(); ++errIt)
 				mp.insert(std::make_pair(std::to_string(errIt->first), errIt->second));
 			// buraya gelecek return
@@ -51,22 +43,28 @@ void Response::run()
 		else if (yes != true)
 		{
 			all = "GETPOSTDELETE";
-			_maxBody = (*it)->getConfigMembers().getMaxClientBodySize();
+			_maxBody = _matchedServer->getConfigMembers().getMaxClientBodySize();
 		}
-		for (std::map<std::string, std::string>::iterator namesIt = (*it)->getConfigMembers().getCgi().begin(); namesIt != (*it)->getConfigMembers().getCgi().end(); ++namesIt)
+		for (std::map<std::string, std::string>::iterator namesIt = _matchedServer->getConfigMembers().getCgi().begin(); namesIt != _matchedServer->getConfigMembers().getCgi().end(); ++namesIt)
 			mp.insert(std::make_pair(namesIt->first, namesIt->second));
-		_upload = (*it)->getUpload();
+		_upload = _matchedServer->getUpload();
 	}
-	for (std::vector<std::string>::const_iterator namesIt = (*it)->getServerName().begin(); namesIt != (*it)->getServerName().end(); ++namesIt)
+	for (std::vector<std::string>::const_iterator namesIt = _matchedServer->getServerName().begin(); namesIt != _matchedServer->getServerName().end(); ++namesIt)
 		_serverName = *namesIt;
 	std::map<std::string, std::string> indexmap;
-	for (std::vector<Location*>::iterator locIt = (*it)->getLocations().begin(); locIt != (*it)->getLocations().end(); ++locIt, ++j)
+	for (std::vector<Location*>::iterator locIt = _matchedServer->getLocations().begin(); locIt != _matchedServer->getLocations().end(); ++locIt, ++j)
 		for (std::vector<std::string>::iterator namesIt = (*locIt)->getConfigMembers().getIndex().begin(); namesIt != (*locIt)->getConfigMembers().getIndex().end(); ++namesIt)
 			indexmap.insert(std::make_pair((*locIt)->getUri(), *namesIt));
 	if (_path == aled)
 		_path += indexmap[aled];
 	_path.replace(_path.find(aled), aled.length(), _uriRoot);
-	_responseHeader = "";
+	
+	// isteği yönetmek için
+	processRequest();
+}
+
+void Response::processRequest()
+{
 	if (_type == "GET")
 		getMethodes();
 	else if (_type == "DELETE")
@@ -497,6 +495,7 @@ void	Response::setupRequest()
 
 	_postmethod = false;
 	_isUpload = false;
+	_responseHeader = "";
 }
 
 /**
