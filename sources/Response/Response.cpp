@@ -290,10 +290,7 @@ int Response::postMethodes()
 				cwd = get_cwd_buf();
 				std::string scwd = cwd;
 				free(cwd);
-				_http = "<!DOCTYPE htm1l>\n<html>\n<h1>File " + _fileName + "Has Been Uploaded</h1>";
-				std::cout << "TEST > " << scwd << _upload << removeAll(_fileName, "\"") << std::endl;
-				_http = "<a href=" + scwd + _upload + removeAll(_fileName, "\"") + " download>Download File</a>";
-				
+				_http = "<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"utf-8\">\n</head>\n<h1>File " + _fileName + " has been uploaded yiğen.</h1></html>";				
 				uploadFile(std::string((sear.begin() + i + 3), sear.begin() + j - 2), _bando);
 			}
 		}
@@ -565,32 +562,48 @@ void Response::parseQueryString(const std::string &query_string)
  */
 std::string Response::uploadFile(std::string sear, std::string buffer)
 {
+	std::string firstSixCharacters;
+	std::string extension;
+	std::string filename;
 	std::string mainbuffer(buffer);
 	size_t i = mainbuffer.rfind("filename=\"");
-	if (i != std::string::npos)
+    if (i != std::string::npos) 
 	{
-		i += 10;
-		size_t j = mainbuffer.find("\"", i);
-		if (j != std::string::npos)
-		{
-			mainbuffer = std::string((mainbuffer.begin() + i), mainbuffer.begin() + j);
-		}
+        i += 10;
+        size_t j = mainbuffer.find(".", i);  // "." karakterini ara
+        if (j != std::string::npos) {
+            filename = mainbuffer.substr(i, j - i);  // Dosya adını al
+
+            // Şimdi dosya uzantısını al
+            size_t k = mainbuffer.find("\"", j);  // Uzantının sonunu bul
+            if (k != std::string::npos) {
+                extension = mainbuffer.substr(j + 1, k - j - 1);  // Uzantıyı al
+            }
+        }
+    }
+	if (mainbuffer.length() > 10)
+	{
+		firstSixCharacters = filename.substr(0, 6);
+		firstSixCharacters += "." + extension;
 	}
+	else
+		firstSixCharacters = filename + "." + extension;
+
 	std::string tmpFileName = "." + _upload;
 	std::string root = "";
 	int fd;
 	if ("" == tmpFileName)
-		fd = open((tmpFileName + "/" + mainbuffer).c_str(), O_RDWR | O_CREAT | O_TRUNC, 00777);
+		fd = open((tmpFileName + "/" + firstSixCharacters).c_str(), O_RDWR | O_CREAT | O_TRUNC, 00777);
 	else
 	{
 		mkdir((tmpFileName + "/" + "").c_str(), 0755);
-		fd = open((tmpFileName + "/" + "" + "" + mainbuffer).c_str(), O_RDWR | O_CREAT | O_TRUNC, 00777);
+		fd = open((tmpFileName + "/" + "" + "" + firstSixCharacters).c_str(), O_RDWR | O_CREAT | O_TRUNC, 00777);
 	}
 	if (fd == -1)
 		return (std::string());
 	write(fd, sear.c_str(), sear.size());
 	close(fd);
-	return (mainbuffer);
+	return (firstSixCharacters);
 }
 
 /**
