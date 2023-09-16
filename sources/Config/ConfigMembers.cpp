@@ -9,6 +9,7 @@ ConfigMembers &ConfigMembers::operator=(ConfigMembers const &rhs)
     this->_root = rhs._root;
     this->_maxClientBodySize = rhs._maxClientBodySize;
     this->_autoIndex = rhs._autoIndex;
+    
 
     return (*this);
 }
@@ -31,8 +32,6 @@ std::map<std::string, std::string>& ConfigMembers::getCgi() { return this->_cgiP
 
 std::vector<std::string>& ConfigMembers::getAllowedMethods() { return _allowedMethods; }
 
-
-
 /* <------------------------------------------> */
 
 
@@ -43,5 +42,7 @@ void ConfigMembers::setRoot(std::string const &root) { this->_root = root; }
 void ConfigMembers::setMaxClientBodySize(size_t const &maxClientBodySize) { this->_maxClientBodySize = maxClientBodySize; }
 
 void ConfigMembers::setAutoIndex(bool const &autoIndex) { this->_autoIndex = autoIndex; }
+
+
 
 /* <------------------------------------------> */

@@ -40,7 +40,11 @@ private:
 	std::string							_configName;
 	std::string							_index;
 	std::vector<std::string>			_postValues;
+	
+	unsigned int						_redirectionType;
+	std::string							_redirectionURI;
 
+	bool								_hasRedirection;
 	bool 								_isUpload;
 	bool								_postmethod;
 

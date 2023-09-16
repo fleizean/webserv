@@ -36,6 +36,12 @@ void Response::run()
 			for (std::map<int, std::string>::iterator errIt = (*locIt)->getConfigMembers().getErrorPage().begin(); errIt != (*locIt)->getConfigMembers().getErrorPage().end(); ++errIt)
 				mp.insert(std::make_pair(std::to_string(errIt->first), errIt->second));
 			// buraya gelecek return
+			if ((*locIt)->getHasRedirection() == true) 
+			{
+				_hasRedirection = true;
+				_redirectionType = (*locIt)->getRedirectionType();
+				_redirectionURI = (*locIt)->getRedirectionURI();
+			}
 			for (std::vector<std::string>::iterator namesIt = (*locIt)->getConfigMembers().getAllowedMethods().begin(); namesIt != (*locIt)->getConfigMembers().getAllowedMethods().end(); ++namesIt)
 				all += *namesIt;
  			yes = true;
@@ -55,10 +61,15 @@ void Response::run()
 	for (std::vector<Location*>::iterator locIt = _matchedServer->getLocations().begin(); locIt != _matchedServer->getLocations().end(); ++locIt, ++j)
 		for (std::vector<std::string>::iterator namesIt = (*locIt)->getConfigMembers().getIndex().begin(); namesIt != (*locIt)->getConfigMembers().getIndex().end(); ++namesIt)
 			indexmap.insert(std::make_pair((*locIt)->getUri(), *namesIt));
-	if (_path == aled)
+	if (_hasRedirection == true && _path != "/favicon.ico") {
+		_path = "/" + _redirectionURI;
+	}
+	else {
+		if (_path == aled)
 		_path += indexmap[aled];
+	}
 	_path.replace(_path.find(aled), aled.length(), _uriRoot);
-	
+	// std::cout << "_path: " << _path << std::endl;
 	// isteği yönetmek için
 	processRequest();
 }
@@ -331,7 +342,7 @@ std::string Response::createDirectoryLink(std::string const& dirEntry, std::stri
 /**
  * @brief Hata sayfasını oluşturur ve `_http`'ye ekler.
  */
-void Response::	errorPage()
+void Response::errorPage()
 {
     std::string line;
 	std::ifstream fahd;
@@ -347,7 +358,6 @@ void Response::	errorPage()
 	{
 		tmp_path = realpath(".", NULL);
 		path = toStringFor(tmp_path) + mp[toStringFor(_code)];
-		std::cout << CYAN << path << RESET << std::endl;
 		free(tmp_path);
 	}
 	std::ifstream document;
@@ -496,6 +506,7 @@ void	Response::setupRequest()
 	_postmethod = false;
 	_isUpload = false;
 	_responseHeader = "";
+	_hasRedirection = false;
 }
 
 /**

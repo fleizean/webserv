@@ -182,6 +182,8 @@ void Config::parseLocationArea(std::string& line)
 		parseIndex(ss, lctn->getConfigMembers());
 	else if (word == "cgi_param")
 		parseCgi(ss, lctn->getConfigMembers());
+	else if (word == "return")
+		parseReturnType(ss, lctn);
 	else
 		err.setAndPrint(19, "Config::parseLocationArea");
 }
@@ -394,6 +396,31 @@ void Config::parseAllowedMethods(std::stringstream& ss, ConfigMembers &cm)
 		err.setAndPrint(25, "Config::parseAllowedMethods");
 }
 
+void Config::parseReturnType(std::stringstream& ss, Location* &lctn) 
+{
+	Error err(0);
+	std::string word;
+	unsigned int errorType;
+
+	if (!(ss >> word))
+		err.setAndPrint(17, "Config::parseErrorPage");
+	try
+	{
+		errorType = std::stoul(word);
+	}
+	catch (std::exception& e)
+	{
+		err.setAndPrint(21, "Config::parseErrorPage");;
+	}
+	if (!(ss >> word))
+		err.setAndPrint(22, "Config::parseErrorPage");
+	lctn->setHasRedirection(true);
+	lctn->setRedirectionURI(word);
+	lctn->setRedirectionType(errorType);
+	if (ss >> word)
+		err.setAndPrint(19, "Config::parseErrorPage");
+}
+
 /* <----------------------------------------------> */
 
 void Config::printAll()
@@ -445,8 +472,12 @@ void Config::printAll()
 				std::cout << "auto_index: " << "on" << std::endl;
 			else
 				std::cout << "auto_index: " << "off" << std::endl;
+			
 			for (std::vector<std::string>::const_iterator namesIt = (*lit)->getConfigMembers().getIndex().begin(); namesIt != (*lit)->getConfigMembers().getIndex().end(); ++namesIt)
 				std::cout << "index: " << *namesIt << std::endl;
+
+			if ((*lit)->getHasRedirection() == true)
+				std::cout << "return: " << (*lit)->getRedirectionType() << " " << (*lit)->getRedirectionURI() << std::endl;
 		}
 		std::cout << RESET;
 	}
