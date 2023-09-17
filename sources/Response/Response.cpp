@@ -62,14 +62,19 @@ void Response::run()
 		for (std::vector<std::string>::iterator namesIt = (*locIt)->getConfigMembers().getIndex().begin(); namesIt != (*locIt)->getConfigMembers().getIndex().end(); ++namesIt)
 			indexmap.insert(std::make_pair((*locIt)->getUri(), *namesIt));
 	if (_hasRedirection == true && _path != "/favicon.ico") {
-		_path = "/" + _redirectionURI;
+		_path = _uriRoot + _redirectionURI;
 	}
-	else {
-		if (_path == aled)
-		_path += indexmap[aled];
+	else 
+	{
+		if (_path == aled) {
+			_path += indexmap[aled];
+			
+		}
 	}
-	_path.replace(_path.find(aled), aled.length(), _uriRoot);
-	// std::cout << "_path: " << _path << std::endl;
+	size_t found = _path.find(aled);
+	if (found != std::string::npos) {
+		_path.replace(_path.find(aled), aled.length(), _uriRoot);
+	}
 	// isteği yönetmek için
 	processRequest();
 }
@@ -658,6 +663,8 @@ int Response::getMethodes()
 
 void Response::modifyResponseHeader()
 {
+	if (_hasRedirection == true)
+		_code = _redirectionType;
 	_responseHeader += _protocol + " " + std::to_string(_code) + " " + _errorRep[_code];
 	_responseHeader += "\nDate: " + _time;
 	_responseHeader += "\nServer: " + _serverName;

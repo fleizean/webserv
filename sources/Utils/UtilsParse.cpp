@@ -1,5 +1,4 @@
 #include "../../includes/Include.hpp"
-#include <sys/stat.h>
 
 int fileToString(const string& filename, string& fileContents)
 {
