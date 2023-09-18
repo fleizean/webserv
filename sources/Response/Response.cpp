@@ -19,29 +19,39 @@ static std::string toStringFor(T numb)
 
 void Response::run()
 {
+		std::cout << "Test2\n";
+
 	int j = 1;
 	std::string aled;
 	std::string all;
 	bool yes;
+	std::cout << "Test43545\n";
 	std::vector<Location*>::iterator locItos = _matchedServer->getLocations().begin();
+	std::cout << "Test2\n";
 
 	for (std::vector<Location*>::iterator locIt = _matchedServer->getLocations().begin(); locIt != _matchedServer->getLocations().end(); ++locIt, locItos++, ++j)
 	{
+		std::cout << "Test3\n";
 		if (_path.find((*locIt)->getUri()) != std::string::npos)
 		{
+			std::cout << "Test4\n";
 			_uriRoot = (*locIt)->getConfigMembers().getRoot();
 			aled = (*locIt)->getUri();
+			std::cout << "Test5\n";
 			_maxBody = (*locIt)->getConfigMembers().getMaxClientBodySize();
 			_upload = _matchedServer->getUpload();
+			std::cout << "Test6\n";
 			for (std::map<int, std::string>::iterator errIt = (*locIt)->getConfigMembers().getErrorPage().begin(); errIt != (*locIt)->getConfigMembers().getErrorPage().end(); ++errIt)
 				mp.insert(std::make_pair(std::to_string(errIt->first), errIt->second));
 			// buraya gelecek return
+			std::cout << "Test7\n";
 			if ((*locIt)->getHasRedirection() == true) 
 			{
 				_hasRedirection = true;
 				_redirectionType = (*locIt)->getRedirectionType();
 				_redirectionURI = (*locIt)->getRedirectionURI();
 			}
+			std::cout << "Test8\n";
 			for (std::vector<std::string>::iterator namesIt = (*locIt)->getConfigMembers().getAllowedMethods().begin(); namesIt != (*locIt)->getConfigMembers().getAllowedMethods().end(); ++namesIt)
 				all += *namesIt;
  			yes = true;
@@ -68,9 +78,9 @@ void Response::run()
 	{
 		if (_path == aled) {
 			_path += indexmap[aled];
-			
 		}
 	}
+	std::cout << "path: " << _path << std::endl;
 	size_t found = _path.find(aled);
 	if (found != std::string::npos) {
 		_path.replace(_path.find(aled), aled.length(), _uriRoot);

@@ -1,4 +1,7 @@
 #include "../../includes/Server.hpp"
+#include <chrono>
+#include <thread>
+
 
 /* ------------> CANNONICAL FUNCTIONS <------------ */
 
@@ -33,9 +36,12 @@ void Server::create_socket(int port, std::string host)
 	struct sockaddr_in socket_addr;
 	int  ret_val;
 
+	(void)host;
+
 	socket_addr.sin_family = AF_INET;
 	socket_addr.sin_port = htons(port);
-	inet_pton(AF_INET, host.c_str(), &(socket_addr.sin_addr));
+	socket_addr.sin_addr.s_addr = htonl(INADDR_ANY); // hata 2
+	//inet_pton(AF_INET, host.c_str(), &(socket_addr.sin_addr));
 	ret_val = ::bind(efd, (struct sockaddr *)&socket_addr, sizeof(struct sockaddr_in));
 	if (ret_val != 0)
 	{
@@ -166,19 +172,22 @@ void Server::selectConnection(fd_set& read_fd_set, int& new_fd)
 
 void Server::processActiveConnection(int connectionIndex, fd_set& read_fd_set)
 {
+
 	ServerMembers* matchedServer;
     char tmp_buff[DATA_BUFFER + 1];
     memset(tmp_buff, 0, sizeof(tmp_buff));
     strcpy(tmp_buff, buffer.c_str());
     Request pr(tmp_buff); // Requst Parser
     matchedServer = getServerForRequest(pr.getListen(), _servers); // matchedServer -> verdiğim ip ve port ile eşleşen serverı getirir
-	
-	Response response(pr, _servers, matchedServer); // 
+	Response response(pr, _servers, matchedServer); //
 	response.setBando(buffer);
 	response.checkModifyDate();
 	response.setDate();
 	response.errorStatus();
+
 	response.run();
+	_time++;
+	std::cout << BOLD_RED << "timer: " << _time << RESET << std::endl;
 	write(all_connections[connectionIndex], response.getResponseHeader().c_str(), response.getResponseHeader().size() + 1);
 
 	/* closing area */
@@ -222,11 +231,12 @@ void Server::closeConnection(int &connectionIndex, fd_set& read_fd_set)
 
 int Server::run()
 {
+	_time = 0;
     Error err(0);
     fd_set read_fd_set;
 	fd_set write_fd_set = {0};
 	int new_fd, ret_val;
-	
+
 	if (!checkValidSockets()) // socket validasyon kontrolü
         err.setAndPrint(52, "Server::run");
 	while (1)
@@ -255,8 +265,10 @@ int Server::run()
 
 ServerMembers*    Server::getServerForRequest(t_listen& address, std::vector<ServerMembers*>& servers)
 {	
+	
 	for (std::vector<ServerMembers *>::const_iterator it = servers.begin() ; it != servers.end(); it++)
     {
+		address.host = 2130706433;
         if (address.host == (*it)->getListen().host && address.port == (*it)->getListen().port)
         {
             return (*it);

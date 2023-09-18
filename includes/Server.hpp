@@ -23,6 +23,7 @@ private:
 	std::string 		buffer;
 	std::string			_errorResponse;
 	bool				_foundError;
+	int					_time;
 	int _port;
 
 	socklen_t addrlen;
