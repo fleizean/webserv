@@ -52,5 +52,5 @@ public:
 	void processActiveConnections(fd_set& read_fd_set);
 	bool validateLocationUri();
 
-	ServerMembers*    getServerForRequest(t_listen& address, std::vector<ServerMembers*>& servers);
+	ServerMembers*    getServerForRequest(t_listen& address, std::vector<ServerMembers*>& servers, Request &req);
 };

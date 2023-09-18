@@ -178,7 +178,7 @@ void Server::processActiveConnection(int connectionIndex, fd_set& read_fd_set)
     memset(tmp_buff, 0, sizeof(tmp_buff));
     strcpy(tmp_buff, buffer.c_str());
     Request pr(tmp_buff); // Requst Parser
-    matchedServer = getServerForRequest(pr.getListen(), _servers); // matchedServer -> verdiğim ip ve port ile eşleşen serverı getirir
+    matchedServer = getServerForRequest(pr.getListen(), _servers, pr); // matchedServer -> verdiğim ip ve port ile eşleşen serverı getirir
 	Response response(pr, _servers, matchedServer); //
 	response.setBando(buffer);
 	response.checkModifyDate();
@@ -263,16 +263,30 @@ int Server::run()
     return 0;
 }
 
-ServerMembers*    Server::getServerForRequest(t_listen& address, std::vector<ServerMembers*>& servers)
+ServerMembers*    Server::getServerForRequest(t_listen& address, std::vector<ServerMembers*>& servers, Request &req)
 {	
 	
 	for (std::vector<ServerMembers *>::const_iterator it = servers.begin() ; it != servers.end(); it++)
     {
 		address.host = 2130706433;
-        if (address.host == (*it)->getListen().host && address.port == (*it)->getListen().port)
-        {
-            return (*it);
-        }
+		if (!(*it)->getServerName().empty())
+		{
+			for (std::vector<std::string>::const_iterator sit = (*it)->getServerName().begin(); sit != (*it)->getServerName().end(); sit++)
+			{
+				if (*sit == req.getHost() && address.host == (*it)->getListen().host && address.port == (*it)->getListen().port)
+				{
+					return (*it);
+				}
+			}
+		}
+		else 
+		{
+			if (address.host == (*it)->getListen().host && address.port == (*it)->getListen().port)
+        	{
+        	    return (*it);
+        	}
+		}
+        
     }
     // Boyle bir durum soz konusu degil ama yinede NULL donduruyoruz
     return NULL;

@@ -1,4 +1,5 @@
 #include "../../includes/Config.hpp"
+#include "Utils.hpp"
 
 Config::Config() : _configContent(), serverBlock(false), mainBlock(true), locationBlock(false) {}
 
