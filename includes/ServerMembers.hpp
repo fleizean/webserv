@@ -14,6 +14,7 @@ private:
 	vector<Location *>					_locations;
 	vector<std::string>					_serverName;
 	std::string							_upload;
+	std::string							_serverHeader;
 	ConfigMembers						_members;
 public:
 	/* default constructor */
@@ -35,9 +36,11 @@ public:
 	ConfigMembers& getConfigMembers();
 	std::string  const &getHost();
 	std::string const &getUpload();
+	std::string const &getServerHeader();
 	
 	/* Set area */
 	void setHost(std::string const &host);
+	void setServerHeader(std::string const &serverHeader);
 	void setHost(unsigned int const &host); // listen
 	void setPort(int const &port); // port
 	void setLocationUri(std::string const &uri);

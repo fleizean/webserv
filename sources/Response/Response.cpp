@@ -665,7 +665,10 @@ void Response::modifyResponseHeader()
 		_code = _redirectionType;
 	_responseHeader += _protocol + " " + std::to_string(_code) + " " + _errorRep[_code];
 	_responseHeader += "\nDate: " + _time;
-	_responseHeader += "\nServer: " + _serverName;
+	if (_matchedServer->getServerHeader().empty())
+		_responseHeader += "\nServer: Webserv42";
+	else
+		_responseHeader += "\nServer: " + _matchedServer->getServerHeader();
 	_responseHeader += "\nLast-modified: " + _modifyTime;
 	_responseHeader += "\nContent-Type: " + _contentType;
 	if (_isUpload != true)

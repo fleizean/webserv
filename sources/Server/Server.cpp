@@ -120,7 +120,6 @@ void Server::setup()
 		{
 			if (it->first == _host && it->second == _port)
 			{
-
 		    	fd[i] = fd[p];
 				flag = true;
 				break;
@@ -212,9 +211,10 @@ void Server::processActiveConnection(int connectionIndex, fd_set& read_fd_set)
 		response.errorStatus();
 
 		response.run();
+		std::cout << BOLD_CYAN << response.getResponseHeader() << RESET << std::endl;
+
 		write(all_connections[connectionIndex], response.getResponseHeader().c_str(), response.getResponseHeader().size() + 1);
 	}
-
 	/* closing area */
 	closeConnection(connectionIndex, read_fd_set);
 }

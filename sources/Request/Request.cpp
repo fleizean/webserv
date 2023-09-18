@@ -199,7 +199,7 @@ void Request::printAll()
 {
     std::cout << BLUE << "----------> Request Parse Area <----------" << RESET << "\n";
     std::cout << BOLD_MAGENTA << "Http-Method: " << RESET << this->getMethod() << "\n";
-    std::cout << BOLD_MAGENTA << "Http-Locaiton: " << RESET << this->getLocation() << "\n";
+    std::cout << BOLD_MAGENTA << "Http-Location: " << RESET << this->getLocation() << "\n";
     std::cout << BOLD_MAGENTA << "Http-Protocol: " << RESET << this->getProtocol() << "\n";
     std::cout << BOLD_MAGENTA << "Http-Host: " << RESET << this->getHost() << "\n";
     std::cout << BOLD_MAGENTA << "Http-Port: " << RESET << this->getPort() << "\n";

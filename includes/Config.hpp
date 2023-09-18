@@ -55,6 +55,7 @@ public:
 	void parseAllowedMethods(std::stringstream& ss, ConfigMembers &cm);
 
 	/* Server Parse */
+	void parseServerHeader(std::stringstream& ss, ServerMembers &srvr);
 	void parseListen(std::stringstream& ss, ServerMembers &srvr);
 	void parseServerName(std::stringstream& ss, ServerMembers &srvr);
 	void parseLocation(std::stringstream& ss, ServerMembers &srvr);

@@ -150,7 +150,8 @@ void Config::parseServerArea(std::string& line)
 		parseLocation(ss, *srvr);
 	else if (word == "upload_pass")
 		parseUpload(ss, *srvr);
-
+	else if (word == "server_header")
+		parseServerHeader(ss, *srvr);
 }
 
 void Config::parseLocationArea(std::string& line)
@@ -253,6 +254,21 @@ void Config::parseUpload(std::stringstream& ss, ServerMembers &srvr)
 	srvr.setUpload(word);
 	if (ss >> word)
 		err.setAndPrint(19, "Config::parseUpload");
+}
+
+void Config::parseServerHeader(std::stringstream& ss, ServerMembers &srvr)
+{
+	Error err(0);
+	std::string word;
+
+	while (!(ss >> word))
+		word += word;
+	if (word.length() > 32)
+		srvr.setServerHeader(word.substr(0, 32));
+	else
+		srvr.setServerHeader(word);
+	if (srvr.getServerHeader().empty())
+		err.setAndPrint(12, "Config::parseServerHeader");
 }
 
 void Config::parseCgi(std::stringstream& ss, ConfigMembers &cm)
@@ -438,6 +454,7 @@ void Config::printAll()
 		std::cout << "listen : on host '" << (*it)->getListen().host << " & " << (*it)->getHost() << "', port '" << (*it)->getListen().port << "'" << std::endl;
 		for (std::vector<std::string>::const_iterator namesIt = (*it)->getServerName().begin(); namesIt != (*it)->getServerName().end(); ++namesIt)
 			std::cout << "serverName: " << *namesIt << std::endl;
+		std::cout << "serverHeader: " << (*it)->getServerHeader() << std::endl;
 		for (std::map<std::string, std::string>::iterator namesIt = (*it)->getConfigMembers().getCgi().begin(); namesIt != (*it)->getConfigMembers().getCgi().end(); ++namesIt)
 			std::cout << "cgi_param: " << namesIt->first << " " << namesIt->second << std::endl;
 		if (!(*it)->getConfigMembers().getRoot().empty())
