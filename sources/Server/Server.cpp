@@ -107,13 +107,28 @@ void Server::setup()
 	setNbPort(_servers.size());
 	std::vector<ServerMembers*>::const_iterator ite = _servers.end();
     std::vector<ServerMembers*>::const_iterator it = _servers.begin();
-
+	std::map<std::string, int> hP;
+	bool flag;
 	for (int i = 0; it != ite; ++it, i++)
     {
+		flag = false;
 		_port = (*it)->getListen().port;
 		_host = (*it)->getHost();
         std::cout << BOLD_CYAN << _host << ":" << _port << " setuping and listening right now..." << RESET << "\n";
-		fd[i] = create_server(_port, _host);
+	 	int p = 0;
+		for (std::map<std::string, int>::iterator it = hP.begin(); it != hP.end(); ++it, p++) 
+		{
+			if (it->first == _host && it->second == _port)
+			{
+
+		    	fd[i] = fd[p];
+				flag = true;
+				break;
+			}
+		}
+		if(flag == false)
+			fd[i] = create_server(_port, _host);
+		hP[_host] = _port;
 	}
 }
 
@@ -186,7 +201,6 @@ void Server::processActiveConnection(int connectionIndex, fd_set& read_fd_set)
 		_responseHeader += "\nContent-Type: text/html" ;
 		_responseHeader += "\n\n";
 		_responseHeader += "<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"utf-8\">\n</head>\n<h1>404 Error.</h1></html>";
-		std::cout << CYAN << _responseHeader << RESET << std::endl;
 		write(all_connections[connectionIndex], _responseHeader.c_str(), _responseHeader.size() + 1);
 	}
 	else
@@ -198,8 +212,6 @@ void Server::processActiveConnection(int connectionIndex, fd_set& read_fd_set)
 		response.errorStatus();
 
 		response.run();
-		std::cout << CYAN << response.getResponseHeader() << RESET << std::endl;
-
 		write(all_connections[connectionIndex], response.getResponseHeader().c_str(), response.getResponseHeader().size() + 1);
 	}
 

@@ -7,6 +7,7 @@
 #include <arpa/inet.h>
 #include "Request.hpp"
 #include "Response.hpp"
+#include <map>
 
 #define MAX_CONNECTIONS 65535 
 #define DATA_BUFFER 800000
