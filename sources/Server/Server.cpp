@@ -172,23 +172,36 @@ void Server::selectConnection(fd_set& read_fd_set, int& new_fd)
 
 void Server::processActiveConnection(int connectionIndex, fd_set& read_fd_set)
 {
-
+	
 	ServerMembers* matchedServer;
     char tmp_buff[DATA_BUFFER + 1];
     memset(tmp_buff, 0, sizeof(tmp_buff));
     strcpy(tmp_buff, buffer.c_str());
     Request pr(tmp_buff); // Requst Parser
     matchedServer = getServerForRequest(pr.getListen(), _servers, pr); // matchedServer -> verdiğim ip ve port ile eşleşen serverı getirir
-	Response response(pr, _servers, matchedServer); //
-	response.setBando(buffer);
-	response.checkModifyDate();
-	response.setDate();
-	response.errorStatus();
+	if (matchedServer == NULL) 
+	{
+		std::string _responseHeader;
+		_responseHeader += "HTTP/1.1 404 OK" ;
+		_responseHeader += "\nContent-Type: text/html" ;
+		_responseHeader += "\n\n";
+		_responseHeader += "<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"utf-8\">\n</head>\n<h1>404 Error.</h1></html>";
+		std::cout << CYAN << _responseHeader << RESET << std::endl;
+		write(all_connections[connectionIndex], _responseHeader.c_str(), _responseHeader.size() + 1);
+	}
+	else
+	{
+		Response response(pr, _servers, matchedServer); //
+		response.setBando(buffer);
+		response.checkModifyDate();
+		response.setDate();
+		response.errorStatus();
 
-	response.run();
-	_time++;
-	std::cout << BOLD_RED << "timer: " << _time << RESET << std::endl;
-	write(all_connections[connectionIndex], response.getResponseHeader().c_str(), response.getResponseHeader().size() + 1);
+		response.run();
+		std::cout << CYAN << response.getResponseHeader() << RESET << std::endl;
+
+		write(all_connections[connectionIndex], response.getResponseHeader().c_str(), response.getResponseHeader().size() + 1);
+	}
 
 	/* closing area */
 	closeConnection(connectionIndex, read_fd_set);
