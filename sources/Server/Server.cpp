@@ -48,7 +48,7 @@ void Server::create_socket(int port, std::string host)
 		close(efd);
 		err.setAndPrint(39, "Server::create_socket");
 	}
-	ret_val = listen(efd, 4096);
+	ret_val = listen(efd, 128);
 	if (ret_val != 0)
 	{
 		close(efd);
@@ -77,24 +77,22 @@ int Server::create_server(int port, std::string host)
 int Server::read_connection(int socket)
 {
 	char	tmp_buffer[DATA_BUFFER + 1];
-
-	memset(tmp_buffer, 0, DATA_BUFFER);
+	
 	int ret = recv(socket, tmp_buffer, DATA_BUFFER, 0);
-	if (ret == -1){
+	if (ret == -1)
 		return -1;
-	}
-	else if (ret == 0)
+	if (ret == 0)
         return 5;
-	buffer += std::string(tmp_buffer, ret);
-	size_t res = buffer.find("\r\n\r\n");
+	_buffer += std::string(tmp_buffer, ret);
+	size_t res = _buffer.find("\r\n\r\n");
 	if (res != std::string::npos)
 	{
-		if (buffer.find("Content-Length: ") == std::string::npos)
+		if (_buffer.find("Content-Length: ") == std::string::npos)
 			return (0);
 	
-		size_t len = std::atoi(buffer.substr(buffer.find("Content-Length: ") + strlen("Content-Length: "), 10).c_str());
+		size_t len = std::atoi(_buffer.substr(_buffer.find("Content-Length: ") + strlen("Content-Length: "), 10).c_str());
 		
-		if (buffer.size() >= len + res + strlen("\r\n\r\n"))
+		if (_buffer.size() >= len + res + strlen("\r\n\r\n"))
 			return (0);
 		else
 			return (1);
@@ -189,8 +187,7 @@ void Server::processActiveConnection(int connectionIndex, fd_set& read_fd_set)
 	
 	ServerMembers* matchedServer;
     char tmp_buff[DATA_BUFFER + 1];
-    memset(tmp_buff, 0, sizeof(tmp_buff));
-    strcpy(tmp_buff, buffer.c_str());
+	strcpy(tmp_buff, _buffer.c_str());
     Request pr(tmp_buff); // Requst Parser
     matchedServer = getServerForRequest(pr.getListen(), _servers, pr); // matchedServer -> verdiğim ip ve port ile eşleşen serverı getirir
 	if (matchedServer == NULL) 
@@ -205,13 +202,12 @@ void Server::processActiveConnection(int connectionIndex, fd_set& read_fd_set)
 	else
 	{
 		Response response(pr, _servers, matchedServer); //
-		response.setBando(buffer);
+		response.setBando(_buffer);
 		response.checkModifyDate();
 		response.setDate();
 		response.errorStatus();
 
 		response.run();
-		std::cout << BOLD_CYAN << response.getResponseHeader() << RESET << std::endl;
 
 		write(all_connections[connectionIndex], response.getResponseHeader().c_str(), response.getResponseHeader().size() + 1);
 	}
@@ -247,7 +243,6 @@ void Server::processActiveConnections(fd_set& read_fd_set)
 
 void Server::closeConnection(int &connectionIndex, fd_set& read_fd_set)
 {
-	buffer = "";
 	close(all_connections[connectionIndex]);
     fcntl(all_connections[connectionIndex], F_SETFD, FD_CLOEXEC);
     FD_CLR(all_connections[connectionIndex], &read_fd_set);

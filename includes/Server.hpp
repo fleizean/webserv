@@ -21,7 +21,7 @@ private:
 	// int					sockfd;
 	int					NbPort;
 	std::string 		_host;
-	std::string 		buffer;
+	std::string 		_buffer;
 	std::string			_errorResponse;
 	bool				_foundError;
 	int					_time;
