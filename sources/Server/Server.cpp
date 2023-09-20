@@ -41,7 +41,6 @@ void Server::create_socket(int port, std::string host)
 	socket_addr.sin_family = AF_INET;
 	socket_addr.sin_port = htons(port);
 	socket_addr.sin_addr.s_addr = htonl(INADDR_ANY); // hata 2
-	//inet_pton(AF_INET, host.c_str(), &(socket_addr.sin_addr));
 	ret_val = ::bind(efd, (struct sockaddr *)&socket_addr, sizeof(struct sockaddr_in));
 	if (ret_val != 0)
 	{
@@ -285,23 +284,26 @@ int Server::run()
 
 ServerMembers*    Server::getServerForRequest(t_listen& address, std::vector<ServerMembers*>& servers, Request &req)
 {	
-	ServerMembers* matchingServer = nullptr;
-	address.host = 2130706433;
+/* 	ServerMembers* matchingServer = nullptr;
+	ServerMembers* firstServer = nullptr;
+
+	bool first = true;
+
 	for (std::vector<ServerMembers *>::const_iterator it = servers.begin(); it != servers.end(); it++)
     {
-		
-
+		if (it == servers.begin())
+			firstServer = (*it);
 		if (!(*it)->getServerName().empty())
 		{
 			for (std::vector<std::string>::const_iterator sit = (*it)->getServerName().begin(); sit != (*it)->getServerName().end(); sit++)
 			{
-				std::cout << "address: " << address.host << ":" << address.port << " - " << req.getHost() << std::endl;
-				std::cout << "matching: " << (*it)->getListen().host << ":" << (*it)->getListen().port << " - " << *sit << std::endl;
-				if (*sit == req.getHost() && address.host == (*it)->getListen().host && address.port == (*it)->getListen().port)
+				if (*sit == req.getHost() && address.port == (*it)->getListen().port)
 				{
+					address.host = 2130706433;
 					return (*it);
 				}
 			}
+			first = false;
 		}
 		else 
 		{
@@ -310,8 +312,33 @@ ServerMembers*    Server::getServerForRequest(t_listen& address, std::vector<Ser
         	    matchingServer = (*it);
         	}
 		}
-        
+    }
+	if (first == false || matchingServer != nullptr)
+    {
+        matchingServer = firstServer;
     }
 
-    return matchingServer;
+    return matchingServer; */
+
+	address.host = 2130706433;
+	std::vector<ServerMembers *> possibleServers;
+
+	for (std::vector<ServerMembers *>::const_iterator it = servers.begin(); it != servers.end(); it++)
+	{
+		if (address.port == (*it)->getListen().port)
+		{
+			possibleServers.push_back((*it));
+		}
+	}
+	if (possibleServers.empty())
+		return NULL;
+	for (std::vector<ServerMembers *>::const_iterator serversIter = possibleServers.begin(); serversIter != possibleServers.end(); serversIter++) {
+		for (std::vector<std::string>::const_iterator sit = (*serversIter)->getServerName().begin(); sit != (*serversIter)->getServerName().end(); sit++)
+		{
+			if (*sit == req.getHost()) {
+				return *serversIter;
+			}
+		}
+	}
+	return possibleServers[0];
 }

@@ -66,7 +66,7 @@ void Cgi::initOthersEnvironment(char* cwd)
     std::cout << RESET << std::endl; */
 }
 
-std::string Cgi::cgiExecute()
+std::string Cgi::cgiExecute() // bakılacak
 {
     size_t i = 0;
     int pip[2];

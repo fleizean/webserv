@@ -33,14 +33,14 @@ private:
 	int									_code;
 	int									_contentLen;
 	int									_port;
-	int									_envj;
 	int									_maxBody;
 	std::string							_contentLength;
 	std::string							_uriRoot;
 	std::string							_configName;
 	std::string							_index;
 	std::vector<std::string>			_postValues;
-	
+	std::vector<std::string> 			_allowedMethods;
+
 	unsigned int						_redirectionType;
 	std::string							_redirectionURI;
 

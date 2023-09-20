@@ -21,7 +21,6 @@ void Response::run()
 {
 	int j = 1;
 	std::string aled;
-	std::string all;
 	bool yes;
 	std::vector<Location*>::iterator locItos = _matchedServer->getLocations().begin();
 
@@ -42,12 +41,12 @@ void Response::run()
 				_redirectionURI = (*locIt)->getRedirectionURI();
 			}
 			for (std::vector<std::string>::iterator namesIt = (*locIt)->getConfigMembers().getAllowedMethods().begin(); namesIt != (*locIt)->getConfigMembers().getAllowedMethods().end(); ++namesIt)
-				all += *namesIt;
+				_allowedMethods.push_back(*namesIt);
  			yes = true;
 		}
 		else if (yes != true)
 		{
-			all = "GETPOSTDELETE";
+			_allowedMethods.push_back("ALL");
 			_maxBody = _matchedServer->getConfigMembers().getMaxClientBodySize();
 		}
 		for (std::map<std::string, std::string>::iterator namesIt = _matchedServer->getConfigMembers().getCgi().begin(); namesIt != _matchedServer->getConfigMembers().getCgi().end(); ++namesIt)
@@ -79,11 +78,11 @@ void Response::run()
 
 void Response::processRequest()
 {
-	if (_type == "GET")
+	if (_type == "GET" && (std::find(_allowedMethods.begin(), _allowedMethods.end(), "GET") != _allowedMethods.end() || std::find(_allowedMethods.begin(), _allowedMethods.end(), "ALL") != _allowedMethods.end()))
 		getMethodes();
-	else if (_type == "DELETE")
+	else if (_type == "DELETE" && (std::find(_allowedMethods.begin(), _allowedMethods.end(), "DELETE") != _allowedMethods.end() || std::find(_allowedMethods.begin(), _allowedMethods.end(), "ALL") != _allowedMethods.end()))
 		deleteMethodes();
-	else if (_type == "POST") 
+	else if (_type == "POST" && (std::find(_allowedMethods.begin(), _allowedMethods.end(), "POST") != _allowedMethods.end() || std::find(_allowedMethods.begin(), _allowedMethods.end(), "ALL") != _allowedMethods.end())) 
 		postMethodes();
 	else
 	{
@@ -135,7 +134,7 @@ void Response::errorStatus()
  * @param fileName Kontrol edilecek dosyanın adı.
  * @return Dosya varlık kontrolünün sonucunu gösteren HTTP yanıt kodu.
  */
-int Response::fileExist(const char* fileName)
+int Response::fileExist(const char* fileName) // bakılacak
 {
     std::string line;
     _code = 200;
@@ -216,7 +215,7 @@ int Response::fileExist(const char* fileName)
  * @param path Otomatik dizin içeriğinin oluşturulacağı dizin yolu.
  * @return Oluşturulan otomatik dizin içeriği.
  */
-std::string Response::fAutoIndex(const char* path)
+std::string Response::fAutoIndex(const char* path) // bakılacak
 {
     std::string Directory(_path);
     DIR* dir = opendir(path);
@@ -267,7 +266,7 @@ std::string Response::fAutoIndex(const char* path)
  *
  * @return POST yönteminin başarılı bir şekilde işlendiğini belirten 0 değerini döndürür.
  */
-int Response::postMethodes()
+int Response::postMethodes() // bakılacak
 {
 	_postmethod = true;
 	char* point_path = realpath(".", NULL);
@@ -430,7 +429,7 @@ void Response::getContentType(std::string path)
  * @return true 
  * @return false 
  */
-bool Response::checkIfPathIsFile(const char *path)
+bool Response::checkIfPathIsFile(const char *path) // bakılacak (flag)
 {
 	struct stat s;
 	if (stat(path, &s) == 0)
@@ -456,7 +455,7 @@ bool Response::checkIfPathIsFile(const char *path)
  * Bu fonksiyon, HTTP yanıtlarında `Last-Modified` başlığının ayarlanması için kullanılabilir.
  * İstemcilere, dosyanın son değiştirilme zamanını bildirmek amacıyla bu başlık kullanılır.
  */
-void Response::checkModifyDate(void)
+void Response::checkModifyDate()
 {
 	char src[100];
 	struct stat status;
@@ -554,7 +553,6 @@ void Response::parseQueryString(const std::string &query_string)
 		position = next_delimiter + 1;
 		i++;
 	}
-	_envj = i; // kaç tane key value var tutulur
 }
 
 /**
@@ -630,7 +628,7 @@ std::string Response::uploadFile(std::string sear, std::string buffer)
  *
  * @return GET yönteminin başarılı bir şekilde işlendiğini belirten 0 değerini döndürür.
  */
-int Response::getMethodes()
+int Response::getMethodes() // bakılacak
 {
 	char* raw_path = realpath(".", NULL);
 	std::string raw_path_str(raw_path);
@@ -698,14 +696,14 @@ void Response::modifyResponseHeader()
  *   - Son olarak _http'yi _responseHeader'a ekler.
  *
  */
-void Response::deleteMethodes()
+void Response::deleteMethodes() // bakılacak
 {
 	handleDeleteRequest();
 
 	if (_contentLen >= _maxBody)
 		_code = 413;
     
-	_responseHeader += _protocol + " " + std::to_string(_code) + " " + _errorRep[_code];
+	_responseHeader += _protocol + " " + std::to_string(_code) + " " + _errorRep[_code]; // .
 	_responseHeader += "\nDate : " + _time + "\n\n";
 
 	resetHTML();
