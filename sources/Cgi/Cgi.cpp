@@ -8,9 +8,10 @@ Cgi::Cgi()
     _postValues = std::vector<std::string>();
     _fileName = "";
     _matchedServer = NULL;
+    _cgiPath = "";
 }
 
-Cgi::Cgi(std::string fileName, std::string m_request, Request req, std::string path, std::vector<std::string> postValues, ServerMembers* matchedServer) 
+Cgi::Cgi(std::string fileName, std::string m_request, Request req, std::string path, std::vector<std::string> postValues, ServerMembers* matchedServer, std::string cgiPath) 
 {
     _requestHeader = m_request;
     _request = req;
@@ -18,48 +19,37 @@ Cgi::Cgi(std::string fileName, std::string m_request, Request req, std::string p
     _postValues = postValues;
     _fileName = fileName;
     _matchedServer = matchedServer;
+    _cgiPath = trim(cgiPath, "/");
 }
 
 Cgi::~Cgi() {}
 
 void Cgi::extractKeyValues() {
-    for (std::vector<std::string>::iterator it = _postValues.begin(); it != _postValues.end(); it++)
-        _env.push_back(*it);
+    for (size_t i = _postValues.size() - 1; i < _postValues.size(); ++i) {
+        _keyValue += _postValues[i];
+        if (i != _postValues.size() - 1) {
+            _keyValue += "&";
+        }
+    }
 }
 
-void Cgi::initOthersEnvironment(char* cwd)
+void Cgi::initOthersEnvironment()
 {
-    std::string serverName = "";
-    for (std::vector<std::string>::const_iterator it = _matchedServer->getServerName().begin(); it != _matchedServer->getServerName().end(); ++it) {
-        serverName = *it;
-        break;
-    }
-    _env.push_back("CONTENT_TYPE=" + _request.getFirstMediaType());
-    _env.push_back("DOCUMENT_ROOT");
+    _env.push_back("SCRIPT_FILENAME=" + _cgiPath + _request.getLocation());
+    _env.push_back("SCRIPT_NAME=" + _cgiPath + _request.getLocation());
+    _env.push_back("CONTENT_TYPE=" + _request.getContentType());
     _env.push_back("CONTENT_LENGTH=" + std::to_string(_request.getContentLength()));
-    _env.push_back("HTTP_COOKIE=none");
-    _env.push_back("HTTP_HOST=off");
-    _env.push_back("HTTP_REFERER");
-    _env.push_back("HTTP_USER_AGENT");
-    _env.push_back("HTTPS=off");
-    _env.push_back("PATH=" + std::string(cwd));
-    _env.push_back("QUERY_STRING");
-    _env.push_back("REMOTE_ADDR=127.0.0.1");
-    _env.push_back("REMOTE_HOST");
-    _env.push_back("REMOTE_PORT=");
-    _env.push_back("REMOTE_USER");
     _env.push_back("REQUEST_METHOD=" + _request.getMethod());
-    _env.push_back("REQUEST_URI=" + std::string(cwd));
-    _env.push_back("SCRIPT_FILENAME"); 
-    _env.push_back("SCRIPT_NAME");
-    _env.push_back("SERVER_ADMIN");
-    _env.push_back("SERVER_NAME=" + serverName);
+    _env.push_back("PATH_INFO=" + _request.getLocation());
+    _env.push_back("GATEWAY_INTERFACE=CGI/1.1");
+    _env.push_back("REQUEST_METHOD=" + _request.getMethod());
+    _env.push_back("REQUEST_URI=" + _request.getLocation());
     _env.push_back("SERVER_PORT=" + std::to_string(_request.getPort()));
-    _env.push_back("SERVER_SOFTWARE=eyagiz_fyurtsev/1.0");
+    _env.push_back("SERVER_SOFTWARE=webserv");
     _env.push_back("SERVER_PROTOCOL=" + _request.getProtocol());
     _env.push_back("REDIRECT_STATUS=200");
 
-    /* std::cout << BOLD_YELLOW << "\n----------> Env Testing <----------\n" << RESET;
+/*     std::cout << BOLD_YELLOW << "\n----------> Env Testing <----------\n" << RESET;
     std::cout << CYAN << std::endl;
     for(std::vector<std::string>::iterator it = _env.begin(); it != _env.end(); it++)
         std::cout << *it << std::endl;
@@ -68,83 +58,71 @@ void Cgi::initOthersEnvironment(char* cwd)
 
 std::string Cgi::cgiExecute() // bakılacak
 {
+    extractKeyValues();   
+    initOthersEnvironment();
+
     size_t i = 0;
-    int pip[2];
-    pid_t child = 0;
-    pid_t parent = 0;
-    
-    extractKeyValues();
-    
-    char* cwd = get_cwd_buf();
-    initOthersEnvironment(cwd);
-    free(cwd);
-    
-    int fd = open("tmp", O_CREAT | O_TRUNC | O_WRONLY | O_NONBLOCK, 0777);
-    write(fd, _requestHeader.c_str(), _requestHeader.size());
-    close(fd);
-    
-    char** yes = new char*[_env.size() + 1];
+    char	output[4096];
+	int		readed;
+	int	body_pipe[2];
+	int	result_pipe[2];
+	std::string tmp2;
+	char *av1 = (char *)this->_path.c_str();
+	char *av2;
+	char *av[3];
+
+    av[2] = 0;
+
+    av2 = (char *)_fileName.c_str();
+
+    av[0] = av1;
+	av[1] = av2;
+
+    char **env = new char*[_env.size() + 1];
     for (i = 0; i < _env.size(); i++)
-        yes[i] = (char*)_env.at(i).c_str();
-    yes[i] = NULL;
-    char* echo[3] = {(char*)"cat", (char*)"tmp", NULL};
-    /* std::cout << "fileName: " << _path << " " << _fileName << std::endl; */
-    char* cmd[] = {(char*)&_path[0], (char*)&_fileName[0], NULL};
+        env[i] = (char*)_env.at(i).c_str();
+    env[i] = NULL;
+
+    pipe(body_pipe);
+	pipe(result_pipe);
+
+    if (this->_request.getMethod() == "POST") {
+		write(body_pipe[1], _keyValue.c_str(), _keyValue.length());
+	}
+
+    close(body_pipe[1]);
+
+    if (!fork())
+	{
+
+		close(result_pipe[0]);
+		dup2(result_pipe[1], 1);
+		close(result_pipe[1]);
+
+		if (this->_request.getMethod() == "POST")
+			dup2(body_pipe[0], 0);
+		close(body_pipe[0]);
+
+		execve(av[0], av, env);
+		std::cout << "Execv Err!" << std::endl << std::flush;
+
+        while(env[i])
+           delete[] env[i];
+        delete[] env;
+		exit(-1);
+	}
+    wait(NULL);
+	close(body_pipe[0]);
+	close(result_pipe[1]);
+
+	readed = read(result_pipe[0], output, 4096);
+	if (readed == 0)
+		std::cout << "Cgi Read Fail!" << std::endl << std::flush;
+	close(result_pipe[0]);
+	output[readed] = 0;
+    while(env[i])
+        delete[] env[i];
+    delete[] env;
     
-    if (pipe(pip) == -1)
-    {
-        perror("CGI part: Pipe failed");
-        exit(1);
-    }
-    
-    child = fork();
-    if (child == -1)
-    {
-        std::cerr << "Fork failed" << std::endl;
-        return "Status: 500\r\n\r\n";
-    }
-    else if (child == 0)
-    {
-        dup2(pip[1], 1);
-        close(pip[0]);
-        execve("/bin/cat", echo, NULL);
-    }
-    else
-    {
-        int status2;
-        wait(&status2);
-        
-        parent = fork();
-        if (parent == 0)
-        {
-            int tmp = open(".tmp", O_CREAT | O_TRUNC | O_NONBLOCK | O_RDWR, 0777);
-            dup2(pip[0], 0);
-            dup2(tmp, 1);
-            close(pip[1]);
-            execve(cmd[0], cmd, yes);
-        }
-        else
-        {
-            int status;
-            wait(&status);
-            close(pip[0]);
-            close(pip[1]);
-    
-            int tmp = open(".tmp", O_NONBLOCK | O_RDONLY);
-            char buf[65535];
-            bzero(buf, sizeof(buf));
-            read(tmp, buf, sizeof(buf));
-            close(tmp);
-    
-            _requestHeader = std::string(buf);
-            remove("tmp");
-            remove(".tmp");
-    
-            delete[] yes;
-            return _requestHeader;
-        }
-    }
-    
-    delete[] yes;
-    return _requestHeader;
+    return (std::string(output, readed));
 }

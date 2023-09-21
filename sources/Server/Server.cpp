@@ -284,7 +284,36 @@ int Server::run()
 
 ServerMembers*    Server::getServerForRequest(t_listen& address, std::vector<ServerMembers*>& servers, Request &req)
 {	
-/* 	ServerMembers* matchingServer = nullptr;
+	for (std::vector<ServerMembers *>::const_iterator it = servers.begin() ; it != servers.end(); it++)
+    {
+		address.host = 2130706433;
+		if (!(*it)->getServerName().empty())
+		{
+			for (std::vector<std::string>::const_iterator sit = (*it)->getServerName().begin(); sit != (*it)->getServerName().end(); sit++)
+			{
+				if (*sit == req.getHost() && address.host == (*it)->getListen().host && address.port == (*it)->getListen().port)
+				{
+					return (*it);
+				}
+			}
+		}
+		else 
+		{
+			if (address.host == (*it)->getListen().host && address.port == (*it)->getListen().port)
+        	{
+        	    return (*it);
+        	}
+		}
+        
+    }
+    // Boyle bir durum soz konusu degil ama yinede NULL donduruyoruz
+    return NULL;
+
+
+
+
+
+/*  ServerMembers* matchingServer = nullptr;
 	ServerMembers* firstServer = nullptr;
 
 	bool first = true;
@@ -320,7 +349,10 @@ ServerMembers*    Server::getServerForRequest(t_listen& address, std::vector<Ser
 
     return matchingServer; */
 
-	address.host = 2130706433;
+
+
+
+/* 	address.host = 2130706433;
 	std::vector<ServerMembers *> possibleServers;
 
 	for (std::vector<ServerMembers *>::const_iterator it = servers.begin(); it != servers.end(); it++)
@@ -340,5 +372,5 @@ ServerMembers*    Server::getServerForRequest(t_listen& address, std::vector<Ser
 			}
 		}
 	}
-	return possibleServers[0];
+	return possibleServers[0]; */
 }

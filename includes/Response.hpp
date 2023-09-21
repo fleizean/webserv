@@ -29,6 +29,8 @@ private:
 	std::string							_buffit;
 	std::string							_serverName;
 	std::string							_upload;
+	std::string							_cgiPath;
+
 	char*								_files;
 	int									_code;
 	int									_contentLen;
@@ -83,10 +85,11 @@ public:
 	void	setBando(std::string bando);
 	void	processRequest();
 
+
 	std::string fAutoIndex(const char *path);
 	std::string createDirectoryLink(std::string const &dirEntry, std::string Directory, std::string const &host);
 	std::string uploadFile(std::string sear, std::string buffer);
-
+	
 	/* printResponse details */
 	void	printResponse();
 };

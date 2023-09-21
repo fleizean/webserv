@@ -147,3 +147,19 @@ std::string removeAll(std::string str, const std::string &from)
 	}
 	return str;
 }
+
+std::string trimRight(const std::string& str, const std::string& spliter) {
+    size_t end = str.find_last_not_of(spliter);
+    return (end == std::string::npos) ? "" : str.substr(0, end + 1);
+}
+
+// Soldaki boşlukları kaldıran trimLeft işlevi
+std::string trimLeft(const std::string& str, const std::string& spliter) {
+    size_t start = str.find_first_not_of(spliter);
+    return (start == std::string::npos) ? "" : str.substr(start);
+}
+
+// Hem sağdaki hem de soldaki boşlukları kaldıran trim işlevi
+std::string trim(const std::string& str, const std::string& spliter) {
+    return trimLeft(trimRight(str, spliter), spliter);
+}

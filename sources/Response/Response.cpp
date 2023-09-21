@@ -29,6 +29,7 @@ void Response::run()
 		if (_path.find((*locIt)->getUri()) != std::string::npos)
 		{
 			_uriRoot = (*locIt)->getConfigMembers().getRoot();
+			_cgiPath = _uriRoot;
 			aled = (*locIt)->getUri();
 			_maxBody = (*locIt)->getConfigMembers().getMaxClientBodySize();
 			_upload = _matchedServer->getUpload();
@@ -127,7 +128,6 @@ void Response::errorStatus()
  * _cgiType üye değişkeni de _contentType ile aynı değere atanır.
  */
 
-
 /**
  * @brief Belirtilen dosyanın var olup olmadığını kontrol eder ve koşullara bağlı olarak işlemler gerçekleştirir.
  *
@@ -172,21 +172,21 @@ int Response::fileExist(const char* fileName) // bakılacak
 			
             if (_cgiType == "py" && mp[".py"].find("/usr/bin/python3") != std::string::npos)
             {
-				Cgi _cgi(_fileName, _bando, _req, "/usr/bin/python3", _postValues, _matchedServer);
+				Cgi _cgi(_fileName, _bando, _req, "/usr/bin/python3", _postValues, _matchedServer, _cgiPath);
                 _http = _cgi.cgiExecute();
                 _code = 200;
                 return _code;
             }
             else if (_cgiType == "pl" && mp[".pl"].find("/usr/bin/perl") != std::string::npos)
             {
-				Cgi _cgi(_fileName, _bando, _req, "/usr/bin/perl", _postValues, _matchedServer);
+				Cgi _cgi(_fileName, _bando, _req, "/usr/bin/perl", _postValues, _matchedServer, _cgiPath);
                 _http = _cgi.cgiExecute();
                 _code = 200;
                 return _code;
             }
             else if (_cgiType == "php" && mp[".php"].find("/usr/bin/php-cgi") != std::string::npos)
             {
-				Cgi _cgi(_fileName, _bando, _req, "/usr/bin/php-cgi", _postValues, _matchedServer);
+				Cgi _cgi(_fileName, _bando, _req, "/usr/bin/php-cgi", _postValues, _matchedServer, _cgiPath);
                 _http = _cgi.cgiExecute();
                 _code = 200;
                 return _code;
@@ -276,11 +276,11 @@ int Response::postMethodes() // bakılacak
 	parseQueryString(_bando.substr(_bando.find("\r\n\r\n") + strlen("\r\n\r\n")));
 	getContentType(path);
 	if (_path.substr(_path.find_last_of(".") + 1) == "php"){
-		Cgi _cgi(path.c_str(), _bando, _req, "/usr/bin/php", _postValues, _matchedServer);
+		Cgi _cgi(path.c_str(), _bando, _req, "/usr/bin/php", _postValues, _matchedServer, _cgiPath);
 		_http = _cgi.cgiExecute();
 	}
 	if (_path.substr(_path.find_last_of(".") + 1) == "py"){
-		Cgi _cgi(path.c_str(), _bando, _req, "/usr/bin/python3", _postValues, _matchedServer);
+		Cgi _cgi(path.c_str(), _bando, _req, "/usr/bin/python3", _postValues, _matchedServer, _cgiPath);
 		_http = _cgi.cgiExecute();
 	}
 	if (_contentLen <= _maxBody)
@@ -519,40 +519,13 @@ void	Response::setupRequest()
  */
 void Response::parseQueryString(const std::string &query_string)
 {
-	std::size_t position = 0;
-	std::size_t i = 1;
-	while (position < query_string.size())
-	{
-		const std::size_t next_delimiter = query_string.find('&', position);
-		std::string query;
-		if (next_delimiter == std::string::npos)
-		{
-			query = query_string.substr(position);
-		}
-		else
-		{
-			query = query_string.substr(position, next_delimiter - position);
-		}
-		const std::size_t pair_delimiter = query.find('=');
-		const std::string name = query.substr(0, pair_delimiter);
-		if (name.empty())
-		{
-			return;
-		}
-		std::string value;
-		if (pair_delimiter != std::string::npos)
-		{
-			value = query.substr(pair_delimiter + 1);
-		}
-		_postValues.push_back(name + "=" + value);
-		
-		if (next_delimiter == std::string::npos)
-		{
-			break;
-		}
-		position = next_delimiter + 1;
-		i++;
-	}
+	std::istringstream iss(query_string);
+    std::string line;
+
+    while (std::getline(iss, line))
+    {
+        _postValues.push_back(line);
+    }
 }
 
 /**
