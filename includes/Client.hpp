@@ -4,12 +4,14 @@
 #include "Request.hpp"
 #include "Response.hpp"
 #include "Utils.hpp"
+#include "Server.hpp"
+#include "ServerMembers.hpp"
 
 class Client
 {
 private:
     size_t                          _contentLen;
-    /* Server*                      _sv; */
+    Server*                         _sv;
     std::vector<ServerMembers*>     _confServers;
     Request                         _request;
     int                             _locationIndex;

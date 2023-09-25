@@ -3,7 +3,6 @@
 Cgi::Cgi()
 {
     _requestHeader = "";
-    _request = NULL;
     _path = "";
     _postValues = std::vector<std::string>();
     _fileName = "";
@@ -11,7 +10,7 @@ Cgi::Cgi()
     _cgiPath = "";
 }
 
-Cgi::Cgi(std::string fileName, std::string m_request, Request req, std::string path, std::vector<std::string> postValues, ServerMembers* matchedServer, std::string cgiPath) 
+Cgi::Cgi(std::string fileName, std::string m_request, Request req, std::string path, std::vector<std::string> postValues, ServerMembers* matchedServer, std::string cgiPath, std::string multiBody) 
 {
     _requestHeader = m_request;
     _request = req;
@@ -19,6 +18,7 @@ Cgi::Cgi(std::string fileName, std::string m_request, Request req, std::string p
     _postValues = postValues;
     _fileName = fileName;
     _matchedServer = matchedServer;
+    _multiBody = multiBody;
     _cgiPath = trim(cgiPath, "/");
 }
 
@@ -87,7 +87,7 @@ std::string Cgi::cgiExecute() // bakılacak
 	pipe(result_pipe);
 
     if (this->_request.getMethod() == "POST") {
-		write(body_pipe[1], _keyValue.c_str(), _keyValue.length());
+		write(body_pipe[1], _multiBody.c_str(), _multiBody.length());
 	}
 
     close(body_pipe[1]);

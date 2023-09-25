@@ -58,6 +58,8 @@ Error::Error(const int& err_code) : err_code(err_code)
     error_list[50] = "Config file must have default location '/' path.";
     error_list[51] = "getcwd An error occurred while retrieving the current working directory.";
     error_list[52] = "Check validation error.";
+    error_list[53] = "Wrong Data.";
+    error_list[54] = "So Big Data.";
 }
 
 Error::~Error() { }

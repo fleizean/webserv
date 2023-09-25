@@ -7,11 +7,13 @@ SRCS_LIST	= \
 			Config/Location.cpp \
 			Config/ServerMembers.cpp \
 			ErrorHandle/Error.cpp \
+			Server/Cluster.cpp \
 			Server/Server.cpp \
+			Server/Client.cpp \
 			Utils/UtilsParse.cpp \
 			Request/Request.cpp \
 			Response/Response.cpp \
-			CGI/Cgi.cpp
+			Cgi/Cgi.cpp
 			
 
 SRCS_FOLDER	= sources

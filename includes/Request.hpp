@@ -17,7 +17,10 @@ private:
     std::string     _connection;
     std::string     _contentType;
     std::string     _fileName;
+    int             _multi;
+    std::string     _multiPart;
     std::string     _body;
+    int             _status;
     int	            _port;
     size_t		    _content_length;
     t_listen        _listen;
@@ -27,7 +30,7 @@ private:
     std::string     _firstMediaType;
 public:
     Request();
-    Request(const char *buffer);
+    Request(std::string buffer);
     ~Request();
 
     const std::string&		getRequestStr(void) const;
@@ -35,6 +38,7 @@ public:
     void    parseBody();
     void	parse(void);
 	void	parseLine(std::string& line);
+    void    parseMultiPart(); 
 
     void	addMethod(std::stringstream& ss, std::string& word);
 	void	addHost(std::stringstream& ss);
@@ -50,6 +54,8 @@ public:
     std::string const   &getMethod() const;
     std::string const   &getLocation() const;
     std::string const   &getProtocol() const;
+    int         const   &getStatus() const;
+    std::string const   &getMultiPart() const;
     std::string const   &getHost() const;
     std::string const   &getAcceptLanguage() const;
     std::string const   &getConnection() const;
@@ -59,6 +65,7 @@ public:
     t_listen            &getListen();
     size_t const        &getContentLength() const;
     int	const           &getPort() const;
+    int const           &getMulti() const;
     std::string const   &getFullHost();
     void                clear();
 

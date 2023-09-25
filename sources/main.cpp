@@ -6,16 +6,18 @@
 /*   By: fleizean <fleizean@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/24 10:21:15 by eyagiz            #+#    #+#             */
-/*   Updated: 2023/09/19 15:13:35 by fleizean         ###   ########.fr       */
+/*   Updated: 2023/09/25 15:40:14 by fleizean         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/Include.hpp"
 #include "../includes/Config.hpp"
+#include "../includes/Cluster.hpp"
 #include "../includes/Server.hpp"
 #include <signal.h>
 
 Config webserv;
+Cluster *clusterEnd;
 
 // soruna bakılacak freede hala sıkıntı var büyük ihtimalle getconfig yüzünden direkt olarak serversı publice alabiliriz
 void	exitFree(int signal/* , siginfo_t *siginfo, void *unused */)
@@ -40,6 +42,7 @@ void	exitFree(int signal/* , siginfo_t *siginfo, void *unused */)
 	}
 	
 	webserv.getConfig().clear();
+	clusterEnd->cleanAll();
 	system("leaks webserv");
 	exit(0);
 }
@@ -68,11 +71,14 @@ int main(int ac, char **av)
 		err.setAndPrint(1, "NULL");
 	else
 	{
-		webserv.FileChecker(av[1]);
-		webserv.printAll();
-		std::cout << "\n\n";
-		Server serv(webserv.getConfig());
-		sigaction(SIGINT, &act, NULL);
-		serv.run();
+			webserv.FileChecker(av[1]);
+			webserv.printAll();
+			std::cout << "\n\n";
+			Cluster cluster;
+			clusterEnd = &cluster;
+			if (cluster.setUpCluster(webserv.getConfig()) == -1)
+            	return (-1);
+			sigaction(SIGINT, &act, NULL);
+			cluster.run();
 	}
 }

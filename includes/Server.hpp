@@ -24,4 +24,4 @@ class Server
         void            setHostPort(unsigned int host, int port);
         void            setUpServer();
         void            setUpServerMessage();
-}
+};

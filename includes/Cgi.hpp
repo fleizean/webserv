@@ -13,12 +13,13 @@ private:
 	std::string						_cgiPath;
 	std::vector<std::string>		_env;
 	std::string						_path;
+	std::string						_multiBody;
 	std::vector<std::string>		_postValues;
 	ServerMembers*					_matchedServer;
 	Request							_request;
 public:
 	Cgi();
-	Cgi(std::string fileName, std::string m_request, Request req, std::string path, std::vector<std::string> postValues, ServerMembers* matchedServer, std::string cgiPath);
+	Cgi(std::string fileName, std::string m_request, Request req, std::string path, std::vector<std::string> postValues, ServerMembers* matchedServer, std::string cgiPath, std::string multiBody);
 	~Cgi();
 
 	std::string cgiExecute();

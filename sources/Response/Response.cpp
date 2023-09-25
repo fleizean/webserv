@@ -2,7 +2,7 @@
 
 Response::Response() {}
 
-Response::Response(Request req, std::vector<ServerMembers*> servers, ServerMembers* matchedServer) : _req(req), _servers(servers), _matchedServer(matchedServer)
+Response::Response(Request req, std::vector<ServerMembers*> servers, ServerMembers* matchedServer, std::string multiBody) : _req(req), _servers(servers), _matchedServer(matchedServer), _multiBody(multiBody)
 {
     setupRequest();
 }
@@ -172,7 +172,7 @@ int Response::fileExist(const char* fileName) // bakılacak
             
             // Uzantı ve yorumlayıcı eşleşiyorsa CGI betiğini çalıştır
 			
-            if (_cgiType == "py" && mp[".py"].find("/usr/bin/python3") != std::string::npos)
+            /* if (_cgiType == "py" && mp[".py"].find("/usr/bin/python3") != std::string::npos)
             {
 				Cgi _cgi(_fileName, _bando, _req, "/usr/bin/python3", _postValues, _matchedServer, _cgiPath);
                 _http = _cgi.cgiExecute();
@@ -192,7 +192,7 @@ int Response::fileExist(const char* fileName) // bakılacak
                 _http = _cgi.cgiExecute();
                 _code = 200;
                 return _code;
-            }
+            } */
             return _code;
         }
         else
@@ -278,11 +278,11 @@ int Response::postMethodes() // bakılacak
 	parseQueryString(_bando.substr(_bando.find("\r\n\r\n") + strlen("\r\n\r\n")));
 	getContentType(path);
 	if (_path.substr(_path.find_last_of(".") + 1) == "php"){
-		Cgi _cgi(path.c_str(), _bando, _req, "/usr/bin/php", _postValues, _matchedServer, _cgiPath);
+		Cgi _cgi(path.c_str(), _bando, _req, "/usr/bin/php", _postValues, _matchedServer, _cgiPath, _multiBody);
 		_http = _cgi.cgiExecute();
 	}
 	if (_path.substr(_path.find_last_of(".") + 1) == "py"){
-		Cgi _cgi(path.c_str(), _bando, _req, "/usr/bin/python3", _postValues, _matchedServer, _cgiPath);
+		Cgi _cgi(path.c_str(), _bando, _req, "/usr/bin/python3", _postValues, _matchedServer, _cgiPath, _multiBody);
 		_http = _cgi.cgiExecute();
 	}
 	if (_contentLen <= _maxBody)
@@ -506,7 +506,10 @@ void	Response::setupRequest()
 	_fileName = _req.getFileName();
     _contentLen = _req.getContentLength();
     _buffit = _req.getRequestStr();
-
+	if (_multiBody != "")
+		_body = _multiBody;
+	else
+		_body = _req.getBody();
 	_postmethod = false;
 	_isUpload = false;
 	_responseHeader = "";

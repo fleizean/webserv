@@ -39,27 +39,57 @@ void Request::clear(){
     _content_length = 0;
     _listen.host = 0;
     _listen.port = 0;
+    _status = 0;
 }
 
 Request::Request() {}
+
+Request::~Request() {}
+
+Request::Request(std::string buffer)
+{
+    m_request = buffer;
+    /* std::cout << BOLD_RED << "Buffer socket: " << RESET << std::endl;
+    std::cout << buffer << std::endl;  */
+    if (m_request.find("multi") != std::string::npos) {
+        _multi = 1;
+        parseMultiPart();
+    }
+    else
+        _multi = 0;
+    parseBody();
+    clear();
+    parse();
+    _status = 1;
+    printAll();
+}
+
+void Request::parseMultiPart()
+{
+    size_t contentTypePos = m_request.find("Content-Type:");
+    
+    if (contentTypePos != std::string::npos) {
+        // Content-Type alanının sonunu bul
+        size_t contentTypeEndPos = m_request.find("\n", contentTypePos);
+        if (contentTypeEndPos != std::string::npos) {
+            // Content-Type alanını ve sonrasındaki veriyi al
+            std::string contentTypeAndData = m_request.substr(contentTypePos, contentTypeEndPos - contentTypePos);
+            // "boundary=" kelimesini ara
+            size_t boundaryPos = contentTypeAndData.find("boundary=");
+            if (boundaryPos != std::string::npos) {
+                // "boundary=" kelimesini dahil olarak al
+                std::string boundaryData = contentTypeAndData.substr(boundaryPos);
+                _multiPart = boundaryData;
+            }
+        }
+    }
+    _multiPart = _multiPart.substr(14);
+}
 
 void Request::parseBody()
 {
     this->_body = this->m_request.substr(this->m_request.find("\r\n\r\n") + 4);
 }
-
-Request::Request(const char *buffer)
-{
-    m_request = buffer;
-    /* std::cout << BOLD_RED << "Buffer socket: " << RESET << std::endl;
-    std::cout << buffer << std::endl;  */
-    parseBody();
-    clear();
-    parse();
-    printAll();
-}
-
-Request::~Request() {}
 
 void Request::parse()
 {
@@ -189,6 +219,7 @@ void    Request::addAcceptLanguage(std::stringstream& ss)
 std::string const &Request::getMethod() const { return this->_method; }
 std::string const &Request::getLocation() const { return this->_location; }
 std::string const &Request::getProtocol() const { return this->_protocol; }
+std::string const &Request::getMultiPart() const { return this->_multiPart; }
 std::string const &Request::getHost() const { return this->_host; }
 std::string const &Request::getAcceptLanguage() const { return this->_accept_language; }
 const std::string& Request::getRequestStr() const { return (m_request); }
@@ -196,7 +227,8 @@ std::string const &Request::getContentType() const { return this->_contentType; 
 std::string const &Request::getConnection() const { return this->_connection; }
 std::string const &Request::getFileName() const { return this->_fileName; }
 std::string const &Request::getBody() const { return this->_body; }
-
+int         const &Request::getStatus() const { return this->_status; }
+int         const &Request::getMulti() const { return this->_multi; }
 size_t const &Request::getContentLength() const { return this->_content_length; }
 int const &Request::getPort() const { return this->_port; }
 t_listen &Request::getListen() { return _listen; }

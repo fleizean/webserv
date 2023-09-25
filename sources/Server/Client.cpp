@@ -4,11 +4,10 @@ Client::Client() {}
 
 Client::~Client() {}
 
-/* Client::Client(Server* sv, std::vector<ServerMembers*> confServers)
+Client::Client(Server* sv, std::vector<ServerMembers*> confServers)
 {
 	_contentLen = 0;
 	_sv = sv;
-	_request = NULL;
 	_confServers = confServers;
 	_locationIndex = 0;
     _responseHeader = "";
@@ -45,9 +44,9 @@ void   			Client::setIsFav(int isFav) { this->_isFav = isFav; }
 
 void   			Client::setBody(std::string body) { this->_body = body; }
 
-std::string    	Client::process(std::string multiBody)
 
-void			Client::setParseRequest(std::string buffer)
+
+void	        Client::setParserRequest(std::string buffer)
 {
 	Request pr(buffer);
 	_request = pr;
@@ -69,15 +68,15 @@ std::string		Client::process(std::string multiBody)
 	std::cout << BOLD_YELLOW << "Processing..." << RESET << std::endl;
 	ServerMembers* 	matchedServer;
 
-	matchedServer = getServerForRequest(pr.getListen(), _servers, pr);
+	matchedServer = getServerForRequest(_request.getListen(), _confServers, _request);
 	if (matchedServer == NULL)
 	{
-		_response = getNullResponse();
-		return (_response);
+		_responseHeader = getNullResponse();
+		return (_responseHeader);
 	}
 	else
 	{
-		Response response(_request, _confServers, matchedServer);
+		Response response(_request, _confServers, matchedServer, multiBody);
 		response.setBando(_buffer);
 		response.checkModifyDate();
 		response.setDate();
@@ -85,14 +84,14 @@ std::string		Client::process(std::string multiBody)
 
 		response.run();
 
-		if (_response.getResponseHeader() == "")
+		if (response.getResponseHeader() == "")
 		{
-			_response = getNullResponse();
-			return (_response);
+			_responseHeader = getNullResponse();
+			return (_responseHeader);
 		}
 
-		_response = _response.getResponseHeader();
-		return _response;
+		_responseHeader = response.getResponseHeader();
+		return _responseHeader;
 	}
 	
 }
@@ -136,68 +135,5 @@ ServerMembers*	Client::getServerForRequest(t_listen& address, std::vector<Server
     return NULL;
 
 
-
-
-
-/*  ServerMembers* matchingServer = nullptr;
-	ServerMembers* firstServer = nullptr;
-
-	bool first = true;
-
-	for (std::vector<ServerMembers *>::const_iterator it = servers.begin(); it != servers.end(); it++)
-    {
-		if (it == servers.begin())
-			firstServer = (*it);
-		if (!(*it)->getServerName().empty())
-		{
-			for (std::vector<std::string>::const_iterator sit = (*it)->getServerName().begin(); sit != (*it)->getServerName().end(); sit++)
-			{
-				if (*sit == req.getHost() && address.port == (*it)->getListen().port)
-				{
-					address.host = 2130706433;
-					return (*it);
-				}
-			}
-			first = false;
-		}
-		else 
-		{
- 			if (address.host == (*it)->getListen().host && address.port == (*it)->getListen().port)
-        	{
-        	    matchingServer = (*it);
-        	}
-		}
-    }
-	if (first == false || matchingServer != nullptr)
-    {
-        matchingServer = firstServer;
-    }
-
-    return matchingServer; */
-
-
-
-
-/* 	address.host = 2130706433;
-	std::vector<ServerMembers *> possibleServers;
-
-	for (std::vector<ServerMembers *>::const_iterator it = servers.begin(); it != servers.end(); it++)
-	{
-		if (address.port == (*it)->getListen().port)
-		{
-			possibleServers.push_back((*it));
-		}
-	}
-	if (possibleServers.empty())
-		return NULL;
-	for (std::vector<ServerMembers *>::const_iterator serversIter = possibleServers.begin(); serversIter != possibleServers.end(); serversIter++) {
-		for (std::vector<std::string>::const_iterator sit = (*serversIter)->getServerName().begin(); sit != (*serversIter)->getServerName().end(); sit++)
-		{
-			if (*sit == req.getHost()) {
-				return *serversIter;
-			}
-		}
-	}
-	return possibleServers[0]; */
 }
-*/
+

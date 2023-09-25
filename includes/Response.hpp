@@ -40,6 +40,8 @@ private:
 	std::string							_uriRoot;
 	std::string							_configName;
 	std::string							_index;
+	
+	std::string							_body;
 	std::vector<std::string>			_postValues;
 	std::vector<std::string> 			_allowedMethods;
 
@@ -59,12 +61,13 @@ private:
 	Request								_req;
 	std::vector<ServerMembers*> 		_servers;
 	ServerMembers*						_matchedServer;
+	std::string							_multiBody;
 	/* unused */
 	
 public:
 	Response();
 	std::string getResponseHeader();
-	Response(Request req, std::vector<ServerMembers*> servers, ServerMembers* matchedServer);
+	Response(Request req, std::vector<ServerMembers*> servers, ServerMembers* matchedServer, std::string multiBody);
 	~Response();
 	void	parseQueryString(const std::string &query_string);
 	int		postMethodes();
