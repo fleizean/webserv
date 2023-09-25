@@ -133,7 +133,7 @@ ServerMembers*	Client::getServerForRequest(t_listen& address, std::vector<Server
 		}
 		else 
 		{
- 			if (address.host == (*it)->getListen().host && address.port == (*it)->getListen().port)
+ 			if (address.port == (*it)->getListen().port)
         	{
         	    matchingServer = (*it);
         	}
