@@ -17,6 +17,7 @@ private:
     std::string     _connection;
     std::string     _contentType;
     std::string     _fileName;
+    std::string     _body;
     int	            _port;
     size_t		    _content_length;
     t_listen        _listen;
@@ -31,6 +32,7 @@ public:
 
     const std::string&		getRequestStr(void) const;
 
+    void    parseBody();
     void	parse(void);
 	void	parseLine(std::string& line);
 
@@ -44,22 +46,23 @@ public:
     void    addFileName(std::stringstream& ss);
     void    addAcceptControlMethod(std::stringstream& ss);
     /* Getters */
-    std::string const &getFirstMediaType() const;
-    std::string const &getMethod() const;
-    std::string const &getLocation() const;
-    std::string const &getProtocol() const;
-    std::string const &getHost() const;
-    std::string const &getAcceptLanguage() const;
-    std::string const &getConnection() const;
-    std::string const &getContentType() const;
-    std::string const &getFileName() const;
-    t_listen &getListen();
-    size_t const &getContentLength() const;
-    int	const &getPort() const;
-    std::string const &getFullHost();
-    void clear();
+    std::string const   &getFirstMediaType() const;
+    std::string const   &getMethod() const;
+    std::string const   &getLocation() const;
+    std::string const   &getProtocol() const;
+    std::string const   &getHost() const;
+    std::string const   &getAcceptLanguage() const;
+    std::string const   &getConnection() const;
+    std::string const   &getContentType() const;
+    std::string const   &getFileName() const;
+    std::string const   &getBody() const;
+    t_listen            &getListen();
+    size_t const        &getContentLength() const;
+    int	const           &getPort() const;
+    std::string const   &getFullHost();
+    void                clear();
 
-    void addFirstMediaType(std::stringstream& acceptHeader);
+    void                addFirstMediaType(std::stringstream& acceptHeader);
     /* Print All */
-	void printAll();
+	void                printAll();
 };

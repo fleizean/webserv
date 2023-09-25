@@ -34,6 +34,7 @@ void Request::clear(){
     _connection = "";
     _contentType = "";
     _fileName = "";
+    _body = "";
     _port = 0;
     _content_length = 0;
     _listen.host = 0;
@@ -42,11 +43,17 @@ void Request::clear(){
 
 Request::Request() {}
 
+void Request::parseBody()
+{
+    this->_body = this->m_request.substr(this->m_request.find("\r\n\r\n") + 4);
+}
+
 Request::Request(const char *buffer)
 {
     m_request = buffer;
     /* std::cout << BOLD_RED << "Buffer socket: " << RESET << std::endl;
     std::cout << buffer << std::endl;  */
+    parseBody();
     clear();
     parse();
     printAll();
@@ -188,6 +195,8 @@ const std::string& Request::getRequestStr() const { return (m_request); }
 std::string const &Request::getContentType() const { return this->_contentType; }
 std::string const &Request::getConnection() const { return this->_connection; }
 std::string const &Request::getFileName() const { return this->_fileName; }
+std::string const &Request::getBody() const { return this->_body; }
+
 size_t const &Request::getContentLength() const { return this->_content_length; }
 int const &Request::getPort() const { return this->_port; }
 t_listen &Request::getListen() { return _listen; }

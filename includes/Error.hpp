@@ -6,7 +6,7 @@ class Error
 {
 private:
     /* default constructor */
-    Error();
+    
     /* default constructor */
     Error(Error const &rhs);
     Error &operator=(Error const &rhs);
@@ -14,6 +14,7 @@ private:
     std::map<int, std::string> error_list;
     int err_code;
 public:
+    Error();
     Error(const int &err_code);
     /* destructor */
     ~Error();

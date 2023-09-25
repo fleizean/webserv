@@ -60,8 +60,9 @@ private:
 	std::vector<ServerMembers*> 		_servers;
 	ServerMembers*						_matchedServer;
 	/* unused */
-	Response();
+	
 public:
+	Response();
 	std::string getResponseHeader();
 	Response(Request req, std::vector<ServerMembers*> servers, ServerMembers* matchedServer);
 	~Response();

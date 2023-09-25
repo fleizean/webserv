@@ -1,5 +1,7 @@
 #include "../../includes/Error.hpp"
 
+Error::Error() : err_code(0) {}
+
 Error::Error(const int& err_code) : err_code(err_code)
 {
     error_list[0] = "NULL.";

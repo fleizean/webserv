@@ -1,5 +1,7 @@
 #include "../../includes/Response.hpp"
 
+Response::Response() {}
+
 Response::Response(Request req, std::vector<ServerMembers*> servers, ServerMembers* matchedServer) : _req(req), _servers(servers), _matchedServer(matchedServer)
 {
     setupRequest();
