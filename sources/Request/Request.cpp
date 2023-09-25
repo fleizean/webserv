@@ -74,16 +74,9 @@ void Request::parseMultiPart()
         if (contentTypeEndPos != std::string::npos) {
             // Content-Type alanını ve sonrasındaki veriyi al
             std::string contentTypeAndData = m_request.substr(contentTypePos, contentTypeEndPos - contentTypePos);
-            // "boundary=" kelimesini ara
-            size_t boundaryPos = contentTypeAndData.find("boundary=");
-            if (boundaryPos != std::string::npos) {
-                // "boundary=" kelimesini dahil olarak al
-                std::string boundaryData = contentTypeAndData.substr(boundaryPos);
-                _multiPart = boundaryData;
-            }
+            _multiPart = contentTypeAndData.substr(14);
         }
     }
-    _multiPart = _multiPart.substr(14);
 }
 
 void Request::parseBody()

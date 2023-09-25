@@ -77,13 +77,14 @@ std::string		Client::process(std::string multiBody)
 	else
 	{
 		Response response(_request, _confServers, matchedServer, multiBody);
+		std::cout << "------------BUFFER------------\n";
+		std::cout << _buffer << std::endl;
+		std::cout << "------------------------------\n";
 		response.setBando(_buffer);
 		response.checkModifyDate();
 		response.setDate();
 		response.errorStatus();
-
 		response.run();
-
 		if (response.getResponseHeader() == "")
 		{
 			_responseHeader = getNullResponse();
@@ -109,30 +110,41 @@ std::string		Client::getNullResponse()
 
 ServerMembers*	Client::getServerForRequest(t_listen& address, std::vector<ServerMembers*>& servers, Request &req)
 {	
-	for (std::vector<ServerMembers *>::const_iterator it = servers.begin() ; it != servers.end(); it++)
+	ServerMembers* matchingServer = nullptr;
+	ServerMembers* firstServer = nullptr;
+
+	bool first = true;
+
+	for (std::vector<ServerMembers *>::const_iterator it = servers.begin(); it != servers.end(); it++)
     {
-		address.host = 2130706433;
+		if (it == servers.begin())
+			firstServer = (*it);
 		if (!(*it)->getServerName().empty())
 		{
 			for (std::vector<std::string>::const_iterator sit = (*it)->getServerName().begin(); sit != (*it)->getServerName().end(); sit++)
 			{
-				if (*sit == req.getHost() && address.host == (*it)->getListen().host && address.port == (*it)->getListen().port)
+				if (*sit == req.getHost() && address.port == (*it)->getListen().port)
 				{
+					address.host = 2130706433;
 					return (*it);
 				}
 			}
+			first = false;
 		}
 		else 
 		{
-			if (address.host == (*it)->getListen().host && address.port == (*it)->getListen().port)
+ 			if (address.host == (*it)->getListen().host && address.port == (*it)->getListen().port)
         	{
-        	    return (*it);
+        	    matchingServer = (*it);
         	}
 		}
-        
     }
-    // Boyle bir durum soz konusu degil ama yinede NULL donduruyoruz
-    return NULL;
+	if (first == false || matchingServer != nullptr)
+    {
+        matchingServer = firstServer;
+    }
+
+    return matchingServer;
 
 
 }

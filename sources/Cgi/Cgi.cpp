@@ -37,7 +37,10 @@ void Cgi::initOthersEnvironment()
 {
     _env.push_back("SCRIPT_FILENAME=" + _cgiPath + _request.getLocation());
     _env.push_back("SCRIPT_NAME=" + _cgiPath + _request.getLocation());
-    _env.push_back("CONTENT_TYPE=" + _request.getContentType());
+    if (_request.getMulti() == 1)
+        _env.push_back("CONTENT_TYPE=" + _request.getMultiPart());
+    else
+        _env.push_back("CONTENT_TYPE=" + _request.getContentType());
     _env.push_back("CONTENT_LENGTH=" + std::to_string(_request.getContentLength()));
     _env.push_back("REQUEST_METHOD=" + _request.getMethod());
     _env.push_back("PATH_INFO=" + _request.getLocation());
@@ -49,11 +52,11 @@ void Cgi::initOthersEnvironment()
     _env.push_back("SERVER_PROTOCOL=" + _request.getProtocol());
     _env.push_back("REDIRECT_STATUS=200");
 
-/*     std::cout << BOLD_YELLOW << "\n----------> Env Testing <----------\n" << RESET;
+    std::cout << BOLD_YELLOW << "\n----------> Env Testing <----------\n" << RESET;
     std::cout << CYAN << std::endl;
     for(std::vector<std::string>::iterator it = _env.begin(); it != _env.end(); it++)
         std::cout << *it << std::endl;
-    std::cout << RESET << std::endl; */
+    std::cout << RESET << std::endl; 
 }
 
 std::string Cgi::cgiExecute() // bakılacak

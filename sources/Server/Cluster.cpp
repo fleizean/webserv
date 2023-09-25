@@ -87,7 +87,6 @@ void Cluster::sendSection()
         if (FD_ISSET(it->first, &_supWriteFds))
         {
             _response = it->second->process(this->_multiBody);
-            std::cout << "DENEME:\n" << _response << std::endl;
             sent = send(it->first, _response.c_str(), _response.length(), 0);
             if (sent > 0)
 				std::cout << CYAN << "Send Successful!" << RESET << std::endl << std::flush;
