@@ -148,8 +148,6 @@ void Config::parseServerArea(std::string& line)
 		parseMaxClientBodySize(ss, srvr->getConfigMembers());
 	else if (word == "location")
 		parseLocation(ss, *srvr);
-	else if (word == "upload_pass")
-		parseUpload(ss, *srvr);
 	else if (word == "server_header")
 		parseServerHeader(ss, *srvr);
 }
@@ -242,18 +240,6 @@ void Config::parseServerName(std::stringstream& ss, ServerMembers &srvr)
 	}
 	if (srvr.getServerName().empty())
 		err.setAndPrint(12, "Config::parseServerName");
-}
-
-void Config::parseUpload(std::stringstream& ss, ServerMembers &srvr)
-{
-	Error err(0);
-	std::string word;
-	
-	if (!(ss >> word))
-		err.setAndPrint(11, "Config::parseUpload");
-	srvr.setUpload(word);
-	if (ss >> word)
-		err.setAndPrint(19, "Config::parseUpload");
 }
 
 void Config::parseServerHeader(std::stringstream& ss, ServerMembers &srvr)

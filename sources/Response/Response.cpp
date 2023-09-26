@@ -34,7 +34,6 @@ void Response::run()
 			_cgiPath = _uriRoot;
 			aled = (*locIt)->getUri();
 			_maxBody = (*locIt)->getConfigMembers().getMaxClientBodySize();
-			_upload = _matchedServer->getUpload();
 			for (std::map<int, std::string>::iterator errIt = (*locIt)->getConfigMembers().getErrorPage().begin(); errIt != (*locIt)->getConfigMembers().getErrorPage().end(); ++errIt)
 				mp.insert(std::make_pair(std::to_string(errIt->first), errIt->second));
 			if ((*locIt)->getHasRedirection() == true) 
@@ -54,7 +53,6 @@ void Response::run()
 		}
 		for (std::map<std::string, std::string>::iterator namesIt = _matchedServer->getConfigMembers().getCgi().begin(); namesIt != _matchedServer->getConfigMembers().getCgi().end(); ++namesIt)
 			mp.insert(std::make_pair(namesIt->first, namesIt->second));
-		_upload = _matchedServer->getUpload();
 	}
 	for (std::vector<std::string>::const_iterator namesIt = _matchedServer->getServerName().begin(); namesIt != _matchedServer->getServerName().end(); ++namesIt)
 		_serverName = *namesIt;

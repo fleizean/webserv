@@ -13,7 +13,6 @@ private:
 	std::string                         _locationUri; // location URI
 	vector<Location *>					_locations;
 	vector<std::string>					_serverName;
-	std::string							_upload;
 	std::string							_serverHeader;
 	ConfigMembers						_members;
 public:
@@ -35,7 +34,6 @@ public:
 	void	setServerName(const std::string& name);
 	ConfigMembers& getConfigMembers();
 	std::string  const &getHost();
-	std::string const &getUpload();
 	std::string const &getServerHeader();
 	
 	/* Set area */
@@ -44,5 +42,4 @@ public:
 	void setHost(unsigned int const &host); // listen
 	void setPort(int const &port); // port
 	void setLocationUri(std::string const &uri);
-	void setUpload(std::string const &upload);
 };
