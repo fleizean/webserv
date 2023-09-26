@@ -12,7 +12,7 @@ class Server
     
         Error           err;
     public:
-        Server(unsigned int host, int port);
+        Server(unsigned int host, int port, std::map<int, int> hP);
         Server();
         Server(const Server &server);
         Server &operator=(const Server &server);

@@ -31,16 +31,18 @@ int Cluster::setUpCluster(std::vector<ServerMembers*> confServers)
 
     std::vector<ServerMembers*>::const_iterator ite = _confServers.end();
     std::vector<ServerMembers*>::const_iterator it = _confServers.begin();
-
+    std::map<int, int> hP;
     for (int i = 0; it != ite; ++it, i++) // buraya bakılacak
     {
-        server = new Server((*it)->getListen().host, (*it)->getListen().port);
+        
+        server = new Server((*it)->getListen().host, (*it)->getListen().port, hP);
         socket = server->getFd();
+        hP[(*it)->getListen().port] = socket;
         FD_SET(socket, &_readFds);
         _servers.insert(std::pair<int, Server*>(socket, server));
+        delete server;
         _maxFd = socket + 1;
     }
-
     if (_maxFd == 0)
     {
         err.setAndPrint(29, "Cluster::setUpCluster");
@@ -374,7 +376,7 @@ void Cluster::cleanAll()
 	FD_ZERO(&_writeFds);
 	FD_ZERO(&_supReadFds);
 	FD_ZERO(&_supWriteFds);
-	this->cleanServers();
+	/* this->cleanServers(); */
 	this->cleanClients();
 }
 

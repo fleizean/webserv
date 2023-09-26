@@ -1,9 +1,23 @@
 #include "../../includes/Server.hpp"
 
-Server::Server(unsigned int host, int port)
+Server::Server(unsigned int host, int port, std::map<int, int> hP)
 {
-	setHostPort(host, port);
-	setUpServer();
+    bool flag = false;
+    setHostPort(host, port);
+	
+	
+	for (std::map<int, int>::iterator it = hP.begin(); it != hP.end(); ++it) 
+	{
+		if (it->first == _port)
+		{
+	    	_socketFd = it->second;
+			flag = true;
+			break;
+		}
+	}
+	if(flag == false)
+        	setUpServer();
+	setUpServerMessage();    
 }
 
 Server::Server() {}
@@ -52,7 +66,6 @@ void	Server::setUpServer()
 		close(this->_socketFd);
 		err.setAndPrint(40, "Server::setUpServer");
 	}
-	setUpServerMessage();
 }
 
 void	Server::setUpServerMessage()

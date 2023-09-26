@@ -19,5 +19,6 @@ public:
     /* destructor */
     ~Error();
     /* methods */
+    void initErrorValues();
     void setAndPrint(const int &err_code, std::string const &line);
 };

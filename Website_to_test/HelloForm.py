@@ -10,7 +10,7 @@ last_name = form.getvalue('lname')
 second_name = form.getvalue('second')
 third_name = form.getvalue('Third')
 
-# Gelen verileri kullanarak HTML yanıtını oluştur
+
 print("<html>")
 print("<head>")
 print("<title>Form Response</title>")

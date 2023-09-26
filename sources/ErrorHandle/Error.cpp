@@ -1,8 +1,18 @@
 #include "../../includes/Error.hpp"
 
-Error::Error() : err_code(0) {}
+Error::Error() : err_code(0) 
+{
+    initErrorValues();
+}
 
 Error::Error(const int& err_code) : err_code(err_code)
+{
+    initErrorValues();
+}
+
+Error::~Error() { }
+
+void Error::initErrorValues()
 {
     error_list[0] = "NULL.";
     error_list[1] = "Config file argument not found.";
@@ -60,9 +70,8 @@ Error::Error(const int& err_code) : err_code(err_code)
     error_list[52] = "Check validation error.";
     error_list[53] = "Wrong Data.";
     error_list[54] = "So Big Data.";
+    error_list[55] = "Wrong ip address.";
 }
-
-Error::~Error() { }
 
 void Error::setAndPrint(const int &err_code, std::string const &line)
 {
@@ -73,13 +82,13 @@ void Error::setAndPrint(const int &err_code, std::string const &line)
     {
         if (it->first == this->err_code){
             if (line != "null" || !(line.empty()))
-                cerr << BOLD_RED << "Error in [" << line << "] and value " << it->first << ": >" << it->second << "<" << RESET << endl;
+                std::cout << BOLD_RED << "Error in [" << line << "] and value " << it->first << ": >" << it->second << "<" << RESET << endl;
             else
-                cerr << BOLD_RED << "Error " << it->first << ": " << it->second << RESET << endl;
+                std::cout << BOLD_RED << "Error " << it->first << ": " << it->second << RESET << endl;
             flag++;
         }
     }
     if (flag == 0)
-        cerr << BOLD_RED << "Unkown error code and message is " << line << RESET << endl;
+        std::cout << BOLD_RED << "Unkown error code and message is " << line << " and code " << err_code << RESET << endl;
     exit(1);
 }

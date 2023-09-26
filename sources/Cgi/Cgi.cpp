@@ -42,14 +42,13 @@ void Cgi::initOthersEnvironment()
     else
         _env.push_back("CONTENT_TYPE=" + _request.getContentType());
     _env.push_back("CONTENT_LENGTH=" + std::to_string(_request.getContentLength()));
-    _env.push_back("REQUEST_METHOD=" + _request.getMethod());
     _env.push_back("PATH_INFO=" + _request.getLocation());
     _env.push_back("GATEWAY_INTERFACE=CGI/1.1");
     _env.push_back("REQUEST_METHOD=" + _request.getMethod());
     _env.push_back("REQUEST_URI=" + _request.getLocation());
     _env.push_back("SERVER_PORT=" + std::to_string(_request.getPort()));
-    _env.push_back("SERVER_SOFTWARE=webserv");
     _env.push_back("SERVER_PROTOCOL=" + _request.getProtocol());
+    _env.push_back("SERVER_SOFTWARE=webserv");
     _env.push_back("REDIRECT_STATUS=200");
 
     std::cout << BOLD_YELLOW << "\n----------> Env Testing <----------\n" << RESET;

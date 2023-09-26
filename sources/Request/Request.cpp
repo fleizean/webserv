@@ -80,15 +80,24 @@ void Request::parseMultiPart()
     }
 }
 
-bool isDomain(const std::string& host) {
+bool Request::isDomain(const std::string& host) {
     static const char* localAddresses[] = {"localhost", "127.0.0.1", "0.0.0.0"};
 
+    size_t colonPos = host.find(':');
+
+    std::string hostWithoutPort;
+
+    if (colonPos != std::string::npos) {
+        hostWithoutPort = host.substr(0, colonPos);
+    } else {
+        hostWithoutPort = host;
+    }
+
     for (size_t i = 0; i < 3; i++) {
-        if (host == localAddresses[i]) {
+        if (hostWithoutPort == localAddresses[i]) {
             return false;
         }
     }
-
     return true;
 }
 
@@ -198,7 +207,7 @@ void    Request::addHost(std::stringstream& ss)
     if (!(ss >> _host))
         err.setAndPrint(47, "Request::addHost");
     _fullHost = _host;
-    isDomain(_fullHost);
+    _isDomain = isDomain(_host);
     if (!checkPort())
         err.setAndPrint(48, "Request::addHost");
 }
@@ -258,4 +267,6 @@ void Request::printAll()
     std::cout << BOLD_MAGENTA << "Http-Content-Type: " << RESET << this->getContentType() << "\n";
     std::cout << BOLD_MAGENTA << "Http-Filename: " << RESET << this->getFileName() << "\n";
     std::cout << BOLD_MAGENTA << "Http-Accept-Media-Type: " << RESET << this->getFirstMediaType() << "\n";
+    if (this->getIsDomain() == true)
+        std::cout << BOLD_MAGENTA << "Http-isDomain: " << RESET << "true" << "\n";
 }

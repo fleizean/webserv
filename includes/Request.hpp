@@ -50,6 +50,8 @@ public:
     void    addContentType(std::stringstream& ss);
     void    addFileName(std::stringstream& ss);
     void    addAcceptControlMethod(std::stringstream& ss);
+    bool    isDomain(const std::string& host);
+
     /* Getters */
     std::string const   &getFirstMediaType() const;
     std::string const   &getMethod() const;
