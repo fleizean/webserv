@@ -109,8 +109,38 @@ std::string		Client::getNullResponse()
 }
 
 ServerMembers*	Client::getServerForRequest(t_listen& address, std::vector<ServerMembers*>& servers, Request &req)
-{	
-	ServerMembers* matchingServer = nullptr;
+{
+	std::vector<ServerMembers*>	possibleServers;
+	address.host = 2130706433;
+
+	for (std::vector<ServerMembers *>::const_iterator it = servers.begin(); it != servers.end(); it++)
+	{
+		if (req.getIsDomain() == true)
+		{
+			if (!(*it)->getServerName().empty())
+			{
+				for (std::vector<std::string>::const_iterator sit = (*it)->getServerName().begin(); sit != (*it)->getServerName().end(); sit++)
+				{
+					if (*sit == req.getHost() && address.port == (*it)->getListen().port)
+					{
+						return (*it);
+					}
+				}
+			}
+		}
+		else
+		{
+			if (address.port == (*it)->getListen().port)
+				possibleServers.push_back((*it));
+		}
+	}
+
+	if (possibleServers.empty())
+		return NULL;
+
+	return possibleServers[0];
+
+/* 	ServerMembers* matchingServer = nullptr;
 	ServerMembers* firstServer = nullptr;
 
 	bool first = true;
@@ -144,8 +174,6 @@ ServerMembers*	Client::getServerForRequest(t_listen& address, std::vector<Server
         matchingServer = firstServer;
     }
 
-    return matchingServer;
-
-
+    return matchingServer; */
 }
 

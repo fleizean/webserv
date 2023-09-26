@@ -24,6 +24,7 @@ private:
     int	            _port;
     size_t		    _content_length;
     t_listen        _listen;
+    bool            _isDomain;
 
     std::string		m_request;
 
@@ -62,6 +63,7 @@ public:
     std::string const   &getContentType() const;
     std::string const   &getFileName() const;
     std::string const   &getBody() const;
+    bool const          &getIsDomain() const;
     t_listen            &getListen();
     size_t const        &getContentLength() const;
     int	const           &getPort() const;

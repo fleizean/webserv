@@ -42,7 +42,7 @@ void	Server::setUpServer()
 	srvaddr.sin_port = htons(this->_port);
 	srvaddr.sin_addr.s_addr = htonl(INADDR_ANY);
 	
-	if(bind(this->_socketFd, (struct sockaddr *)&srvaddr, sizeof(srvaddr)) < 0)
+	if(::bind(this->_socketFd, (struct sockaddr *)&srvaddr, sizeof(srvaddr)) < 0)
 	{
 		close(this->_socketFd);
 		err.setAndPrint(39, "Server::setUpServer");

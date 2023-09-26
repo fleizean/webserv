@@ -36,6 +36,7 @@ void Request::clear(){
     _fileName = "";
     _body = "";
     _port = 0;
+    _isDomain = false;
     _content_length = 0;
     _listen.host = 0;
     _listen.port = 0;
@@ -77,6 +78,18 @@ void Request::parseMultiPart()
             _multiPart = contentTypeAndData.substr(14);
         }
     }
+}
+
+bool isDomain(const std::string& host) {
+    static const char* localAddresses[] = {"localhost", "127.0.0.1", "0.0.0.0"};
+
+    for (size_t i = 0; i < 3; i++) {
+        if (host == localAddresses[i]) {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 void Request::parseBody()
@@ -185,6 +198,7 @@ void    Request::addHost(std::stringstream& ss)
     if (!(ss >> _host))
         err.setAndPrint(47, "Request::addHost");
     _fullHost = _host;
+    isDomain(_fullHost);
     if (!checkPort())
         err.setAndPrint(48, "Request::addHost");
 }
@@ -209,24 +223,25 @@ void    Request::addAcceptLanguage(std::stringstream& ss)
 }
 
 /* Getters */
-std::string const &Request::getMethod() const { return this->_method; }
-std::string const &Request::getLocation() const { return this->_location; }
-std::string const &Request::getProtocol() const { return this->_protocol; }
-std::string const &Request::getMultiPart() const { return this->_multiPart; }
-std::string const &Request::getHost() const { return this->_host; }
-std::string const &Request::getAcceptLanguage() const { return this->_accept_language; }
-const std::string& Request::getRequestStr() const { return (m_request); }
-std::string const &Request::getContentType() const { return this->_contentType; }
-std::string const &Request::getConnection() const { return this->_connection; }
-std::string const &Request::getFileName() const { return this->_fileName; }
-std::string const &Request::getBody() const { return this->_body; }
-int         const &Request::getStatus() const { return this->_status; }
-int         const &Request::getMulti() const { return this->_multi; }
-size_t const &Request::getContentLength() const { return this->_content_length; }
-int const &Request::getPort() const { return this->_port; }
-t_listen &Request::getListen() { return _listen; }
-std::string const &Request::getFullHost() { return _fullHost; }
-std::string const &Request::getFirstMediaType() const { return _firstMediaType; }
+std::string const   &Request::getMethod() const { return this->_method; }
+std::string const   &Request::getLocation() const { return this->_location; }
+std::string const   &Request::getProtocol() const { return this->_protocol; }
+std::string const   &Request::getMultiPart() const { return this->_multiPart; }
+std::string const   &Request::getHost() const { return this->_host; }
+std::string const   &Request::getAcceptLanguage() const { return this->_accept_language; }
+const std::string&  Request::getRequestStr() const { return (m_request); }
+std::string const   &Request::getContentType() const { return this->_contentType; }
+std::string const   &Request::getConnection() const { return this->_connection; }
+std::string const   &Request::getFileName() const { return this->_fileName; }
+std::string const   &Request::getBody() const { return this->_body; }
+int         const   &Request::getStatus() const { return this->_status; }
+int         const   &Request::getMulti() const { return this->_multi; }
+size_t const        &Request::getContentLength() const { return this->_content_length; }
+int const           &Request::getPort() const { return this->_port; }
+t_listen            &Request::getListen() { return _listen; }
+bool const          &Request::getIsDomain() const { return this->_isDomain; }
+std::string const   &Request::getFullHost() { return _fullHost; }
+std::string const   &Request::getFirstMediaType() const { return _firstMediaType; }
 
 /* Other */
 void Request::printAll()

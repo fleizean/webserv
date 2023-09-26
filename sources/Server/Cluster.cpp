@@ -32,7 +32,7 @@ int Cluster::setUpCluster(std::vector<ServerMembers*> confServers)
     std::vector<ServerMembers*>::const_iterator ite = _confServers.end();
     std::vector<ServerMembers*>::const_iterator it = _confServers.begin();
 
-    for (int i = 0; it != ite; ++it, i++)
+    for (int i = 0; it != ite; ++it, i++) // buraya bakılacak
     {
         server = new Server((*it)->getListen().host, (*it)->getListen().port);
         socket = server->getFd();

@@ -80,6 +80,6 @@ void Error::setAndPrint(const int &err_code, std::string const &line)
         }
     }
     if (flag == 0)
-        cerr << BOLD_RED << "Unkown error code." << RESET << endl;
+        cerr << BOLD_RED << "Unkown error code and message is " << line << RESET << endl;
     exit(1);
 }
