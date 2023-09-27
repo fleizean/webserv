@@ -5,7 +5,7 @@ import cgi
 form = cgi.FieldStorage()
 
 # Formdaki input alanlarından verileri al
-first_name = form['fname'].value
+first_name = form.getvalue('fname')
 last_name = form.getvalue('lname')
 second_name = form.getvalue('second')
 third_name = form.getvalue('Third')

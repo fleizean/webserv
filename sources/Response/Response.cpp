@@ -170,23 +170,23 @@ int Response::fileExist(const char* fileName) // bakılacak
             
             // Uzantı ve yorumlayıcı eşleşiyorsa CGI betiğini çalıştır
 			
-            /* if (_cgiType == "py" && mp[".py"].find("/usr/bin/python3") != std::string::npos)
+/*             if (_cgiType == "py" && mp[".py"].find("/usr/bin/python3") != std::string::npos)
             {
-				Cgi _cgi(_fileName, _bando, _req, "/usr/bin/python3", _postValues, _matchedServer, _cgiPath);
+				Cgi _cgi(_fileName, _bando, _req, "/usr/bin/python3", _postValues, _matchedServer, _cgiPath, _multiBody);
                 _http = _cgi.cgiExecute();
                 _code = 200;
                 return _code;
             }
             else if (_cgiType == "pl" && mp[".pl"].find("/usr/bin/perl") != std::string::npos)
             {
-				Cgi _cgi(_fileName, _bando, _req, "/usr/bin/perl", _postValues, _matchedServer, _cgiPath);
+				Cgi _cgi(_fileName, _bando, _req, "/usr/bin/perl", _postValues, _matchedServer, _cgiPath, _multiBody);
                 _http = _cgi.cgiExecute();
                 _code = 200;
                 return _code;
             }
             else if (_cgiType == "php" && mp[".php"].find("/usr/bin/php-cgi") != std::string::npos)
             {
-				Cgi _cgi(_fileName, _bando, _req, "/usr/bin/php-cgi", _postValues, _matchedServer, _cgiPath);
+				Cgi _cgi(_fileName, _bando, _req, "/usr/bin/php-cgi", _postValues, _matchedServer, _cgiPath, _multiBody);
                 _http = _cgi.cgiExecute();
                 _code = 200;
                 return _code;
@@ -639,17 +639,18 @@ void Response::modifyResponseHeader()
 		_code = _redirectionType;
 	_responseHeader += _protocol + " " + std::to_string(_code) + " " + _errorRep[_code];
 	_responseHeader += "\nDate: " + _time;
+	_responseHeader += "\nConnection: close";
 	if (_matchedServer->getServerHeader().empty())
-		_responseHeader += "\nServer: Webserv42";
+		_responseHeader += "\nServer: webserv";
 	else
 		_responseHeader += "\nServer: " + _matchedServer->getServerHeader();
-	_responseHeader += "\nLast-modified: " + _modifyTime;
+/* 	_responseHeader += "\nLast-modified: " + _modifyTime; */
 	_responseHeader += "\nContent-Type: " + _contentType;
 	if (_isUpload != true)
 		_responseHeader += "\nContent-Length: " + std::to_string(_http.size() - 1); // make a update for upload
 	else
 		_responseHeader += "\nContent-Length: " + std::to_string(_contentLen);
-	_responseHeader += "\nContent-Location: " + _path;
+	_responseHeader += "\nContent-Location: " + _path.substr(1);
 	if(_postmethod != true)
 		_responseHeader += "\nTransfer-Encoding: identity" + _encoding;
 	_responseHeader += "\n\n";

@@ -100,7 +100,7 @@ std::string		Client::getNullResponse()
 	resHeader += "HTTP/1.1 404 OK" ;
 	resHeader += "\nContent-Type: text/html" ;
 	resHeader += "\n\n";
-	resHeader += "<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"utf-8\">\n</head>\n<h1>404 Error.</h1></html>";
+	resHeader += "<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"utf-8\">\n</head>\n<a href=\"https://quickabdest.com/\" target=\"_blank\"/>Maalesef isteğin başarısız bir abdest alıp tekrar dene.</html>";
 
 	return resHeader;
 }
