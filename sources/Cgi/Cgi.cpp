@@ -23,7 +23,7 @@ Cgi::Cgi(std::string fileName, std::string m_request, Request req, std::string p
 }
 
 Cgi::~Cgi() {}
-
+/* 
 void Cgi::extractKeyValues() {
     for (size_t i = _postValues.size() - 1; i < _postValues.size(); ++i) {
         _keyValue += _postValues[i];
@@ -31,7 +31,7 @@ void Cgi::extractKeyValues() {
             _keyValue += "&";
         }
     }
-}
+} */
 
 void Cgi::initOthersEnvironment()
 {
@@ -60,7 +60,7 @@ void Cgi::initOthersEnvironment()
 
 std::string Cgi::cgiExecute() // bakılacak
 {
-    extractKeyValues();   
+    /* extractKeyValues();  */  
     initOthersEnvironment();
 
     size_t i = 0;

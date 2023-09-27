@@ -5,12 +5,13 @@ import cgi
 form = cgi.FieldStorage()
 
 # Formdaki input alanlarından verileri al
-first_name = form.getvalue('fname')
+first_name = form['fname'].value
 last_name = form.getvalue('lname')
 second_name = form.getvalue('second')
 third_name = form.getvalue('Third')
 
-
+# Gelen verileri kullanarak HTML yanıtını oluştur
+print("Content-type:text/html\r\n\r\n")
 print("<html>")
 print("<head>")
 print("<title>Form Response</title>")

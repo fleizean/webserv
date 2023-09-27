@@ -24,5 +24,5 @@ public:
 
 	std::string cgiExecute();
 	void initOthersEnvironment();
-	void extractKeyValues();
+	/* void extractKeyValues(); */
 };
