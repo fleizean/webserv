@@ -13,7 +13,7 @@ void			            parse_server(std::string _configContent);
 std::string		            trim(std::string& line, const std::string& whitespace);
 bool                        isValidMethod(const std::string& word);
 unsigned int	            strToIp(std::string strIp);
-std::string                 removeAll(std::string str, const std::string &from);
+std::string                 removeSubstring(std::string str, const std::string &from);
 char	                    *get_cwd_buf();
 
 std::string                 trimRight(const std::string& str, const std::string& spliter);

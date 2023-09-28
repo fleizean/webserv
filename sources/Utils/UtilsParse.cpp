@@ -138,7 +138,20 @@ unsigned int	strToIp(std::string strIp) {
 	return final;
 }
 
-std::string removeAll(std::string str, const std::string &from)
+/**
+ * @brief Bir ana dizeden belirli bir alt diziyi kaldıran bir fonksiyon.
+ *
+ * Bu fonksiyon, verilen ana dizeden belirli bir alt diziyi arar ve bulduğunda kaldırır.
+ *
+ * @param str   Ana dize, alt dizeyi içeren dizedir.
+ * @param from  Kaldırılacak alt dizedir.
+ *
+ * @return Kaldırılmış dizeyi içeren bir std::string.
+ *
+ * @note Bu fonksiyon, `from` alt dizesinin tüm örneklerini kaldırır.
+ * @warning Fonksiyon, `from` alt dizesini bulamazsa girdi dizesini değiştirmez ve aynı dizeyi döndürür.
+ */
+std::string removeSubstring(std::string str, const std::string &from)
 {
 	size_t start_pos = 0;
 	while ((start_pos = str.find(from)) != std::string::npos)

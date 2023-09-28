@@ -52,7 +52,7 @@ void Response::run()
 			_maxBody = _matchedServer->getConfigMembers().getMaxClientBodySize();
 		}
 		for (std::map<std::string, std::string>::iterator namesIt = _matchedServer->getConfigMembers().getCgi().begin(); namesIt != _matchedServer->getConfigMembers().getCgi().end(); ++namesIt)
-			mp.insert(std::make_pair(namesIt->first, namesIt->second));
+			cgi.insert(std::make_pair(namesIt->first, namesIt->second));
 	}
 	for (std::vector<std::string>::const_iterator namesIt = _matchedServer->getServerName().begin(); namesIt != _matchedServer->getServerName().end(); ++namesIt)
 		_serverName = *namesIt;
@@ -114,6 +114,7 @@ void Response::errorStatus()
 	_errorRep[413] = "Payload Too Large";
 	_errorRep[500] = "Internal Server Error";
 	_errorRep[501] = "Not Implemented";
+	_errorRep[502] = "Bad Gateway";
 }
 
 /**
@@ -167,31 +168,6 @@ int Response::fileExist(const char* fileName) // bakılacak
             std::stringstream test;
             test << document.rdbuf();
             _http = test.str();
-            
-            // Uzantı ve yorumlayıcı eşleşiyorsa CGI betiğini çalıştır
-			
-/*             if (_cgiType == "py" && mp[".py"].find("/usr/bin/python3") != std::string::npos)
-            {
-				Cgi _cgi(_fileName, _bando, _req, "/usr/bin/python3", _postValues, _matchedServer, _cgiPath, _multiBody);
-                _http = _cgi.cgiExecute();
-                _code = 200;
-                return _code;
-            }
-            else if (_cgiType == "pl" && mp[".pl"].find("/usr/bin/perl") != std::string::npos)
-            {
-				Cgi _cgi(_fileName, _bando, _req, "/usr/bin/perl", _postValues, _matchedServer, _cgiPath, _multiBody);
-                _http = _cgi.cgiExecute();
-                _code = 200;
-                return _code;
-            }
-            else if (_cgiType == "php" && mp[".php"].find("/usr/bin/php-cgi") != std::string::npos)
-            {
-				Cgi _cgi(_fileName, _bando, _req, "/usr/bin/php-cgi", _postValues, _matchedServer, _cgiPath, _multiBody);
-                _http = _cgi.cgiExecute();
-                _code = 200;
-                return _code;
-            } */
-            return _code;
         }
         else
             _code = 404;
@@ -255,6 +231,20 @@ std::string Response::fAutoIndex(const char* path) // bakılacak
     return Autoindex_Page;
 }
 
+bool Response::checkCgiForConfig()
+{
+	bool flag = false;
+	std::map<std::string, std::string>::iterator it;
+	for (it = cgi.begin(); it != cgi.end(); ++it)
+	{
+		if (it->first == ".py" && it->second == "/usr/bin/python3")
+			return true;
+		else
+			flag = false;
+	}
+	return flag;
+}
+
 /**
  * HTTP isteğinin POST yöntemini işler.
  * Bu fonksiyon, POST isteğini işler ve dosya yüklemeleri ile CGI yürütmesini gerçekleştirir.
@@ -270,42 +260,17 @@ int Response::postMethodes() // bakılacak
 {
 	_postmethod = true;
 	char* point_path = realpath(".", NULL);
-	std::string path = point_path + removeAll(_path, point_path);
+	std::string path = point_path + removeSubstring(_path, point_path);
 	free(point_path);
-	_code = 413;
+	_code = 200;
 	parseQueryString(_bando.substr(_bando.find("\r\n\r\n") + strlen("\r\n\r\n")));
 	getContentType(path);
-	if (_path.substr(_path.find_last_of(".") + 1) == "php"){
-		Cgi _cgi(path.c_str(), _bando, _req, "/usr/bin/php", _postValues, _matchedServer, _cgiPath, _multiBody);
-		_http = _cgi.cgiExecute();
-	}
-	if (_path.substr(_path.find_last_of(".") + 1) == "py"){
+	if (_path.substr(_path.find_last_of(".") + 1) == "py" && checkCgiForConfig()){
 		Cgi _cgi(path.c_str(), _bando, _req, "/usr/bin/python3", _postValues, _matchedServer, _cgiPath, _multiBody);
 		_http = _cgi.cgiExecute();
 	}
-	if (_contentLen <= _maxBody)
-	{
-		_code = 200;
-		std::string sear(_bando);
-		size_t i = sear.rfind("Content-Type:");
-		if (i != std::string::npos)
-			i = sear.find("\n", i);
-		if (i != std::string::npos)
-		{
-			size_t j = sear.find("------WebKitFormBoundary", i);
-			if (j != std::string::npos)
-			{
-				char* cwd;
-				_isUpload = true;
-
-				cwd = get_cwd_buf();
-				std::string scwd = cwd;
-				free(cwd);
-				_http = "<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"utf-8\">\n</head>\n<h1>File " + _fileName + " has been uploaded yiğen.</h1></html>";				
-				uploadFile(std::string((sear.begin() + i + 3), sear.begin() + j - 2), _bando);
-			}
-		}
-	}
+	else
+		_code = 502;
 	if (_contentLen >= _maxBody)
 		_code = 413;
 	if (_http.find("Status: 500") != std::string::npos)
@@ -610,7 +575,7 @@ int Response::getMethodes() // bakılacak
 	std::string raw_path_str(raw_path);
 	free(raw_path);
 
-	std::string path = raw_path_str + removeAll(_path, raw_path_str);
+	std::string path = raw_path_str + removeSubstring(_path, raw_path_str); // o anki konum hali hazırda gelen path yolunda varsa kaldırır daha sonrasında ekleme yapacağı için
 	_path = path + "/";
 	getContentType(path);
 	fileExist(path.c_str());

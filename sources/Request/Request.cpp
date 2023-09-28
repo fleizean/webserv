@@ -62,7 +62,7 @@ Request::Request(std::string buffer)
     clear();
     parse();
     _status = 1;
-    printAll();
+    // printAll();
 }
 
 void Request::parseMultiPart()

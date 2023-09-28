@@ -54,6 +54,7 @@ private:
 
 
 	std::map<std::string, std::string>	mp;
+	std::map<std::string, std::string>	cgi;
 
 	std::string							_errorRep[520];
 	std::string 						_responseHeader;
@@ -88,6 +89,7 @@ public:
 	bool	checkIfPathIsFile(const char * path);
 	void	setBando(std::string bando);
 	void	processRequest();
+	bool 	checkCgiForConfig();
 
 
 	std::string fAutoIndex(const char *path);

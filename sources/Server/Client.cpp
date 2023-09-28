@@ -128,7 +128,7 @@ ServerMembers*	Client::getServerForRequest(t_listen& address, std::vector<Server
 		}
 		else
 		{
-			if (address.port == (*it)->getListen().port)
+			if (address.port == (*it)->getListen().port && (*it)->getServerName().empty())
 				possibleServers.push_back((*it));
 		}
 	}
@@ -137,41 +137,5 @@ ServerMembers*	Client::getServerForRequest(t_listen& address, std::vector<Server
 		return NULL;
 
 	return possibleServers[0];
-
-/* 	ServerMembers* matchingServer = nullptr;
-	ServerMembers* firstServer = nullptr;
-
-	bool first = true;
-
-	for (std::vector<ServerMembers *>::const_iterator it = servers.begin(); it != servers.end(); it++)
-    {
-		if (it == servers.begin())
-			firstServer = (*it);
-		if (!(*it)->getServerName().empty())
-		{
-			for (std::vector<std::string>::const_iterator sit = (*it)->getServerName().begin(); sit != (*it)->getServerName().end(); sit++)
-			{
-				if (*sit == req.getHost() && address.port == (*it)->getListen().port)
-				{
-					address.host = 2130706433;
-					return (*it);
-				}
-			}
-			first = false;
-		}
-		else 
-		{
- 			if (address.port == (*it)->getListen().port)
-        	{
-        	    matchingServer = (*it);
-        	}
-		}
-    }
-	if (first == false || matchingServer != nullptr)
-    {
-        matchingServer = firstServer;
-    }
-
-    return matchingServer; */
 }
 
