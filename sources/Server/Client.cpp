@@ -78,7 +78,6 @@ std::string		Client::process(std::string multiBody)
 	{
 		Response response(_request, _confServers, matchedServer, multiBody);
 		response.setBando(_buffer);
-		response.checkModifyDate();
 		response.setDate();
 		response.errorStatus();
 		response.run();

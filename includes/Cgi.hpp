@@ -8,11 +8,11 @@ class Cgi
 {
 private:
 	std::string						_requestHeader;
-	std::string						_fileName;
+	std::string						_fileExecutePath;
 	std::string						_keyValue;
 	std::string						_cgiPath;
 	std::vector<std::string>		_env;
-	std::string						_path;
+	std::string						_cgiExecutePath;
 	std::string						_multiBody;
 	std::vector<std::string>		_postValues;
 	ServerMembers*					_matchedServer;

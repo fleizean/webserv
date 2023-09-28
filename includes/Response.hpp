@@ -18,7 +18,6 @@ private:
 	std::string							_type;
 	std::string							_contentType;
 	std::string							_time;
-	std::string							_modifyTime;
 	std::string							_http;
 	std::string							_server;
 	std::string							_host;
@@ -81,7 +80,6 @@ public:
 	void	handleDeleteRequest();
 	int		fileExist(const char *fileName);
 	void	setDate();
-	void	checkModifyDate();
 	void	parse_buf(char *buf, std::string& filename, std::string& content_type);
 	void	getContentType(std::string path);
 	void	errorPage();
@@ -94,7 +92,6 @@ public:
 
 	std::string fAutoIndex(const char *path);
 	std::string createDirectoryLink(std::string const &dirEntry, std::string Directory, std::string const &host);
-	std::string uploadFile(std::string sear, std::string buffer);
 	
 	/* printResponse details */
 	void	printResponse();

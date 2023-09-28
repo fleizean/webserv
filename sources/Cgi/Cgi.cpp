@@ -3,11 +3,11 @@
 Cgi::Cgi()
 {
     _requestHeader = "";
-    _path = "";
-    _postValues = std::vector<std::string>();
-    _fileName = "";
-    _matchedServer = NULL;
     _cgiPath = "";
+    _postValues = std::vector<std::string>();
+    _fileExecutePath = "";
+    _matchedServer = NULL;
+    _cgiExecutePath = "";
     _multiBody = "";
 }
 
@@ -15,9 +15,9 @@ Cgi::Cgi(std::string fileName, std::string m_request, Request req, std::string p
 {
     _requestHeader = m_request;
     _request = req;
-    _path = path;
+    _cgiExecutePath = path;
     _postValues = postValues;
-    _fileName = fileName;
+    _fileExecutePath = fileName;
     _matchedServer = matchedServer;
     _multiBody = multiBody;
     _cgiPath = trim(cgiPath, "/");
@@ -29,7 +29,7 @@ Cgi::~Cgi() {}
 
 
 void Cgi::extractKeyValues() {
-    for (size_t i = _postValues.size() - 1; i < _postValues.size(); ++i) {
+    for (size_t i = _postValues.size() - 1; i < _postValues.size(); ++i) { // -1 diyerek sonuncu alan key=value alanı olduğu için bu şekilde parse ettik
         _keyValue += _postValues[i];
         if (i != _postValues.size() - 1) {
             _keyValue += "&";
@@ -55,11 +55,11 @@ void Cgi::initOthersEnvironment()
     _env.push_back("SERVER_SOFTWARE=webserv");
     _env.push_back("REDIRECT_STATUS=200");
 
-    std::cout << BOLD_YELLOW << "\n----------> Env Testing <----------\n" << RESET;
+    /* std::cout << BOLD_YELLOW << "\n----------> Env Testing <----------\n" << RESET;
     std::cout << CYAN << std::endl;
     for(std::vector<std::string>::iterator it = _env.begin(); it != _env.end(); it++)
         std::cout << *it << std::endl;
-    std::cout << RESET << std::endl;
+    std::cout << RESET << std::endl; */
 }
 
 std::string Cgi::cgiExecute() // bakılacak
@@ -67,30 +67,30 @@ std::string Cgi::cgiExecute() // bakılacak
     extractKeyValues();
     initOthersEnvironment();
 
-    size_t i = 0;
-    char	output[4096];
-	int		readed;
-	int	body_pipe[2];
-	int	result_pipe[2];
-	std::string tmp2;
-	char *av1 = (char *)this->_path.c_str();
-	char *av2;
-	char *av[3];
+    size_t          i = 0;
+    char	        output[4096];
+	int		        readed;
+	int	            body_pipe[2];
+	int	            result_pipe[2];
+	std::string     tmp2;
+	char            *av1 = (char *)this->_cgiExecutePath.c_str();
+
+	char            *av2;
+	char            *av[3];
 
     av[2] = 0;
 
-    av2 = (char *)_fileName.c_str();
+    av2 = (char *)_fileExecutePath.c_str();
 
     av[0] = av1;
 	av[1] = av2;
-
     char **env = new char*[_env.size() + 1];
     for (i = 0; i < _env.size(); i++)
         env[i] = (char*)_env.at(i).c_str();
     env[i] = NULL;
 
-    pipe(body_pipe);
-	pipe(result_pipe);
+    pipe(body_pipe);    // Bizim cgi ile bir veriyi servera yollayacağımız durumdaki köprü. (veri iletişimi)
+	pipe(result_pipe);  // Cgi'nın bir veri gönderme durumunda veriyi alacağımız köprü. (veri iletişimi)
 
     if (this->_request.getMethod() == "POST" && !_multiBody.empty()) {
 		write(body_pipe[1], _multiBody.c_str(), _multiBody.length());
@@ -99,7 +99,7 @@ std::string Cgi::cgiExecute() // bakılacak
         write(body_pipe[1], _keyValue.c_str(), _keyValue.length());
     close(body_pipe[1]);
 
-    if (!fork())
+    if (!fork()) // sorulacak
 	{
 
 		close(result_pipe[0]);
@@ -129,8 +129,5 @@ std::string Cgi::cgiExecute() // bakılacak
     while(env[i])
         delete[] env[i];
     delete[] env;
-/*     std::cout << "------------------\n";
-    std::cout << output << std::endl;
-    std::cout << "------------------\n"; */
     return (std::string(output, readed));
 }

@@ -9,24 +9,22 @@ Response::Response(Request req, std::vector<ServerMembers*> servers, ServerMembe
 
 Response::~Response() { }
 
-/* --------> Functions <-------- */
-
 template <typename T>
-static std::string toStringFor(T numb)
+std::string toStringFor(T numb)
 {
 	std::stringstream stream;
 	stream << numb;
 	return stream.str();
 }
 
+/* --------> Functions <-------- */
+
 void Response::run()
 {
-	int j = 1;
 	std::string aled;
 	bool yes;
-	std::vector<Location*>::iterator locItos = _matchedServer->getLocations().begin();
 
-	for (std::vector<Location*>::iterator locIt = _matchedServer->getLocations().begin(); locIt != _matchedServer->getLocations().end(); ++locIt, locItos++, ++j)
+	for (std::vector<Location*>::iterator locIt = _matchedServer->getLocations().begin(); locIt != _matchedServer->getLocations().end(); ++locIt)
 	{
 		if (_path.find((*locIt)->getUri()) != std::string::npos)
 		{
@@ -57,7 +55,7 @@ void Response::run()
 	for (std::vector<std::string>::const_iterator namesIt = _matchedServer->getServerName().begin(); namesIt != _matchedServer->getServerName().end(); ++namesIt)
 		_serverName = *namesIt;
 	std::map<std::string, std::string> indexmap;
-	for (std::vector<Location*>::iterator locIt = _matchedServer->getLocations().begin(); locIt != _matchedServer->getLocations().end(); ++locIt, ++j)
+	for (std::vector<Location*>::iterator locIt = _matchedServer->getLocations().begin(); locIt != _matchedServer->getLocations().end(); ++locIt)
 		for (std::vector<std::string>::iterator namesIt = (*locIt)->getConfigMembers().getIndex().begin(); namesIt != (*locIt)->getConfigMembers().getIndex().end(); ++namesIt)
 			indexmap.insert(std::make_pair((*locIt)->getUri(), *namesIt));
 	if (_hasRedirection == true && _path != "/favicon.ico") {
@@ -88,7 +86,7 @@ void Response::processRequest()
 	else
 	{
 		resetHTML();
-		if (_type == "POST" || _type == "DELETE" || _type == "GET")
+		if (_type != "POST" || _type != "DELETE" || _type != "GET")
 			_code = 405;
 		else
 			_code = 501;
@@ -103,9 +101,7 @@ void Response::processRequest()
  */	
 void Response::errorStatus()
 {
-	_errorRep[100] = "Continue";
 	_errorRep[200] = "OK";
-	_errorRep[201] = "Created";
 	_errorRep[204] = "No Content";
 	_errorRep[400] = "Bad Request";
 	_errorRep[403] = "Forbidden";
@@ -135,7 +131,7 @@ void Response::errorStatus()
  * @param fileName Kontrol edilecek dosyanın adı.
  * @return Dosya varlık kontrolünün sonucunu gösteren HTTP yanıt kodu.
  */
-int Response::fileExist(const char* fileName) // bakılacak
+int Response::fileExist(const char* fileName)
 {
     std::string line;
     _code = 200;
@@ -145,21 +141,18 @@ int Response::fileExist(const char* fileName) // bakılacak
     
     // Her sunucu yapılandırması için autoindex değerlerini al
     for (int i = 1; it != ite; ++it, ++i)
-    {
         autoindx[(*it)->getListen().port] = (*it)->getConfigMembers().getAutoIndex();
-    }
     
     std::ifstream document;
-    // Belirtilen yol bir dosya mı diye kontrol et
+    // Belirtilen yol bir dosya mı yoksa klasör mi diye kontrol et
     if (checkIfPathIsFile(fileName) == true)
     {
-        // Dosya var mı diye kontrol et
-        if ((access(fileName, F_OK) == 0))
+        if ((access(fileName, F_OK) == 0)) // dosya var mı yok mu diye kontrol eder
         {
             document.open(fileName, std::ifstream::in);
             
             // Dosya açılabiliyorsa
-            if (document.is_open() == false)
+            if (!document.is_open())
             {
                 _code = 403;
                 return _code;
@@ -276,8 +269,7 @@ int Response::postMethodes() // bakılacak
 	if (_http.find("Status: 500") != std::string::npos)
 	{
 		_code = 500;
-		_http = "";
-		errorPage();
+		resetHTML();
 	}
 	errorPage();
 	modifyResponseHeader();
@@ -293,7 +285,7 @@ int Response::postMethodes() // bakılacak
  * @return Oluşturulan otomatik dizin içeriğindeki bağlantı.
  */
 
-std::string Response::createDirectoryLink(std::string const& dirEntry, std::string Directory, std::string const& host)
+std::string Response::createDirectoryLink(std::string const& dirEntry, std::string Directory, std::string const& host) // bakılacak
 {
     std::stringstream ss;
     
@@ -318,7 +310,7 @@ void Response::errorPage()
 	if (mp[toStringFor(_code)] == "")
 	{
 		tmp_path = realpath(".", NULL);
-		path = toStringFor(tmp_path) + "/sources/Http(Errors)/" + toStringFor(_code) + ".html";
+		path = 	toStringFor(tmp_path) + "/sources/Http(Errors)/" + toStringFor(_code) + ".html";
 		free(tmp_path);
 	}
 	else 
@@ -394,7 +386,7 @@ void Response::getContentType(std::string path)
  * @return true 
  * @return false 
  */
-bool Response::checkIfPathIsFile(const char *path) // bakılacak (flag)
+bool Response::checkIfPathIsFile(const char *path)
 {
 	struct stat s;
 	if (stat(path, &s) == 0)
@@ -407,31 +399,6 @@ bool Response::checkIfPathIsFile(const char *path) // bakılacak (flag)
 			return true;
 	}
 	return true;
-}
-
-/**
- * @brief Dosyanın son değiştirilme tarihini kontrol eder ve kaydeder.
- *
- * Bu fonksiyon, `_path` üye değişkenine gösterilen dosyanın son değiştirilme tarihini kontrol eder.
- * Dosyanın durum bilgilerini `stat` fonksiyonu kullanarak elde eder.
- * Ardından, dosyanın son değiştirilme zamanını `_modifyTime` üye değişkenine kaydeder.
- * `_modifyTime` üyesi, dosyanın son değiştirilme tarihini RFC 1123 formatında ("Wdy, DD Mon 'YYYY' 'HH':'MM':'SS' 'GMT'") bir string olarak tutar.
- *
- * Bu fonksiyon, HTTP yanıtlarında `Last-Modified` başlığının ayarlanması için kullanılabilir.
- * İstemcilere, dosyanın son değiştirilme zamanını bildirmek amacıyla bu başlık kullanılır.
- */
-void Response::checkModifyDate()
-{
-	char src[100];
-	struct stat status;
-	struct tm *That;
-
-	if (stat(_path.c_str(), &status) == 0)
-	{
-		That = gmtime(&status.st_mtime);
-		strftime(src, 100, "%a, %d %b %Y %H:%M:%S GMT", That);
-		_modifyTime = std::string(src);
-	}
 }
 
 /**
@@ -497,68 +464,6 @@ void Response::parseQueryString(const std::string &query_string)
 }
 
 /**
- * @brief Yüklenen dosyanın işlenmesi ve kaydedilmesini gerçekleştirir.
- *
- * @param sear Dosya verilerinin başlangıcını içeren bir std::string.
- * @param buffer İstek verilerini içeren bir std::string.
- * @return Kaydedilen dosyanın adını içeren bir std::string.
- *
- * Bu fonksiyon, sear parametresi aracılığıyla dosya verilerinin başlangıcını alır ve buffer parametresi
- * aracılığıyla istek verilerini alır. Fonksiyon, bu verileri işleyerek dosyayı kaydeder ve kaydedilen dosyanın adını döndürür.
- * Dosya adı, yüklenen dosyanın adını içeren bir std::string olarak geri döner.
- * Fonksiyon, yüklenen dosyanın kaydedilmesi sırasında hatalar oluşması durumunda boş bir std::string döndürür.
- *
- * Dosya adı, _upload üye değişkenine göre belirlenen geçici bir dosya yoluna kaydedilir.
- * Dosya verileri sear parametresinden alınarak dosya içerisine yazılır ve dosya kapatılır.
- * Son olarak, kaydedilen dosyanın adı olan mainbuffer std::string olarak döndürülür.
- */
-std::string Response::uploadFile(std::string sear, std::string buffer)
-{
-	std::string firstSixCharacters;
-	std::string extension;
-	std::string filename;
-	std::string mainbuffer(buffer);
-	size_t i = mainbuffer.rfind("filename=\"");
-    if (i != std::string::npos) 
-	{
-        i += 10;
-        size_t j = mainbuffer.find(".", i);  // "." karakterini ara
-        if (j != std::string::npos) {
-            filename = mainbuffer.substr(i, j - i);  // Dosya adını al
-
-            // Şimdi dosya uzantısını al
-            size_t k = mainbuffer.find("\"", j);  // Uzantının sonunu bul
-            if (k != std::string::npos) {
-                extension = mainbuffer.substr(j + 1, k - j - 1);  // Uzantıyı al
-            }
-        }
-    }
-	if (mainbuffer.length() > 10)
-	{
-		firstSixCharacters = filename.substr(0, 6);
-		firstSixCharacters += "." + extension;
-	}
-	else
-		firstSixCharacters = filename + "." + extension;
-
-	std::string tmpFileName = "." + _upload;
-	std::string root = "";
-	int fd;
-	if ("" == tmpFileName)
-		fd = open((tmpFileName + "/" + firstSixCharacters).c_str(), O_RDWR | O_CREAT | O_TRUNC, 00777);
-	else
-	{
-		mkdir((tmpFileName + "/" + "").c_str(), 0755);
-		fd = open((tmpFileName + "/" + "" + "" + firstSixCharacters).c_str(), O_RDWR | O_CREAT | O_TRUNC, 00777);
-	}
-	if (fd == -1)
-		return (std::string());
-	write(fd, sear.c_str(), sear.size());
-	close(fd);
-	return (firstSixCharacters);
-}
-
-/**
  * HTTP isteğinin GET yöntemini işler.
  * Bu fonksiyon, GET isteğini işler ve istenen dosyanın varlığını kontrol eder.
  * İstek URL'sinden dosya yolunu elde eder, içerik türünü belirler ve varlık durumuna göre hata sayfası oluşturur.
@@ -569,31 +474,27 @@ std::string Response::uploadFile(std::string sear, std::string buffer)
  *
  * @return GET yönteminin başarılı bir şekilde işlendiğini belirten 0 değerini döndürür.
  */
-int Response::getMethodes() // bakılacak
+int Response::getMethodes()
 {
 	char* raw_path = realpath(".", NULL);
 	std::string raw_path_str(raw_path);
 	free(raw_path);
-
+	_code = 200;
 	std::string path = raw_path_str + removeSubstring(_path, raw_path_str); // o anki konum hali hazırda gelen path yolunda varsa kaldırır daha sonrasında ekleme yapacağı için
 	_path = path + "/";
 	getContentType(path);
 	fileExist(path.c_str());
-	errorPage();
 	if (_contentLen >= _maxBody)
 	{
 		_code = 413;
-		_http = "";
-		errorPage();
-	}
-	else
-		_code = 200;
+		resetHTML();
+	}		
 	if (_http.find("Status: 500") != std::string::npos)
 	{
 		_code = 500;
-		_http = "";
-		errorPage();
+		resetHTML();
 	}
+	errorPage();
 	modifyResponseHeader();
 	return 0;
 }
@@ -609,7 +510,6 @@ void Response::modifyResponseHeader()
 		_responseHeader += "\nServer: webserv";
 	else
 		_responseHeader += "\nServer: " + _matchedServer->getServerHeader();
-/* 	_responseHeader += "\nLast-modified: " + _modifyTime; */
 	_responseHeader += "\nContent-Type: " + _contentType;
 	if (_isUpload != true)
 		_responseHeader += "\nContent-Length: " + std::to_string(_http.size() - 1); // make a update for upload
@@ -645,7 +545,7 @@ void Response::deleteMethodes() // bakılacak
 	if (_contentLen >= _maxBody)
 		_code = 413;
     
-	_responseHeader += _protocol + " " + std::to_string(_code) + " " + _errorRep[_code]; // .
+	_responseHeader += _protocol + " " + std::to_string(_code) + " " + _errorRep[_code];
 	_responseHeader += "\nDate : " + _time + "\n\n";
 
 	resetHTML();
