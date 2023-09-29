@@ -53,7 +53,6 @@ public:
     bool    isDomain(const std::string& host);
 
     /* Getters */
-    std::string const   &getFirstMediaType() const;
     std::string const   &getMethod() const;
     std::string const   &getLocation() const;
     std::string const   &getProtocol() const;

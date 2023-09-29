@@ -77,7 +77,7 @@ std::string		Client::process(std::string multiBody)
 	else
 	{
 		Response response(_request, _confServers, matchedServer, multiBody);
-		response.setBando(_buffer);
+		response.setBuffer(_buffer);
 		response.setDate();
 		response.errorStatus();
 		response.run();
@@ -115,7 +115,6 @@ ServerMembers*	Client::getServerForRequest(t_listen& address, std::vector<Server
 		{
 			if (!(*it)->getServerName().empty())
 			{
-				
 				for (std::vector<std::string>::const_iterator sit = (*it)->getServerName().begin(); sit != (*it)->getServerName().end(); sit++)
 				{
 					if (*sit == req.getHost() && address.port == (*it)->getListen().port)

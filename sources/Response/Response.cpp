@@ -52,13 +52,11 @@ void Response::run()
 		for (std::map<std::string, std::string>::iterator namesIt = _matchedServer->getConfigMembers().getCgi().begin(); namesIt != _matchedServer->getConfigMembers().getCgi().end(); ++namesIt)
 			cgi.insert(std::make_pair(namesIt->first, namesIt->second));
 	}
-	for (std::vector<std::string>::const_iterator namesIt = _matchedServer->getServerName().begin(); namesIt != _matchedServer->getServerName().end(); ++namesIt)
-		_serverName = *namesIt;
 	std::map<std::string, std::string> indexmap;
 	for (std::vector<Location*>::iterator locIt = _matchedServer->getLocations().begin(); locIt != _matchedServer->getLocations().end(); ++locIt)
 		for (std::vector<std::string>::iterator namesIt = (*locIt)->getConfigMembers().getIndex().begin(); namesIt != (*locIt)->getConfigMembers().getIndex().end(); ++namesIt)
 			indexmap.insert(std::make_pair((*locIt)->getUri(), *namesIt));
-	if (_hasRedirection == true && _path != "/favicon.ico") {
+	if (_hasRedirection == true) {
 		_path = _uriRoot + _redirectionURI;
 	}
 	else 
@@ -221,19 +219,18 @@ std::string Response::fAutoIndex(const char* path)
     }
 
 	// eklenebilir
-	/* if (!directory.empty() && directory.back() == '/')
-	    directory.pop_back(); */
+	if (!directory.empty() && directory.back() == '/')
+	    directory.pop_back();
     
 	// kaldırılabilir
-    if (directory[0] != '/') 
-        directory = "/" + directory;
+    /* if (directory[0] != '/') 
+        directory = "/" + directory; */
     
     // Dizin içeriğini tarayarak otomatik dizin içeriğini oluştur
     for (struct dirent* dirEntry = readdir(dir); dirEntry; dirEntry = readdir(dir)) // sürekli o anki alanımızdaki (klasör) dosyaları almamızı sağlayacak döngü
     {
 		/* std::cout << RED << dirEntry->d_name << RESET << std::endl; */ // Evoda açılacak kod satırı
         autoIndexPage += createDirectoryLink(std::string(dirEntry->d_name), directory, _host); // d_name o anki işlenecek dosyanın adı
-		
     }
     
 	// Otomatik indeks sayfasının son kısmını oluşturur.
@@ -437,7 +434,7 @@ bool Response::checkIfPathIsFile(const char *path)
  * `_time` üyesi, yanıtın `Date` başlığında kullanılmak üzere tarih bilgisini tutar.
  * Bu tarih, istemciye sunucunun yanıtı ne zaman oluşturduğunu bildirmek için kullanılır.
  */
-void Response::setDate(void)
+void Response::setDate()
 {
 	struct tm *time;
 	char stock[100];
@@ -516,7 +513,7 @@ int Response::getMethodes()
 		_code = 413;
 		resetHTML();
 	}		
-	if (_http.find("Status: 500") != std::string::npos)
+	if (_http.find("Status: 500") != std::string::npos) // BAKILACAK
 	{
 		_code = 500;
 		resetHTML();
@@ -619,4 +616,4 @@ void Response::handleDeleteRequest()
 }
 
 std::string Response::getResponseHeader() { return _responseHeader; }
-void	Response::setBando(std::string requestHeader) { this->_requestHeader = requestHeader; }
+void	Response::setBuffer(std::string requestHeader) { this->_requestHeader = requestHeader; }

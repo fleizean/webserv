@@ -7,8 +7,8 @@ Cluster::~Cluster() {}
 
 int Cluster::setUpCluster(std::vector<ServerMembers*> confServers)
 {
-    Server *server = NULL;
     Error err(0);
+    Server *server = NULL;
     int socket = -1;
     _loopControl = 1;
     _confServers = confServers;
@@ -34,7 +34,6 @@ int Cluster::setUpCluster(std::vector<ServerMembers*> confServers)
     std::map<int, int> hP;
     for (int i = 0; it != ite; ++it, i++)
     {
-        
         server = new Server((*it)->getListen().host, (*it)->getListen().port, hP);
         socket = server->getFd();
         hP[(*it)->getListen().port] = socket;
@@ -52,11 +51,12 @@ void Cluster::acceptSection()
 {
     int client_fd;
     Client *client;
+	
     for(std::map<int, Server *>::iterator it = _servers.begin(); this->_loopControl &&  it != _servers.end(); it++)
     {
         if(FD_ISSET(it->first, &_supReadFds))
         {
-			std::cout << YELLOW << "\nAccepting..." << RESET << std::endl;
+			std::cout << BOLD_YELLOW << "\nAccepting..." << RESET << std::endl;
 
             client_fd = accept(it->first, NULL, NULL);
             if(client_fd != -1)
@@ -75,6 +75,7 @@ void Cluster::acceptSection()
 
 void Cluster::sendSection()
 {
+	
     long sent;
     for (std::map<int, Client *>::iterator it = _clients.begin(); this->_loopControl && it != _clients.end(); it++)
     {
@@ -93,6 +94,7 @@ void Cluster::sendSection()
 
 void Cluster::recvSection()
 {
+	
 	int	ret;
 	char buffer[4096] = {0};
 	size_t	sup_len = 0;
@@ -102,7 +104,7 @@ void Cluster::recvSection()
 	{
 		if (FD_ISSET(it->first, &_supReadFds))
 		{
-    		std::cout << YELLOW <<  "\nReceiving..." << RESET << std::endl;
+    		std::cout << BOLD_YELLOW <<  "\nReceiving..." << RESET << std::endl;
 			ret = recv(it->first, buffer, 4095, 0);
 			if (ret > 0)
 			{
@@ -115,6 +117,7 @@ void Cluster::recvSection()
 					this->_isFav = it->second->getIsFav();
 					this->_contentLen = it->second->getContentLen();
 					this->_body = it->second->getBody();
+
 					if (this->_isFav == 1)
 					{
 						if (send(it->first, this->_favicon.c_str(), this->_favicon.length(), 0) > 0)
@@ -184,7 +187,6 @@ void Cluster::recvSection()
                     err.setAndPrint(57, "Cluster::recvSection");
 				}
 				closeConnection(it);
-				std::cout << "Connection Closed!" << std::endl << std::flush;
 			}
 			this->_loopControl = 0;
 			break;

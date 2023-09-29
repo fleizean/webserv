@@ -22,7 +22,6 @@ private:
 	std::string							_encoding;
 	std::string							_fileName;
 	std::string							_cgiType;
-	std::string							_serverName;
 	std::string							_cgiPath;
 
 	int									_code;
@@ -72,7 +71,7 @@ public:
 	void	errorPage();
 	void	setupRequest();
 	bool	checkIfPathIsFile(const char * path);
-	void	setBando(std::string requestHeader);
+	void	setBuffer(std::string requestHeader);
 	void	processRequest();
 	bool 	checkCgiForConfig();
 

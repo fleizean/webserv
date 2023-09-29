@@ -62,7 +62,7 @@ Request::Request(std::string buffer)
     clear();
     parse();
     _status = 1;
-    // printAll();
+    /* printAll(); */
 }
 
 void Request::parseMultiPart()
@@ -250,7 +250,6 @@ int const           &Request::getPort() const { return this->_port; }
 t_listen            &Request::getListen() { return _listen; }
 bool const          &Request::getIsDomain() const { return this->_isDomain; }
 std::string const   &Request::getFullHost() { return _fullHost; }
-std::string const   &Request::getFirstMediaType() const { return _firstMediaType; }
 
 /* Other */
 void Request::printAll()
@@ -266,7 +265,7 @@ void Request::printAll()
     std::cout << BOLD_MAGENTA << "Http-Connection: " << RESET << this->getConnection() << "\n";
     std::cout << BOLD_MAGENTA << "Http-Content-Type: " << RESET << this->getContentType() << "\n";
     std::cout << BOLD_MAGENTA << "Http-Filename: " << RESET << this->getFileName() << "\n";
-    std::cout << BOLD_MAGENTA << "Http-Accept-Media-Type: " << RESET << this->getFirstMediaType() << "\n";
     if (this->getIsDomain() == true)
         std::cout << BOLD_MAGENTA << "Http-isDomain: " << RESET << "true" << "\n";
+     std::cout << BLUE << "------------------------------------------" << RESET << "\n";
 }
