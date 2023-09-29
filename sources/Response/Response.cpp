@@ -169,8 +169,17 @@ int Response::fileExist(const char* fileName)
     else if (checkIfPathIsFile(fileName) == false && _type == "GET" && autoindx[atoi(_host.substr(_host.find(":") + 1).c_str())] == 1)
     {
         // Otomatik dizin listelemesi etkinse, HTTP yanıtına otomatik dizin içeriğini ekle
-        _http += fAutoIndex(fileName);
-        _code = 200;
+		if (fAutoIndex(fileName) == "ERROR")
+		{
+			resetHTML();
+			_code = 403;
+		}
+		else
+		{
+			_http += fAutoIndex(fileName);
+        	_code = 200;
+        	
+		}
         return _code;
     }
     else
@@ -179,12 +188,18 @@ int Response::fileExist(const char* fileName)
 }
 
 /**
- * @brief Belirtilen dizin için otomatik dizin içeriğini oluşturur.
+ * @brief Belirtilen dizindeki otomatik indeks sayfasını oluşturur.
  *
- * @param path Otomatik dizin içeriğinin oluşturulacağı dizin yolu.
- * @return Oluşturulan otomatik dizin içeriği.
+ * @param path İçeriği taranacak dizinin yolu
+ * @function
+ * @return Oluşturulan otomatik indeks sayfası HTML olarak döndürülür.
+ *
+ * Bu işlev, verilen `path` dizinindeki dosyaları ve dizinleri listeleyerek
+ * otomatik indeks sayfasını oluşturur. Sayfa, HTML formatında bir dize olarak
+ * döndürülür.
  */
-std::string Response::fAutoIndex(const char* path) // bakılacak
+
+std::string Response::fAutoIndex(const char* path)
 {
     std::string directory(_path);
     DIR* dir = opendir(path);
@@ -196,24 +211,32 @@ std::string Response::fAutoIndex(const char* path) // bakılacak
         directory + "</title>\n\
         </head>\n\
         <body>\n\
-        <h1>INDEX</h1>\n\
+        <h1>Auto Index Page</h1>\n\
         <p>\n";
     
     if (dir == NULL)
     {
-        std::cerr << "Error: could not open the following path" << path << std::endl;
-        return "";
+        std::cerr << "Error: could not open the following path " << path << std::endl;
+        return "ERROR";
     }
+
+	// eklenebilir
+	/* if (!directory.empty() && directory.back() == '/')
+	    directory.pop_back(); */
     
-    if (directory[0] != '/')
+	// kaldırılabilir
+    if (directory[0] != '/') 
         directory = "/" + directory;
     
     // Dizin içeriğini tarayarak otomatik dizin içeriğini oluştur
-    for (struct dirent* dirEntry = readdir(dir); dirEntry; dirEntry = readdir(dir))
+    for (struct dirent* dirEntry = readdir(dir); dirEntry; dirEntry = readdir(dir)) // sürekli o anki alanımızdaki (klasör) dosyaları almamızı sağlayacak döngü
     {
-        autoIndexPage += createDirectoryLink(std::string(dirEntry->d_name), directory, _host);
+		/* std::cout << RED << dirEntry->d_name << RESET << std::endl; */ // Evoda açılacak kod satırı
+        autoIndexPage += createDirectoryLink(std::string(dirEntry->d_name), directory, _host); // d_name o anki işlenecek dosyanın adı
+		
     }
     
+	// Otomatik indeks sayfasının son kısmını oluşturur.
     autoIndexPage +=
         "\
         </p>\n\
@@ -223,6 +246,31 @@ std::string Response::fAutoIndex(const char* path) // bakılacak
     closedir(dir);
     return autoIndexPage;
 }
+
+/**
+ * @brief Dizin girişi için otomatik dizin içeriğindeki bir bağlantı oluşturur. 
+ * 
+ * Bunu a href kullanarak yönlendirme yoluyla yapar bu şekilde klasörler arasında gezinebilir hale gelir.
+ * 
+ * @param dirEntry Dizin girişi.
+ * @param Directory Otomatik dizin içeriğinin bulunduğu dizin.
+ * @param host Ana bilgisayarın adresi.
+ * @return Oluşturulan otomatik dizin içeriğindeki bağlantı.
+ */
+
+std::string Response::createDirectoryLink(std::string const& dirEntry, std::string directory, std::string const& host)
+{
+    std::stringstream ss;
+    
+    // ".." veya "." değilse bağlantıyı oluştur (sebebi güvenlik açıklarını engellemektir .. ve . kullanarak önceki dizinlere gitmesini istemiyorum)
+    if (dirEntry != ".." && dirEntry != ".")
+    {
+        ss << "\t\t<p><a href=\"http://" + host << directory + "/" + dirEntry + "\">" + dirEntry + "/" + "</a></p>\n";
+    }
+    
+    return ss.str();
+}
+
 
 bool Response::checkCgiForConfig()
 {
@@ -251,15 +299,15 @@ bool Response::checkCgiForConfig()
  */
 int Response::postMethodes()
 {
-	_postmethod = true;
-	char* point_path = realpath(".", NULL);
-	std::string path = point_path + removeSubstring(_path, point_path);
-	free(point_path);
+	_postMethod = true;
+	char* pointPath = realpath(".", NULL);
+	std::string path = pointPath + removeSubstring(_path, pointPath);
+	free(pointPath);
 	_code = 200;
-	parseQueryString(_bando.substr(_bando.find("\r\n\r\n") + strlen("\r\n\r\n")));
+	parseQueryString(_requestHeader.substr(_requestHeader.find("\r\n\r\n") + strlen("\r\n\r\n")));
 	getContentType(path);
 	if (_path.substr(_path.find_last_of(".") + 1) == "py" && checkCgiForConfig()){
-		Cgi _cgi(path.c_str(), _bando, _req, "/usr/bin/python3", _postValues, _matchedServer, _cgiPath, _multiBody);
+		Cgi _cgi(path.c_str(), _requestHeader, _req, "/usr/bin/python3", _postValues, _matchedServer, _cgiPath, _multiBody);
 		_http = _cgi.cgiExecute();
 	}
 	else
@@ -274,28 +322,6 @@ int Response::postMethodes()
 	errorPage();
 	modifyResponseHeader();
 	return 0;
-}
-
-/**
- * @brief Dizin girişi için otomatik dizin içeriğindeki bir bağlantı oluşturur.
- *
- * @param dirEntry Dizin girişi.
- * @param Directory Otomatik dizin içeriğinin bulunduğu dizin.
- * @param host Ana bilgisayarın adresi.
- * @return Oluşturulan otomatik dizin içeriğindeki bağlantı.
- */
-
-std::string Response::createDirectoryLink(std::string const& dirEntry, std::string Directory, std::string const& host) // bakılacak
-{
-    std::stringstream ss;
-    
-    // ".." veya "." değilse bağlantıyı oluştur
-    if (dirEntry != ".." && dirEntry != ".")
-    {
-        ss << "\t\t<p><a href=\"http://" + host << Directory + "/" + dirEntry + "\">" + dirEntry + "/" + "</a></p>\n";
-    }
-    
-    return ss.str();
 }
 
 /**
@@ -435,12 +461,13 @@ void	Response::setupRequest()
     _path = _req.getLocation();
 	_fileName = _req.getFileName();
     _contentLen = _req.getContentLength();
-    _buffit = _req.getRequestStr();
 	if (_multiBody != "")
 		_body = _multiBody;
 	else
 		_body = _req.getBody();
-	_postmethod = false;
+	mp.clear();
+	cgi.clear();
+	_postMethod = false;
 	_isUpload = false;
 	_responseHeader = "";
 	_hasRedirection = false;
@@ -450,11 +477,11 @@ void	Response::setupRequest()
  * @brief POST methodundan gelen key value çiftini almak için kullanılır.
  * Örnek olarak: bir form POST'u geldiğini düşünürsek name alanı key'dir
  * girdi olarak verilen enes ise value değeridir.
- * @param query_string gelen request
+ * @param queryString gelen request
  */
-void Response::parseQueryString(const std::string &query_string)
+void Response::parseQueryString(const std::string &queryString)
 {
-	std::istringstream iss(query_string);
+	std::istringstream iss(queryString);
     std::string line;
 
     while (std::getline(iss, line))
@@ -516,7 +543,7 @@ void Response::modifyResponseHeader()
 	else
 		_responseHeader += "\nContent-Length: " + std::to_string(_contentLen);
 	_responseHeader += "\nContent-Location: " + _path.substr(1);
-	if(_postmethod != true)
+	if(_postMethod != true)
 		_responseHeader += "\nTransfer-Encoding: identity" + _encoding;
 	_responseHeader += "\n\n";
 	_responseHeader += _http;
@@ -592,4 +619,4 @@ void Response::handleDeleteRequest()
 }
 
 std::string Response::getResponseHeader() { return _responseHeader; }
-void	Response::setBando(std::string bando) { this->_bando = bando; }
+void	Response::setBando(std::string requestHeader) { this->_requestHeader = requestHeader; }

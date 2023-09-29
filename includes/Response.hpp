@@ -13,32 +13,22 @@ class Response
 private:
 	std::string							_path;
 	std::string							_protocol;
-	std::string							_bando;
-	std::string							_statusCode;
+	std::string							_requestHeader;
 	std::string							_type;
 	std::string							_contentType;
 	std::string							_time;
 	std::string							_http;
-	std::string							_server;
 	std::string							_host;
 	std::string							_encoding;
 	std::string							_fileName;
-	std::string							_buf;
 	std::string							_cgiType;
-	std::string							_buffit;
 	std::string							_serverName;
-	std::string							_upload;
 	std::string							_cgiPath;
 
-	char*								_files;
 	int									_code;
 	int									_contentLen;
-	int									_port;
 	int									_maxBody;
-	std::string							_contentLength;
 	std::string							_uriRoot;
-	std::string							_configName;
-	std::string							_index;
 	
 	std::string							_body;
 	std::vector<std::string>			_postValues;
@@ -49,7 +39,7 @@ private:
 
 	bool								_hasRedirection;
 	bool 								_isUpload;
-	bool								_postmethod;
+	bool								_postMethod;
 
 
 	std::map<std::string, std::string>	mp;
@@ -62,14 +52,12 @@ private:
 	std::vector<ServerMembers*> 		_servers;
 	ServerMembers*						_matchedServer;
 	std::string							_multiBody;
-	/* unused */
 	
 public:
 	Response();
-	std::string getResponseHeader();
 	Response(Request req, std::vector<ServerMembers*> servers, ServerMembers* matchedServer, std::string multiBody);
 	~Response();
-	void	parseQueryString(const std::string &query_string);
+	void	parseQueryString(const std::string &queryString);
 	int		postMethodes();
 	void	run();
 	void	resetHTML();
@@ -80,19 +68,16 @@ public:
 	void	handleDeleteRequest();
 	int		fileExist(const char *fileName);
 	void	setDate();
-	void	parse_buf(char *buf, std::string& filename, std::string& content_type);
 	void	getContentType(std::string path);
 	void	errorPage();
 	void	setupRequest();
 	bool	checkIfPathIsFile(const char * path);
-	void	setBando(std::string bando);
+	void	setBando(std::string requestHeader);
 	void	processRequest();
 	bool 	checkCgiForConfig();
 
-
+	std::string getResponseHeader();
 	std::string fAutoIndex(const char *path);
-	std::string createDirectoryLink(std::string const &dirEntry, std::string Directory, std::string const &host);
+	std::string createDirectoryLink(std::string const &dirEntry, std::string directory, std::string const &host);
 	
-	/* printResponse details */
-	void	printResponse();
 };
