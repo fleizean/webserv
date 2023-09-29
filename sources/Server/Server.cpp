@@ -51,7 +51,7 @@ void	Server::setUpServer()
 		err.setAndPrint(38, "Server::setUpServer");
 	}
 	
-	memset((char*)&srvaddr, 0, sizeof(srvaddr));
+/* 	memset((char*)&srvaddr, 0, sizeof(srvaddr)); */
 	srvaddr.sin_family = AF_INET;
 	srvaddr.sin_port = htons(this->_port);
 	srvaddr.sin_addr.s_addr = htonl(INADDR_ANY);
@@ -61,7 +61,7 @@ void	Server::setUpServer()
 		close(this->_socketFd);
 		err.setAndPrint(39, "Server::setUpServer");
 	}
-	if(listen(this->_socketFd, 100) < 0)
+	if(listen(this->_socketFd, 128) < 0)
 	{
 		close(this->_socketFd);
 		err.setAndPrint(40, "Server::setUpServer");

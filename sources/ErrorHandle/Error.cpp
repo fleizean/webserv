@@ -71,6 +71,8 @@ void Error::initErrorValues()
     error_list[53] = "Wrong Data.";
     error_list[54] = "So Big Data.";
     error_list[55] = "Wrong ip address.";
+    error_list[56] = "So big.";
+    error_list[57] = "Read error, closing connection.";
 }
 
 void Error::setAndPrint(const int &err_code, std::string const &line)

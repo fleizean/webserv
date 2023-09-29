@@ -6,7 +6,7 @@
 /*   By: fleizean <fleizean@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/24 10:21:15 by eyagiz            #+#    #+#             */
-/*   Updated: 2023/09/26 22:37:26 by fleizean         ###   ########.fr       */
+/*   Updated: 2023/09/29 13:06:48 by fleizean         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,25 +19,20 @@
 Config webserv;
 Cluster *clusterEnd;
 
-// soruna bakılacak freede hala sıkıntı var büyük ihtimalle getconfig yüzünden direkt olarak serversı publice alabiliriz
-void	exitFree(int signal/* , siginfo_t *siginfo, void *unused */)
+void	exitFree(int signal)
 {
-/* 	(void)unused;
- */	(void)signal;
-/* 	(void)siginfo;
- */
+	(void)signal;
+
 	for (std::vector<ServerMembers*>::iterator it = webserv.getConfig().begin(); it != webserv.getConfig().end(); ++it)
 	{
 	    std::vector<Location*>& locations = (*it)->getLocations();
 	
-	    // İkinci döngü: Location nesnelerini temizle
 	    for (std::vector<Location*>::iterator locIt = locations.begin(); locIt != locations.end(); ++locIt)
 	    {
 	        delete (*locIt);
 	    }
 	    locations.clear();
 	
-	    // ServerMembers nesnesini temizle
 	    delete (*it);
 	}
 	
@@ -62,9 +57,6 @@ int main(int ac, char **av)
 {
 	Error err(0);
 	struct sigaction	act; 
-
-/* 	act.sa_flags = SA_SIGINFO;
-	act.sa_sigaction = exitFree;*/
 	
 	act.sa_handler = exitFree;
  	if (ac != 2)

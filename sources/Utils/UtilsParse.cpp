@@ -59,7 +59,6 @@ char	*get_cwd_buf()
 
 bool isBracketBalanced(string fileContent)
 {
-	// Bracketlar açılıp kapanmış mı bakılacak
     stack<char> s; // örn: push -> { if top -> { and current filecontent[i] == } so pop your { 
     for (size_t i = 0; i < fileContent.length(); ++i) {
     	char c = fileContent[i];

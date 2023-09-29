@@ -186,14 +186,14 @@ int Response::fileExist(const char* fileName)
  */
 std::string Response::fAutoIndex(const char* path) // bakılacak
 {
-    std::string Directory(_path);
+    std::string directory(_path);
     DIR* dir = opendir(path);
-    std::string Autoindex_Page =
+    std::string autoIndexPage =
         "<!DOCTYPE html>\n\
         <html>\n\
         <head>\n\
                 <title>" +
-        Directory + "</title>\n\
+        directory + "</title>\n\
         </head>\n\
         <body>\n\
         <h1>INDEX</h1>\n\
@@ -205,23 +205,23 @@ std::string Response::fAutoIndex(const char* path) // bakılacak
         return "";
     }
     
-    if (Directory[0] != '/')
-        Directory = "/" + Directory;
+    if (directory[0] != '/')
+        directory = "/" + directory;
     
     // Dizin içeriğini tarayarak otomatik dizin içeriğini oluştur
     for (struct dirent* dirEntry = readdir(dir); dirEntry; dirEntry = readdir(dir))
     {
-        Autoindex_Page += createDirectoryLink(std::string(dirEntry->d_name), Directory, _host);
+        autoIndexPage += createDirectoryLink(std::string(dirEntry->d_name), directory, _host);
     }
     
-    Autoindex_Page +=
+    autoIndexPage +=
         "\
         </p>\n\
         </body>\n\
         </html>\n";
     
     closedir(dir);
-    return Autoindex_Page;
+    return autoIndexPage;
 }
 
 bool Response::checkCgiForConfig()
@@ -249,7 +249,7 @@ bool Response::checkCgiForConfig()
  *
  * @return POST yönteminin başarılı bir şekilde işlendiğini belirten 0 değerini döndürür.
  */
-int Response::postMethodes() // bakılacak
+int Response::postMethodes()
 {
 	_postmethod = true;
 	char* point_path = realpath(".", NULL);
@@ -538,7 +538,7 @@ void Response::modifyResponseHeader()
  *   - Son olarak _http'yi _responseHeader'a ekler.
  *
  */
-void Response::deleteMethodes() // bakılacak
+void Response::deleteMethodes()
 {
 	handleDeleteRequest();
 

@@ -62,7 +62,7 @@ void Cgi::initOthersEnvironment()
     std::cout << RESET << std::endl; */
 }
 
-std::string Cgi::cgiExecute() // bakılacak
+std::string Cgi::cgiExecute()
 {
     extractKeyValues();
     initOthersEnvironment();

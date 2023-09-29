@@ -30,7 +30,7 @@ public:
 	t_listen    getListen() const;
 	std::string const &getLocationUri() const;
 	std::vector<Location *>& getLocations();
-	const std::vector<std::string>& getServerName(); // & eklendi bakılacak
+	const std::vector<std::string>& getServerName();
 	void	setServerName(const std::string& name);
 	ConfigMembers& getConfigMembers();
 	std::string  const &getHost();

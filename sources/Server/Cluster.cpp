@@ -32,7 +32,7 @@ int Cluster::setUpCluster(std::vector<ServerMembers*> confServers)
     std::vector<ServerMembers*>::const_iterator ite = _confServers.end();
     std::vector<ServerMembers*>::const_iterator it = _confServers.begin();
     std::map<int, int> hP;
-    for (int i = 0; it != ite; ++it, i++) // buraya bakılacak
+    for (int i = 0; it != ite; ++it, i++)
     {
         
         server = new Server((*it)->getListen().host, (*it)->getListen().port, hP);
@@ -44,10 +44,7 @@ int Cluster::setUpCluster(std::vector<ServerMembers*> confServers)
         _maxFd = socket + 1;
     }
     if (_maxFd == 0)
-    {
         err.setAndPrint(29, "Cluster::setUpCluster");
-        return -1;
-    }
     return 0;
 }
 
@@ -62,11 +59,6 @@ void Cluster::acceptSection()
 			std::cout << YELLOW << "\nAccepting..." << RESET << std::endl;
 
             client_fd = accept(it->first, NULL, NULL);
-            if(client_fd == -1)
-            {
-                //***********err.setAndPrint();
-                return;
-            }
             if(client_fd != -1)
             {
                 FD_SET(client_fd, &_readFds);
@@ -98,105 +90,6 @@ void Cluster::sendSection()
         }
     }
 }
-
-/* void Cluster::recvSection()
-{
-    int ret;
-    char buffer[4096] = {0};
-    size_t supLen = 0;
-
-    ret = -1;
-    for (std::map<int, Client *>::iterator it = _clients.begin(); this->_loopControl && it != _clients.end(); it++)
-    {
-        if(FD_ISSET(it->first, &_supReadFds))
-        {
-            std::cout << CYAN << "\nReceiving..." << RESET << std::endl;
-            ret = recv(it->first, buffer, 4095, 0);
-            if(ret > 0)
-            {
-                if(this->_status == 0)
-                {
-                    it->second->setParserRequest(buffer);
-                    this->_status = it->second->getStatus();
-					this->_isMulti = it->second->getMulti();
-					this->_method = it->second->getMethod();
-					this->_isFav = it->second->getIsFav();
-					this->_contentLen = it->second->getContentLen();
-					this->_body = it->second->getBody();
-                    if(this->_isFav == 1)
-                    {
-                        if(send(it->first, this->_favicon.c_str(), this->_favicon.length(), 0) > 0)
-                        	std::cout << CYAN << "Send Successful Favicon!" << RESET << std::endl << std::flush;
-                        this->_loopControl = 0;
-                        closeConnection(it);
-                        break;
-                    }
-                    else if(this->_status == 1)
-                    {
-                        if(this->_isMulti == 1)
-                        {
-                            if(static_cast<size_t>(ret) >= this->_contentLen)
-                            {
-                                FD_CLR(it->first, &this->_readFds);
-                                FD_SET(it->first, &this->_writeFds);
-                                this->_multiBody += std::string(buffer, ret);
-                                this->_multiBody = this->_multiBody.substr(this->_multiBody.find("------Web"));
-                            }
-                            else if(this->_body != "")
-                            {
-                                this->_multiBody += std::string(buffer, ret);
-                                this->_multiBody = this->_multiBody.substr(this->_multiBody.find("------Web"));
-                            }
-                            this->_body = "";
-                        }
-                        else
-                        {
-                            FD_CLR(it->first, &this->_readFds);
-                            FD_CLR(it->first, &this->_writeFds);
-                        }
-                    }
-                    else
-                    {
-                        closeConnection(it);
-                        err.setAndPrint(53, "Cluster::recvSection");
-                    }
-                }
-                else if(this->_status == 1 && this->_isMulti == 1)
-                {
-                    supLen = this->_multiBody.length();
-                    if(!(supLen + ret == std::string::npos))
-                    {
-                        this->_multiBody += std::string(buffer, ret);
-                        if(this->_contentLen == this->_multiBody.length())
-                        {
-                            FD_CLR(it->first, &this->_readFds);
-                            FD_SET(it->first, &this->_writeFds);
-                        }
-                    }
-                    else
-                    {
-                        closeConnection(it);
-                        err.setAndPrint(54, "Cluster::recvSection");
-                    }
-                }
-            }
-            else
-            {
-                if(ret == 0)
-                		std::cout << RED << "\rConnection was closed by client.\n" << RESET << std::endl;
-                else if(ret == -1){
-                    
-                }
-                    closeConnection(it);
-
-				std::cout << "Connection Closed!" << std::endl << std::flush;
-            }
-            this->_loopControl = 0;
-            break;
-        }
-    }
-} */
-
 
 void Cluster::recvSection()
 {
@@ -257,7 +150,7 @@ void Cluster::recvSection()
 					else
 					{
 						closeConnection(it);
-						// _clusterException.run(401);
+						err.setAndPrint(53, "Cluster::recvSection");
 					}
 				}
 				else if (this->_status == 1 && this->_isMulti == 1)
@@ -274,8 +167,8 @@ void Cluster::recvSection()
 					}
 					else
 					{
-						// _clusterException.run(402);
 						closeConnection(it);
+						err.setAndPrint(56, "Cluster::recvSection");
 					}
 				}
 			}
@@ -287,8 +180,8 @@ void Cluster::recvSection()
 				}
         		else if (ret == -1)
 				{
-                    return;
-					// _clusterException.run(403);
+					closeConnection(it);
+                    err.setAndPrint(57, "Cluster::recvSection");
 				}
 				closeConnection(it);
 				std::cout << "Connection Closed!" << std::endl << std::flush;
