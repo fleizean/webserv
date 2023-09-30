@@ -222,10 +222,6 @@ std::string Response::fAutoIndex(const char* path)
 	if (!directory.empty() && directory.back() == '/')
 	    directory.pop_back();
     
-	// kaldırılabilir
-    /* if (directory[0] != '/') 
-        directory = "/" + directory; */
-    
     // Dizin içeriğini tarayarak otomatik dizin içeriğini oluştur
     for (struct dirent* dirEntry = readdir(dir); dirEntry; dirEntry = readdir(dir)) // sürekli o anki alanımızdaki (klasör) dosyaları almamızı sağlayacak döngü
     {

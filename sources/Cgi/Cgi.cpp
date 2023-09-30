@@ -62,6 +62,22 @@ void Cgi::initOthersEnvironment()
     std::cout << RESET << std::endl; */
 }
 
+/**
+ * @brief Cgi'ı çalıştıran alan
+ * 
+ * dup2(result_pipe[1], 1): dup2 ile standard çıkış (stdout) (1) yerine result_pipe'ın 
+ * yazma ucunu (result_pipe[1]) bağlar. Böylece CGI programının çıktısı bu boruya yazılacaktır.
+ * 
+ * Örnek olarak, eğer ki Cgi sayfam bana bir HTML sayfası döndürüyorsa bu alan üzerinden bana gönderir.
+ * 
+ * dup2(body_pipe[0], 0) kullanılarak standard giriş (stdin) (0) body_pipe'ın okuma ucuna bağlanır. 
+ * Bu sayede CGI programı, isteğin gövdesini body_pipe üzerinden okuyabilir.
+ * 
+ * Örnek olarak, bir FORM post işlevi yaptığımda bu verileri bu kanal üzerinden gönderirim.
+ * Daha sonrasında Cgi bu verileri işlemek için stdin üzerinden okuma yapar.
+ * 
+ * @return std::string 
+ */
 std::string Cgi::cgiExecute()
 {
     extractKeyValues();
