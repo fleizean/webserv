@@ -44,8 +44,6 @@ void   			Client::setIsFav(int isFav) { this->_isFav = isFav; }
 
 void   			Client::setBody(std::string body) { this->_body = body; }
 
-
-
 void	        Client::setParserRequest(std::string buffer)
 {
 	Request pr(buffer);
@@ -76,6 +74,7 @@ std::string		Client::process(std::string multiBody)
 	}
 	else
 	{
+		/* std::cout << BOLD_RED << multiBody << RESET<< std::endl; */
 		Response response(_request, _confServers, matchedServer, multiBody);
 		response.setBuffer(_buffer);
 		response.setDate();
@@ -136,4 +135,3 @@ ServerMembers*	Client::getServerForRequest(t_listen& address, std::vector<Server
 
 	return possibleServers[0];
 }
-

@@ -8,8 +8,7 @@ Server::Server(unsigned int host, int port, std::map<int, int> hP)
 	
 	for (std::map<int, int>::iterator it = hP.begin(); it != hP.end(); ++it) 
 	{
-		if (it->first == _port)
-		{
+		if (it->first == _port) {
 	    	_socketFd = it->second;
 			flag = true;
 			break;
@@ -45,8 +44,7 @@ void	Server::setUpServer()
 	
 	fcntl(this->_socketFd, F_SETFL, O_NONBLOCK);
 	
-	if(setsockopt(this->_socketFd, SOL_SOCKET, SO_REUSEADDR, (const void *)&opt, sizeof(int)) < 0)
-	{	
+	if(setsockopt(this->_socketFd, SOL_SOCKET, SO_REUSEADDR, (const void *)&opt, sizeof(int)) < 0) {
 		close(this->_socketFd);
 		err.setAndPrint(38, "Server::setUpServer");
 	}
@@ -55,13 +53,11 @@ void	Server::setUpServer()
 	srvaddr.sin_port = htons(this->_port);
 	srvaddr.sin_addr.s_addr = htonl(INADDR_ANY);
 	
-	if(::bind(this->_socketFd, (struct sockaddr *)&srvaddr, sizeof(srvaddr)) < 0)
-	{
+	if(::bind(this->_socketFd, (struct sockaddr *)&srvaddr, sizeof(srvaddr)) < 0) {
 		close(this->_socketFd);
 		err.setAndPrint(39, "Server::setUpServer");
 	}
-	if(listen(this->_socketFd, 128) < 0) // sysctl kern.ipc.somaxconn
-	{
+	if(listen(this->_socketFd, 128) < 0) /* sysctl kern.ipc.somaxconn */ {
 		close(this->_socketFd);
 		err.setAndPrint(40, "Server::setUpServer");
 	}

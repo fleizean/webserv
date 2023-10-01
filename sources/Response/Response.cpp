@@ -302,16 +302,15 @@ int Response::postMethodes()
 	if (_path.substr(_path.find_last_of(".") + 1) == "py" && checkCgiForConfig()){
 		Cgi _cgi(path.c_str(), _requestHeader, _req, "/usr/bin/python3", _postValues, _matchedServer, _cgiPath, _multiBody);
 		_http = _cgi.cgiExecute();
+		if (_cgi.getStatusCode() == 500) {
+			resetHTML();
+			_code = 500;
+		}
 	}
 	else
 		_code = 502;
 	if (_contentLen >= _maxBody)
 		_code = 413;
-	if (_http.find("Status: 500") != std::string::npos)
-	{
-		_code = 500;
-		resetHTML();
-	}
 	errorPage();
 	modifyResponseHeader();
 	return 0;
@@ -509,11 +508,6 @@ int Response::getMethodes()
 		_code = 413;
 		resetHTML();
 	}		
-	if (_http.find("Status: 500") != std::string::npos) // BAKILACAK
-	{
-		_code = 500;
-		resetHTML();
-	}
 	errorPage();
 	modifyResponseHeader();
 	return 0;

@@ -1,5 +1,6 @@
 #include "../../includes/Cluster.hpp"
-#
+/* #include <sys/time.h>
+#include <sys/types.h> */
 
 Cluster::Cluster() {}
 
@@ -72,7 +73,6 @@ void Cluster::acceptSection()
 	}
 }
 
-
 void Cluster::sendSection()
 {
 	
@@ -108,7 +108,7 @@ void Cluster::recvSection()
 			ret = recv(it->first, buffer, 4095, 0);
 			if (ret > 0)
 			{
-				if (this->_status == 0)
+				if (this->_status == 0) // request
 				{
 					it->second->setParserRequest(buffer);
 					this->_status = it->second->getStatus();
@@ -124,7 +124,7 @@ void Cluster::recvSection()
 							std::cout << CYAN << "Send Successful Favicon!" << RESET << std::endl << std::flush;
 						this->_loopControl = 0;
 						closeConnection(it);
-						break ;
+						break;
 					}
 					else if (this->_status == 1)
 					{
@@ -198,6 +198,12 @@ void Cluster::run()
 {
     while(1)
     {
+
+/* 		struct timeval timeout;
+    
+    
+    	timeout.tv_sec = 5;
+    	timeout.tv_usec = 0; */
         this->_selected = 0;
         while(_selected == 0)
         {
@@ -205,7 +211,12 @@ void Cluster::run()
             FD_ZERO(&_supWriteFds);
             this->_supWriteFds = this->_writeFds;
             this->_supReadFds = this->_readFds;
-            this->_selected = select(_maxFd, &this->_supReadFds, &this->_supWriteFds, NULL, NULL);
+            this->_selected = select(_maxFd, &this->_supReadFds, &this->_supWriteFds, NULL, NULL/* , &timeout */);
+			/* if (_selected == 0) {
+				std::cout << RED << "timeout ended!" << RESET << std::endl;
+				exit(1);
+			} */
+			
         }
         if(_selected > 0)
         {

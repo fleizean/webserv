@@ -17,12 +17,14 @@ private:
 	std::vector<std::string>		_postValues;
 	ServerMembers*					_matchedServer;
 	Request							_request;
+	int 							_statusCode;
 public:
 	Cgi();
 	Cgi(std::string fileName, std::string m_request, Request req, std::string path, std::vector<std::string> postValues, ServerMembers* matchedServer, std::string cgiPath, std::string multiBody);
 	~Cgi();
 
 	std::string cgiExecute();
+	int  getStatusCode();
 	void initOthersEnvironment();
 	void extractKeyValues();
 };

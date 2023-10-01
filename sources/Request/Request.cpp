@@ -50,7 +50,7 @@ Request::~Request() {}
 Request::Request(std::string buffer)
 {
     m_request = buffer;
-    /* std::cout << BOLD_RED << "Buffer socket: " << RESET << std::endl;
+/*     std::cout << BOLD_RED << "Buffer socket: " << RESET << std::endl;
     std::cout << buffer << std::endl;  */
     if (m_request.find("multi") != std::string::npos) {
         _multi = 1;
@@ -101,8 +101,7 @@ bool Request::isDomain(const std::string& host) {
     return true;
 }
 
-void Request::parseBody()
-{
+void Request::parseBody() {
     this->_body = this->m_request.substr(this->m_request.find("\r\n\r\n") + 4);
 }
 
@@ -267,5 +266,5 @@ void Request::printAll()
     std::cout << BOLD_MAGENTA << "Http-Filename: " << RESET << this->getFileName() << "\n";
     if (this->getIsDomain() == true)
         std::cout << BOLD_MAGENTA << "Http-isDomain: " << RESET << "true" << "\n";
-     std::cout << BLUE << "------------------------------------------" << RESET << "\n";
+    std::cout << BLUE << "------------------------------------------" << RESET << "\n";
 }

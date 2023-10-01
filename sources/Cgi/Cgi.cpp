@@ -9,6 +9,7 @@ Cgi::Cgi()
     _matchedServer = NULL;
     _cgiExecutePath = "";
     _multiBody = "";
+    _statusCode = 200;
 }
 
 Cgi::Cgi(std::string fileName, std::string m_request, Request req, std::string path, std::vector<std::string> postValues, ServerMembers* matchedServer, std::string cgiPath, std::string multiBody) 
@@ -21,7 +22,7 @@ Cgi::Cgi(std::string fileName, std::string m_request, Request req, std::string p
     _matchedServer = matchedServer;
     _multiBody = multiBody;
     _cgiPath = trim(cgiPath, "/");
-
+    _statusCode = 200;
 /*     std::cout << BOLD_YELLOW << "[" << m_request << "]" << RESET << std::endl; */
 }
 
@@ -89,7 +90,7 @@ std::string Cgi::cgiExecute()
 	int	            body_pipe[2];
 	int	            result_pipe[2];
 	std::string     tmp2;
-	char            *av1 = (char *)this->_cgiExecutePath.c_str();
+	char            *av1 = NULL;
 
 	char            *av2;
 	char            *av[3];
@@ -98,6 +99,8 @@ std::string Cgi::cgiExecute()
 
     av2 = (char *)_fileExecutePath.c_str();
 
+    if (av1 == NULL || av2 == NULL)
+        _statusCode = 500;
     av[0] = av1;
 	av[1] = av2;
     char **env = new char*[_env.size() + 1];
@@ -117,7 +120,6 @@ std::string Cgi::cgiExecute()
 
     if (!fork()) // fork oluşturulduysa girecek
 	{
-
 		close(result_pipe[0]);
 		dup2(result_pipe[1], 1); // CGI programının sonucunu result_pipe[1] içine yazacak
 		close(result_pipe[1]);
@@ -127,12 +129,13 @@ std::string Cgi::cgiExecute()
 		close(body_pipe[0]);
 
 		execve(av[0], av, env); // hata olmazsa aşağıya girmeden 120'den devam eder
-		std::cout << "Execv Err!" << std::endl << std::flush;
+        std::cerr << "Execv Err!: " << std::endl;
         while(env[i])
            delete[] env[i];
         delete[] env;
 		exit(-1); // child process sonlandırılır
 	}
+
     wait(NULL); // child process sonuçlanmasını bekleriz
 	close(body_pipe[0]);
 	close(result_pipe[1]);
@@ -147,3 +150,5 @@ std::string Cgi::cgiExecute()
     delete[] env;
     return (std::string(output, readed));
 }
+
+int  Cgi::getStatusCode() { return this->_statusCode; }
