@@ -111,9 +111,8 @@ std::string Cgi::cgiExecute()
     pipe(body_pipe);    // Bizim cgi ile bir veriyi servera yollayacağımız durumdaki köprü. (veri iletişimi)
 	pipe(result_pipe);  // Cgi'nın bir veri gönderme durumunda veriyi alacağımız köprü. (veri iletişimi)
 
-    if (this->_request.getMethod() == "POST" && !_multiBody.empty()) {
+    if (this->_request.getMethod() == "POST" && !_multiBody.empty())
 		write(body_pipe[1], _multiBody.c_str(), _multiBody.length());
-	}
     else if (this->_request.getMethod() == "POST" && _multiBody.empty())
         write(body_pipe[1], _keyValue.c_str(), _keyValue.length());
     close(body_pipe[1]);
@@ -135,14 +134,15 @@ std::string Cgi::cgiExecute()
         delete[] env;
 		exit(-1); // child process sonlandırılır
 	}
-
     wait(NULL); // child process sonuçlanmasını bekleriz
 	close(body_pipe[0]);
 	close(result_pipe[1]);
 
 	readed = read(result_pipe[0], output, 4096);
-	if (readed == 0)
+	if (readed == 0) {
+        _statusCode = 500;
 		std::cout << "Cgi Read Fail!" << std::endl << std::flush;
+    }
 	close(result_pipe[0]);
 	output[readed] = 0;
     while(env[i])

@@ -100,7 +100,6 @@ void Response::processRequest()
 void Response::errorStatus()
 {
 	_errorRep[200] = "OK";
-	_errorRep[204] = "No Content";
 	_errorRep[400] = "Bad Request";
 	_errorRep[403] = "Forbidden";
 	_errorRep[404] = "Not Found";
@@ -280,6 +279,37 @@ bool Response::checkCgiForConfig()
 }
 
 /**
+ * HTTP isteğinin GET yöntemini işler.
+ * Bu fonksiyon, GET isteğini işler ve istenen dosyanın varlığını kontrol eder.
+ * İstek URL'sinden dosya yolunu elde eder, içerik türünü belirler ve varlık durumuna göre hata sayfası oluşturur.
+ * İçerik uzunluğu, izin verilen maksimum boyutu aşarsa yanıt kodunu 413 (İstek Varlık Çok Büyük) olarak ayarlar.
+ * Yanıt kodu bir sunucu hatası (500) belirtiyorsa hata sayfası oluşturur.
+ * Son olarak, uygun durum kodu, sunucu adı, değiştirilme zamanı, içerik türü, içerik uzunluğu ve konumu içeren yanıt başlığını oluşturur
+ * ve HTTP yanıt gövdesine ekler.
+ *
+ * @return GET yönteminin başarılı bir şekilde işlendiğini belirten 0 değerini döndürür.
+ */
+int Response::getMethodes()
+{
+	char* raw_path = realpath(".", NULL);
+	std::string raw_path_str(raw_path);
+	free(raw_path);
+	_code = 200;
+	std::string path = raw_path_str + removeSubstring(_path, raw_path_str); // o anki konum hali hazırda gelen path yolunda varsa kaldırır daha sonrasında ekleme yapacağı için
+	_path = path + "/";
+	getContentType(path);
+	fileExist(path.c_str());
+	if (_contentLen >= _maxBody)
+	{
+		_code = 413;
+		resetHTML();
+	}		
+	errorPage();
+	modifyResponseHeader();
+	return 0;
+}
+
+/**
  * HTTP isteğinin POST yöntemini işler.
  * Bu fonksiyon, POST isteğini işler ve dosya yüklemeleri ile CGI yürütmesini gerçekleştirir.
  * İçerik türünü belirler, dosya yüklemelerini yönetir ve istenen dosya bir PHP veya Python betiği ise CGI betiklerini yürütür.
@@ -328,7 +358,7 @@ void Response::errorPage()
 	if (mp[toStringFor(_code)] == "")
 	{
 		tmp_path = realpath(".", NULL);
-		path = 	toStringFor(tmp_path) + "/sources/Http(Errors)/" + toStringFor(_code) + ".html";
+		path = toStringFor(tmp_path) + "/sources/Http(Errors)/" + toStringFor(_code) + ".html";
 		free(tmp_path);
 	}
 	else 
@@ -482,37 +512,6 @@ void Response::parseQueryString(const std::string &queryString)
     }
 }
 
-/**
- * HTTP isteğinin GET yöntemini işler.
- * Bu fonksiyon, GET isteğini işler ve istenen dosyanın varlığını kontrol eder.
- * İstek URL'sinden dosya yolunu elde eder, içerik türünü belirler ve varlık durumuna göre hata sayfası oluşturur.
- * İçerik uzunluğu, izin verilen maksimum boyutu aşarsa yanıt kodunu 413 (İstek Varlık Çok Büyük) olarak ayarlar.
- * Yanıt kodu bir sunucu hatası (500) belirtiyorsa hata sayfası oluşturur.
- * Son olarak, uygun durum kodu, sunucu adı, değiştirilme zamanı, içerik türü, içerik uzunluğu ve konumu içeren yanıt başlığını oluşturur
- * ve HTTP yanıt gövdesine ekler.
- *
- * @return GET yönteminin başarılı bir şekilde işlendiğini belirten 0 değerini döndürür.
- */
-int Response::getMethodes()
-{
-	char* raw_path = realpath(".", NULL);
-	std::string raw_path_str(raw_path);
-	free(raw_path);
-	_code = 200;
-	std::string path = raw_path_str + removeSubstring(_path, raw_path_str); // o anki konum hali hazırda gelen path yolunda varsa kaldırır daha sonrasında ekleme yapacağı için
-	_path = path + "/";
-	getContentType(path);
-	fileExist(path.c_str());
-	if (_contentLen >= _maxBody)
-	{
-		_code = 413;
-		resetHTML();
-	}		
-	errorPage();
-	modifyResponseHeader();
-	return 0;
-}
-
 void Response::modifyResponseHeader()
 {
 	if (_hasRedirection == true)
@@ -594,7 +593,7 @@ void Response::handleDeleteRequest()
 		if ((access(path.c_str(), F_OK) == 0))
 		{
 			if (remove(path.c_str()) == 0)
-				_code = 204;
+				_code = 200;
 			else
 				_code = 403;
 		}
