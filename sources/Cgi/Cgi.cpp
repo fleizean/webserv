@@ -90,7 +90,7 @@ std::string Cgi::cgiExecute()
 	int	            body_pipe[2];
 	int	            result_pipe[2];
 	std::string     tmp2;
-	char            *av1 = NULL;
+	char            *av1 = (char *)this->_cgiExecutePath.c_str();;
 
 	char            *av2;
 	char            *av[3];
@@ -112,9 +112,9 @@ std::string Cgi::cgiExecute()
 	pipe(result_pipe);  // Cgi'nın bir veri gönderme durumunda veriyi alacağımız köprü. (veri iletişimi)
 
     if (this->_request.getMethod() == "POST" && !_multiBody.empty())
-		write(body_pipe[1], _multiBody.c_str(), _multiBody.length());
+		write(body_pipe[1], _multiBody.c_str(), _multiBody.length()); // image veriyi gönder 
     else if (this->_request.getMethod() == "POST" && _multiBody.empty())
-        write(body_pipe[1], _keyValue.c_str(), _keyValue.length());
+        write(body_pipe[1], _keyValue.c_str(), _keyValue.length()); // fname=tes&lname=ttest&second=etset&Third=estet veriyi gönder
     close(body_pipe[1]);
 
     if (!fork()) // fork oluşturulduysa girecek
@@ -128,7 +128,7 @@ std::string Cgi::cgiExecute()
 		close(body_pipe[0]);
 
 		execve(av[0], av, env); // hata olmazsa aşağıya girmeden 120'den devam eder
-        std::cerr << "Execv Err!: " << std::endl;
+        std::cerr << "Execv Err! " << std::endl;
         while(env[i])
            delete[] env[i];
         delete[] env;

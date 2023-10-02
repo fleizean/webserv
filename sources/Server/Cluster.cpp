@@ -199,23 +199,24 @@ void Cluster::run()
     while(1)
     {
 
-/* 		struct timeval timeout;
+ 	/* 	struct timeval timeout;
     
     
     	timeout.tv_sec = 5;
-    	timeout.tv_usec = 0; */
+    	timeout.tv_usec = 0;  */
         this->_selected = 0;
         while(_selected == 0)
         {
             FD_ZERO(&_supReadFds);
             FD_ZERO(&_supWriteFds);
             this->_supWriteFds = this->_writeFds;
-            this->_supReadFds = this->_readFds;
-            this->_selected = select(_maxFd, &this->_supReadFds, &this->_supWriteFds, NULL, NULL/* , &timeout */);
-			/* if (_selected == 0) {
+            this->_supReadFds = this->_readFds;            
+			this->_selected = select(_maxFd, &this->_supReadFds, &this->_supWriteFds, NULL, NULL);
+			//std::cout << "\n\n" << _selected << "\n\n";
+			/*  if (_selected == 0) {
 				std::cout << RED << "timeout ended!" << RESET << std::endl;
 				exit(1);
-			} */
+			}  */
 			
         }
         if(_selected > 0)

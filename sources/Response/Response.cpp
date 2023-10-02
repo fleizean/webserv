@@ -22,6 +22,7 @@ std::string toStringFor(T numb)
 void Response::run()
 {
 	std::string aled;
+	std::string redirUriSlash;
 	bool yes;
 
 	for (std::vector<Location*>::iterator locIt = _matchedServer->getLocations().begin(); locIt != _matchedServer->getLocations().end(); ++locIt)
@@ -57,18 +58,50 @@ void Response::run()
 		for (std::vector<std::string>::iterator namesIt = (*locIt)->getConfigMembers().getIndex().begin(); namesIt != (*locIt)->getConfigMembers().getIndex().end(); ++namesIt)
 			indexmap.insert(std::make_pair((*locIt)->getUri(), *namesIt));
 	if (_hasRedirection == true) {
-		_path = _uriRoot + _redirectionURI;
+
+		for (std::vector<Location*>::iterator locIt = _matchedServer->getLocations().begin(); locIt != _matchedServer->getLocations().end(); ++locIt)
+		{
+			redirUriSlash = "/" + _redirectionURI;
+			if ((*locIt)->getUri() == redirUriSlash)
+			{
+				if ((*locIt)->getUri() != "/") {
+					_path = (*locIt)->getConfigMembers().getRoot();
+					_maxBody = (*locIt)->getConfigMembers().getMaxClientBodySize();
+					mp.clear();
+					_allowedMethods.clear();
+					for (std::map<int, std::string>::iterator errIt = (*locIt)->getConfigMembers().getErrorPage().begin(); errIt != (*locIt)->getConfigMembers().getErrorPage().end(); ++errIt)
+						mp.insert(std::make_pair(std::to_string(errIt->first), errIt->second));
+					for (std::vector<std::string>::iterator namesIt = (*locIt)->getConfigMembers().getAllowedMethods().begin(); namesIt != (*locIt)->getConfigMembers().getAllowedMethods().end(); ++namesIt)
+						_allowedMethods.push_back(*namesIt);
+				}
+				_redirectionLocation = true;
+				break;
+			}
+			else
+			{
+				_path = _uriRoot + _redirectionURI;
+			}
+		}
 	}
-	else 
+	else
 	{
 		if (_path == aled) {
 			_path += indexmap[aled];
 		}
 	}
+
+	if (_redirectionLocation == true)
+	{
+		if (indexmap.find(redirUriSlash) != indexmap.end()) {
+			_path += indexmap[redirUriSlash];
+		}
+	}
+
 	size_t found = _path.find(aled);
-	if (found != std::string::npos) {
+	if (found != std::string::npos && _hasRedirection == false) {
 		_path.replace(_path.find(aled), aled.length(), _uriRoot);
 	}
+	
 	// isteği yönetmek için
 	processRequest();
 }
@@ -299,7 +332,7 @@ int Response::getMethodes()
 	_path = path + "/";
 	getContentType(path);
 	fileExist(path.c_str());
-	if (_contentLen >= _maxBody)
+	if (_contentLen >= _maxBody || _http.length() >= (size_t)_maxBody)
 	{
 		_code = 413;
 		resetHTML();
@@ -493,6 +526,7 @@ void	Response::setupRequest()
 	_isUpload = false;
 	_responseHeader = "";
 	_hasRedirection = false;
+	_redirectionLocation = false;
 }
 
 /**

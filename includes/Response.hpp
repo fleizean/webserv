@@ -39,6 +39,7 @@ private:
 	bool								_hasRedirection;
 	bool 								_isUpload;
 	bool								_postMethod;
+	bool								_redirectionLocation;
 
 
 	std::map<std::string, std::string>	mp;

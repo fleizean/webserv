@@ -50,7 +50,7 @@ Request::~Request() {}
 Request::Request(std::string buffer)
 {
     m_request = buffer;
-/*     std::cout << BOLD_RED << "Buffer socket: " << RESET << std::endl;
+    /* std::cout << BOLD_RED << "Buffer socket: " << RESET << std::endl;
     std::cout << buffer << std::endl;  */
     if (m_request.find("multi") != std::string::npos) {
         _multi = 1;
