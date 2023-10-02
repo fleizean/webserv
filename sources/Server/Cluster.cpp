@@ -33,7 +33,7 @@ int Cluster::setUpCluster(std::vector<ServerMembers*> confServers)
     std::vector<ServerMembers*>::const_iterator ite = _confServers.end();
     std::vector<ServerMembers*>::const_iterator it = _confServers.begin();
     std::map<int, int> hP;
-    for (int i = 0; it != ite; ++it, i++)
+    for (;it != ite; ++it)
     {
         server = new Server((*it)->getListen().host, (*it)->getListen().port, hP);
         socket = server->getFd();
@@ -205,7 +205,7 @@ void Cluster::run()
     	timeout.tv_sec = 5;
     	timeout.tv_usec = 0;  */
         this->_selected = 0;
-        while(_selected == 0)
+        while(_selected == 0) // sorulacak
         {
             FD_ZERO(&_supReadFds);
             FD_ZERO(&_supWriteFds);
@@ -217,11 +217,10 @@ void Cluster::run()
 				std::cout << RED << "timeout ended!" << RESET << std::endl;
 				exit(1);
 			}  */
-			
         }
         if(_selected > 0)
         {
-            this->_loopControl = 1;
+            this->_loopControl = 1; // sorulacak
             recvSection();
             sendSection();
             acceptSection();

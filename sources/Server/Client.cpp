@@ -56,9 +56,7 @@ void	        Client::setParserRequest(std::string buffer)
 	setContentLen(_request.getContentLength());
 	setBody(_request.getBody());
 	if (_request.getLocation() == "/favicon.ico")
-	{
 		_isFav = 1;
-	}
 }
 
 std::string		Client::process(std::string multiBody)

@@ -104,6 +104,7 @@ void Response::run()
 	
 	// isteği yönetmek için
 	processRequest();
+	
 }
 
 void Response::processRequest()

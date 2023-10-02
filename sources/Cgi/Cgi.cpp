@@ -56,7 +56,7 @@ void Cgi::initOthersEnvironment()
     _env.push_back("SERVER_SOFTWARE=webserv");
     _env.push_back("REDIRECT_STATUS=200");
 
-    /* std::cout << BOLD_YELLOW << "\n----------> Env Testing <----------\n" << RESET;
+   /*  std::cout << BOLD_YELLOW << "\n----------> Env Testing <----------\n" << RESET;
     std::cout << CYAN << std::endl;
     for(std::vector<std::string>::iterator it = _env.begin(); it != _env.end(); it++)
         std::cout << *it << std::endl;
