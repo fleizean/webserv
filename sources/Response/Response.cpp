@@ -373,7 +373,7 @@ int Response::postMethodes()
 	}
 	else
 		_code = 502;
-	if (_contentLen >= _maxBody)
+	if (_contentLen >= _maxBody || _http.length() >= (size_t)_maxBody)
 		_code = 413;
 	errorPage();
 	modifyResponseHeader();
