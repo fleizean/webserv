@@ -43,7 +43,6 @@ public:
     void    sendSection();
     void    closeConnection(std::map<int, Client *>::iterator it);
     void	findMaxFd();
-    void    cleanServers();
     void    cleanClients();
     void    cleanAll();
 };

@@ -205,7 +205,7 @@ void Cluster::run()
     	timeout.tv_sec = 5;
     	timeout.tv_usec = 0;  */
         this->_selected = 0;
-        while(_selected == 0) // sorulacak
+        if(_selected == 0)
         {
             FD_ZERO(&_supReadFds);
             FD_ZERO(&_supWriteFds);
@@ -220,7 +220,7 @@ void Cluster::run()
         }
         if(_selected > 0)
         {
-            this->_loopControl = 1; // sorulacak
+            this->_loopControl = 1;
             recvSection();
             sendSection();
             acceptSection();
@@ -256,16 +256,6 @@ void	Cluster::findMaxFd()
 	}
 }
 
-void Cluster::cleanServers()
-{
-	for (std::map<int, Server *>::iterator it = _servers.begin(); it != _servers.end(); it++)
-	{
-		close(it->first);
-		delete(it->second);
-	}
-	_servers.clear();
-}
-
 void Cluster::cleanClients()
 {
 	for (std::map<int, Client *>::iterator it = _clients.begin(); it != _clients.end(); it++)
@@ -282,7 +272,6 @@ void Cluster::cleanAll()
 	FD_ZERO(&_writeFds);
 	FD_ZERO(&_supReadFds);
 	FD_ZERO(&_supWriteFds);
-	/* this->cleanServers(); */
 	this->cleanClients();
 }
 
