@@ -117,7 +117,7 @@ std::string Cgi::cgiExecute()
         write(body_pipe[1], _keyValue.c_str(), _keyValue.length()); // fname=tes&lname=ttest&second=etset&Third=estet veriyi gönder
     close(body_pipe[1]);
 
-    if (!fork()) // fork oluşturulduysa girecek
+    if (!fork())
 	{
 		close(result_pipe[0]);
 		dup2(result_pipe[1], 1); // CGI programının sonucunu result_pipe[1] içine yazacak
@@ -127,14 +127,14 @@ std::string Cgi::cgiExecute()
 			dup2(body_pipe[0], 0); // CGI programı girdiyi body_pipe[0]'dan okuyacak
 		close(body_pipe[0]);
 
-		execve(av[0], av, env); // hata olmazsa aşağıya girmeden 120'den devam eder
+		execve(av[0], av, env);
         std::cerr << "Execv Err! " << std::endl;
         while(env[i])
            delete[] env[i];
         delete[] env;
-		exit(-1); // child process sonlandırılır
+		exit(-1);
 	}
-    wait(NULL); // child process sonuçlanmasını bekleriz
+    wait(NULL);
 	close(body_pipe[0]);
 	close(result_pipe[1]);
 

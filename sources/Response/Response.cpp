@@ -21,7 +21,7 @@ std::string toStringFor(T numb)
 
 void Response::run()
 {
-	std::string aled;
+	std::string uri;
 	std::string redirUriSlash;
 	bool yes;
 
@@ -31,7 +31,7 @@ void Response::run()
 		{
 			_uriRoot = (*locIt)->getConfigMembers().getRoot();
 			_cgiPath = _uriRoot;
-			aled = (*locIt)->getUri();
+			uri = (*locIt)->getUri();
 			_maxBody = (*locIt)->getConfigMembers().getMaxClientBodySize();
 			for (std::map<int, std::string>::iterator errIt = (*locIt)->getConfigMembers().getErrorPage().begin(); errIt != (*locIt)->getConfigMembers().getErrorPage().end(); ++errIt)
 				mp.insert(std::make_pair(std::to_string(errIt->first), errIt->second));
@@ -85,8 +85,8 @@ void Response::run()
 	}
 	else
 	{
-		if (_path == aled) {
-			_path += indexmap[aled];
+		if (_path == uri) {
+			_path += indexmap[uri];
 		}
 	}
 
@@ -97,9 +97,9 @@ void Response::run()
 		}
 	}
 
-	size_t found = _path.find(aled);
+	size_t found = _path.find(uri);
 	if (found != std::string::npos && _hasRedirection == false) {
-		_path.replace(_path.find(aled), aled.length(), _uriRoot);
+		_path.replace(_path.find(uri), uri.length(), _uriRoot);
 	}
 	
 	// isteği yönetmek için
